@@ -30,8 +30,11 @@ class _SpotifyHomePageState extends State<SpotifyHomePage> {
   DateTime? _tokenExpiryTime;
   String _currentTrack = 'No track playing';
   String _artistName = 'Unknown artist';
+  String _currentPlaylistName = '';
   bool _isPlaying = false;
+  bool _isLoadingPlaylists = false;
   List<dynamic> _playlists = [];
+  List<dynamic> _playlistTracks = [];
   List<dynamic> _searchResults = [];
   Timer? _updateTimer;
 
@@ -39,6 +42,7 @@ class _SpotifyHomePageState extends State<SpotifyHomePage> {
   void initState() {
     super.initState();
     _updateTimer = Timer.periodic(Duration(seconds: 5), (_) => _updateCurrentTrack());
+    _getPlaylists();
   }
 
   @override
@@ -98,10 +102,12 @@ class _SpotifyHomePageState extends State<SpotifyHomePage> {
               Divider(),
               ElevatedButton(
                 onPressed: _getPlaylists,
-                child: Text('플레이리스트'),
+                child: Text('플레이리스트 새로고침'),
               ),
               Expanded(
-                child: _playlists.isNotEmpty
+                child: _isLoadingPlaylists
+                    ? Center(child: CircularProgressIndicator())
+                    : _playlists.isNotEmpty
                     ? ListView.builder(
                   itemCount: _playlists.length,
                   itemBuilder: (context, index) {
@@ -110,13 +116,81 @@ class _SpotifyHomePageState extends State<SpotifyHomePage> {
                       title: Text(playlist['name']),
                       subtitle: Text('${playlist['tracks']['total']} tracks'),
                       onTap: () {
-                        print('Selected playlist: ${playlist['name']}');
+                        _showPlaylistTracks(playlist['id'], playlist['name']);
                       },
                     );
                   },
                 )
                     : Center(child: Text('플레이리스트가 없습니다.')),
               ),
+              ElevatedButton(
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      String newPlaylistName = '';
+                      String newPlaylistDescription = '';
+                      return AlertDialog(
+                        title: Text('새 플레이리스트 만들기'),
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            TextField(
+                              decoration: InputDecoration(hintText: "플레이리스트 이름"),
+                              onChanged: (value) {
+                                newPlaylistName = value;
+                              },
+                            ),
+                            TextField(
+                              decoration: InputDecoration(hintText: "설명 (선택사항)"),
+                              onChanged: (value) {
+                                newPlaylistDescription = value;
+                              },
+                            ),
+                          ],
+                        ),
+                        actions: [
+                          TextButton(
+                            child: Text('취소'),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                          TextButton(
+                            child: Text('생성'),
+                            onPressed: () {
+                              if (newPlaylistName.isNotEmpty) {
+                                _createPlaylist(newPlaylistName, description: newPlaylistDescription);
+                                Navigator.of(context).pop();
+                              }
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+                child: Text('새 플레이리스트 만들기'),
+              ),
+
+              if (_playlistTracks.isNotEmpty) ...[
+                Text(_currentPlaylistName, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: _playlistTracks.length,
+                    itemBuilder: (context, index) {
+                      final track = _playlistTracks[index]['track'];
+                      return ListTile(
+                        title: Text(track['name']),
+                        subtitle: Text(track['artists'][0]['name']),
+                        onTap: () {
+                          _playTrack(track['uri']);
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ],
               Divider(),
               TextField(
                 decoration: InputDecoration(
@@ -152,7 +226,7 @@ class _SpotifyHomePageState extends State<SpotifyHomePage> {
   Future<void> _authenticate() async {
     final clientId = 'b97a6ed3a4d24de0b0ee76f73e54df74';
     final redirectUri = 'http://localhost:8080/callback';
-    final scopes = 'user-read-playback-state user-modify-playback-state playlist-read-private playlist-read-collaborative user-library-read';
+    final scopes = 'user-read-playback-state user-modify-playback-state playlist-read-private playlist-read-collaborative user-library-read playlist-modify-private playlist-modify-public';
     final state = DateTime.now().millisecondsSinceEpoch.toString();
     final authUrl = 'https://accounts.spotify.com/authorize?client_id=$clientId&response_type=token&redirect_uri=$redirectUri&scope=$scopes&state=$state';
 
@@ -329,6 +403,9 @@ class _SpotifyHomePageState extends State<SpotifyHomePage> {
     if (_accessToken.isEmpty || _isTokenExpired()) {
       await _refreshAccessToken();
     }
+    setState(() {
+      _isLoadingPlaylists = true;
+    });
     final url = Uri.parse('https://api.spotify.com/v1/me/playlists');
     try {
       final response = await http.get(
@@ -339,13 +416,89 @@ class _SpotifyHomePageState extends State<SpotifyHomePage> {
         final data = json.decode(response.body);
         setState(() {
           _playlists = data['items'];
+          _isLoadingPlaylists = false;
         });
       } else {
         print('Failed to fetch playlists: ${response.statusCode}');
         print('Response body: ${response.body}');
+        setState(() {
+          _isLoadingPlaylists = false;
+        });
       }
     } catch (e) {
       print('Error fetching playlists: $e');
+      setState(() {
+        _isLoadingPlaylists = false;
+      });
+    }
+  }
+
+  Future<void> _showPlaylistTracks(String playlistId, String playlistName) async {
+    if (_accessToken.isEmpty || _isTokenExpired()) {
+      await _refreshAccessToken();
+    }
+    try {
+      await _getPlaylistTracks(playlistId);
+      setState(() {
+        _currentPlaylistName = playlistName;
+      });
+    } catch (e) {
+      print('Failed to show playlist tracks: $e');
+    }
+  }
+
+  Future<void> _getPlaylistTracks(String playlistId) async {
+    if (_accessToken.isEmpty || _isTokenExpired()) {
+      await _refreshAccessToken();
+    }
+    final url = Uri.parse('https://api.spotify.com/v1/playlists/$playlistId/tracks');
+    try {
+      final response = await http.get(
+        url,
+        headers: {'Authorization': 'Bearer $_accessToken'},
+      );
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          _playlistTracks = data['items'];
+        });
+      } else {
+        print('Failed to fetch playlist tracks: ${response.statusCode}');
+        print('Response body: ${response.body}');
+      }
+    } catch (e) {
+      print('Error fetching playlist tracks: $e');
+    }
+  }
+
+  Future<void> _createPlaylist(String name, {String description = ''}) async {
+    if (_accessToken.isEmpty || _isTokenExpired()) {
+      await _refreshAccessToken();
+    }
+    final url = Uri.parse('https://api.spotify.com/v1/me/playlists');
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Authorization': 'Bearer $_accessToken',
+          'Content-Type': 'application/json',
+        },
+        body: json.encode({
+          'name': name,
+          'description': description,
+          'public': false,
+        }),
+      );
+      if (response.statusCode == 201) {
+        print('Playlist created successfully');
+        // 플레이리스트 목록 새로고침
+        await _getPlaylists();
+      } else {
+        print('Failed to create playlist: ${response.statusCode}');
+        print('Response body: ${response.body}');
+      }
+    } catch (e) {
+      print('Error creating playlist: $e');
     }
   }
 
