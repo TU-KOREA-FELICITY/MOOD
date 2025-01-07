@@ -5,7 +5,7 @@ import 'welcome_screen.dart';
 import 'login_failed_screen.dart';
 import 'signup_screen.dart';
 import 'music_preference_screen.dart';
-import 'main_screen.dart';
+import 'home_screen.dart';
 
 void main() {
   runApp(MyApp());
@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
         '/login_failed': (context) => LoginFailedScreen(),
         '/signup': (context) => SignupScreen(),
         '/music_preference': (context) => MusicPreferenceScreen(),
-        '/main': (context) => MainScreen(),
+        '/main': (context) => HomeScreen(),
       },
     );
   }
