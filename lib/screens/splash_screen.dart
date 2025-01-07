@@ -13,7 +13,7 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   _navigateToLogin() async {
-    await Future.delayed(Duration(seconds: 2), () {});
+    await Future.delayed(Duration(seconds: 5), () {});
     Navigator.pushReplacementNamed(context, '/login');
   }
 
@@ -21,7 +21,7 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: Image.asset('assets/logo.png'), // 로고 이미지 파일을 assets 폴더에 추가해야함 (어캐?)
+        child: Image.asset('assets/MOOD로고.png', width: 200, height: 200),
       ),
     );
   }
