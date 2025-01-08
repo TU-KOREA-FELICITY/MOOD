@@ -10,6 +10,7 @@ app.use(bodyParser.json());
 app.use(cors({origin: '*'}));
 
 let authResult = null;
+let latestEmotions = null;
 
 app.post('/start_auth', (req, res) => {
     authResult = null;
@@ -34,6 +35,16 @@ app.post('/auth_result', (req, res) => {
 
 app.get('/check_auth', (req, res) => {
     res.json(authResult || { authenticated: false, user_id: null });
+});
+
+app.post('/emotion_result', (req, res) => {
+    latestEmotions = req.body.emotions;
+    console.log('감정 결과:', latestEmotions);
+    res.sendStatus(200);
+});
+
+app.get('/get_emotions', (req, res) => {
+    res.json(latestEmotions || { message: "감정 데이터 없음" });
 });
 
 app.listen(port, () => {
