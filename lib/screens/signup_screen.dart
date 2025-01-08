@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'face_recognition_guide_screen.dart';
 
 class SignupScreen extends StatefulWidget {
   @override
@@ -59,11 +60,15 @@ class _SignupScreenState extends State<SignupScreen> {
                 height: 100,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.grey[300],
+                  color: Colors.grey[300]
                 ),
                 child: IconButton(
-                  icon: Icon(Icons.add, color: Colors.black54),
+                  icon: Icon(Icons.add_a_photo, color: Colors.black54, size: 40),
                   onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => FaceRecognitionGuideScreen()),
+                    );
                     // 사진 등록 로직 구현
                   },
                 ),
@@ -71,11 +76,11 @@ class _SignupScreenState extends State<SignupScreen> {
             ),
             SizedBox(height: 20),
             Text(
-              '얼굴을 가리지 않는 사진을 5장 이상 등록해주세요',
-              style: TextStyle(fontSize: 12),
+              '얼굴인식 시작하기',
+              style: TextStyle(fontSize: 16),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: 40),
+            SizedBox(height: 50),
         Row(
           children: [
         Expanded(
