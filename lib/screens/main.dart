@@ -19,6 +19,12 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
+        scaffoldBackgroundColor: Colors.white,
+        appBarTheme: AppBarTheme(
+          color: Colors.white,
+          iconTheme: IconThemeData(color: Colors.black),
+          titleTextStyle: TextStyle(color: Colors.black, fontSize: 20),
+        ),
       ),
       initialRoute: '/',
       routes: {

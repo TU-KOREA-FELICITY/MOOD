@@ -5,9 +5,22 @@ class LoginScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          '로그인',
-          style: TextStyle(fontWeight: FontWeight.bold),
+        title: Padding(
+          padding: EdgeInsets.only(left: 10),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Icon(Icons.login),
+              SizedBox(width: 8),
+              Text(
+                '로그인',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
       body: Column(
@@ -18,14 +31,14 @@ class LoginScreen extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  SizedBox(height: 50),
+                  SizedBox(height: 30),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
                     '운전자 인식중',
                     style: TextStyle(
-                      fontSize: 24,
+                      fontSize: 25,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -34,8 +47,8 @@ class LoginScreen extends StatelessWidget {
                     width: 20,
                     height: 20,
                     child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.orange),
-                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF014FFA)),
+                      strokeWidth: 3.5,
                     ),
                   ),
                 ],
@@ -45,7 +58,7 @@ class LoginScreen extends StatelessWidget {
                     aspectRatio: 1,
                     child: Container(
                       decoration: BoxDecoration(
-                        border: Border.all(color: Colors.orange, width: 3),
+                        border: Border.all(color: Color(0xFF014FFA), width: 3),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Center(
@@ -61,7 +74,7 @@ class LoginScreen extends StatelessWidget {
           Align(
             alignment: Alignment.bottomRight,
             child: Padding(
-              padding: const EdgeInsets.only(right: 30.0, bottom: 150.0),
+              padding: const EdgeInsets.only(right: 30.0, bottom: 200.0),
               child: GestureDetector(
                 onTap: () {
                   Navigator.pushNamed(context, '/signup');

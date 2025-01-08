@@ -47,7 +47,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   TextSpan(text: 'Welcome to '),
                   TextSpan(
                     text: 'MOOD',
-                    style: TextStyle(color: Colors.orange),
+                    style: TextStyle(color: Color(0xFF0126FA)),
                   ),
                   TextSpan(text: '!'),
                 ],
@@ -63,7 +63,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   color: Colors.grey[300]
                 ),
                 child: IconButton(
-                  icon: Icon(Icons.add_a_photo, color: Colors.black54, size: 40),
+                  icon: Icon(Icons.center_focus_weak, color: Colors.black54, size: 50),
                   onPressed: () {
                     Navigator.push(
                         context,
@@ -105,7 +105,7 @@ class _SignupScreenState extends State<SignupScreen> {
         ),
             Icon(
               Icons.check_circle,
-              color: _isNameValid ? Color(0xFFEB9A1F) : Colors.grey,
+              color: _isNameValid ? Color(0xFF014FFA) : Colors.grey,
             ),
           ],
         ),
@@ -134,7 +134,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 ),
                 Icon(
                   Icons.check_circle,
-                  color: _isCarModelValid ? Color(0xFFEB9A1F) : Colors.grey,
+                  color: _isCarModelValid ? Color(0xFF014FFA) : Colors.grey,
                 ),
               ],
             ),
@@ -156,8 +156,8 @@ class _SignupScreenState extends State<SignupScreen> {
                   ),
                 ),
                 style: ButtonStyle(
-                  backgroundColor: WidgetStateProperty.all(Color(0xFFEB9A1F)),
-                  foregroundColor: WidgetStateProperty.all(Colors.black),
+                  backgroundColor: WidgetStateProperty.all(Color(0xFF0126FA)),
+                  foregroundColor: WidgetStateProperty.all(Colors.white),
                   padding: WidgetStateProperty.all(EdgeInsets.symmetric(vertical: 12)),
                   shape: WidgetStateProperty.all(
                     RoundedRectangleBorder(
