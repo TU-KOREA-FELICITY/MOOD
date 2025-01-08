@@ -13,7 +13,7 @@ let authResult = null;
 
 app.post('/start_auth', (req, res) => {
     authResult = null;
-    const python = spawn('python', ['face_auth2.py']);
+    const python = spawn('python', ['face_auth.py']);
 
     python.stdout.on('data', (data) => {
         console.log('Python script output:', data.toString());

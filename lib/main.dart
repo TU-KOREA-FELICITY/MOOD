@@ -37,7 +37,7 @@ class _AuthPageState extends State<AuthPage> {
     });
 
     try {
-      await http.post(Uri.parse('http://192.168.121.211:3000/start_auth')); // 10.0.2.2
+      await http.post(Uri.parse('http://10.0.2.2:3000/start_auth')); // 10.0.2.2 or 192.168.121.211(IPv4 주소)
       _checkAuthStatus();
     } catch (e) {
       setState(() {
@@ -51,7 +51,7 @@ class _AuthPageState extends State<AuthPage> {
     if (!_isAuthenticating) return;
 
     try {
-      final response = await http.get(Uri.parse('http://192.168.121.211:3000/check_auth'), headers: {'Content-Type': 'application/json'},  // 10.0.2.2
+      final response = await http.get(Uri.parse('http://10.0.2.2:3000/check_auth'), headers: {'Content-Type': 'application/json'}, // 10.0.2.2 or 192.168.121.211(IPv4 주소)
       ).timeout(Duration(seconds: 10));
       final result = json.decode(response.body);
 
