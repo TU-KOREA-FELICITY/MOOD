@@ -15,11 +15,11 @@ class _MusicPreferenceScreenState extends State<MusicPreferenceScreen> {
   List<String> selectedGenres = [];
 
   final List<Color> buttonColors = [
-    Colors.red[100]!, Colors.blue[100]!, Colors.green[100]!, Colors.purple[100]!,
-    Colors.teal[100]!, Colors.pink[100]!, Colors.indigo[100]!, Colors.amber[100]!,
-    Colors.cyan[100]!, Colors.lime[100]!, Colors.brown[100]!, Colors.deepOrange[100]!,
-    Colors.lightBlue[100]!, Colors.lightGreen[100]!, Colors.deepPurple[100]!, Colors.yellow[100]!,
-    Colors.blueGrey[100]!, Colors.grey[300]!, Colors.amber[100]!, Colors.red[100]!
+    Color(0xFFDBE4FF)!, Color(0xFFDBE4FF)!, Color(0xFFDBE4FF)!, Color(0xFFDBE4FF)!,
+    Color(0xFFDBE4FF)!, Color(0xFFDBE4FF)!, Color(0xFFDBE4FF)!, Color(0xFFDBE4FF)!,
+    Color(0xFFDBE4FF)!, Color(0xFFDBE4FF)!, Color(0xFFDBE4FF)!, Color(0xFFDBE4FF)!,
+    Color(0xFFDBE4FF)!, Color(0xFFDBE4FF)!, Color(0xFFDBE4FF)!, Color(0xFFDBE4FF)!,
+    Color(0xFFDBE4FF)!, Color(0xFFDBE4FF)!, Color(0xFFDBE4FF)!, Color(0xFFDBE4FF)!,
   ];
 
   @override
@@ -28,7 +28,7 @@ class _MusicPreferenceScreenState extends State<MusicPreferenceScreen> {
       appBar: AppBar(
         title: Text(
           '선호하는 장르 선택',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
         ),
         titleSpacing: 0,
       ),
@@ -37,10 +37,10 @@ class _MusicPreferenceScreenState extends State<MusicPreferenceScreen> {
         children: [
           SizedBox(height: 20),
           Padding(
-            padding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 16.0),
+            padding: const EdgeInsets.fromLTRB(20.0, 0, 16.0, 16.0),
             child: Text(
               '선호하는 음악 장르를 모두 선택하시오',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
           ),
           Expanded(
@@ -69,7 +69,7 @@ class _MusicPreferenceScreenState extends State<MusicPreferenceScreen> {
                     child: Container(
                       decoration: BoxDecoration(
                         color: selectedGenres.contains(genre)
-                            ? Colors.orange
+                            ? Colors.indigo[300]
                             : buttonColors[index % buttonColors.length],
                         borderRadius: BorderRadius.circular(8.0),
                       ),
@@ -100,13 +100,13 @@ class _MusicPreferenceScreenState extends State<MusicPreferenceScreen> {
                   }
                       : null,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFFEB9A1F),
+                    backgroundColor: Color(0xFF0126FA),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
                   child: Text('회원가입 완료', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,
-                    color: Colors.black,)),
+                    color: Colors.white,)),
                 ),
               ),
             ),

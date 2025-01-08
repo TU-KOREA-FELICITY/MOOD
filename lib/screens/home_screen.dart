@@ -44,8 +44,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 width: 20,
                 height: 20,
                 child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.orange),
-                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF014FFA)),
+                  strokeWidth: 3.5,
                 ),
               ),
             ],
@@ -56,7 +56,7 @@ class _HomeScreenState extends State<HomeScreen> {
             width: 300,
             height: 400,
             decoration: BoxDecoration(
-              border: Border.all(color: Colors.orange, width: 3),
+              border: Border.all(color: Color(0xFF014FFA), width: 3),
             ),
             child: Center(
               child: Text('카메라 화면이 여기에 표시됩니다'),
