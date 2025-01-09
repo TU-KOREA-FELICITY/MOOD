@@ -14,7 +14,7 @@ class LoginFailedScreen extends StatelessWidget {
             ),
             SizedBox(height: 10),
             Text(
-              '마스크를 착용하지 않고, 정면을 응시해주세요',
+              '정면을 응시해주세요',
               style: TextStyle(fontSize: 14),
             ),
             SizedBox(height: 20),
@@ -25,12 +25,25 @@ class LoginFailedScreen extends StatelessWidget {
               child: Text('다시 시도하기'),
             ),
             SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () {
+        Spacer(),
+        Align(
+          alignment: Alignment.bottomRight,
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 30.0),
+            child: GestureDetector(
+              onTap: () {
                 Navigator.pushNamed(context, '/signup');
-              },
-              child: Text('신규 운전자 등록하기'),
+                },
+              child: Text(
+                '신규 운전자 등록하기',
+                style: TextStyle(
+                  fontSize: 18,
+                  decoration: TextDecoration.underline,
+                ),
+              ),
             ),
+          ),
+        ),
           ],
         ),
       ),
