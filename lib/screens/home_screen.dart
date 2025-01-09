@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'main.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -8,10 +9,21 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
 
-  void _restartRecognition() {
-    setState(() {
-      // 화면을 다시 시작하는 로직을 여기에 구현합니다.
-    });
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(
+        child: _getBody(),
+      ),
+      bottomNavigationBar: BottomNavigationWidget(
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+      ),
+    );
   }
 
   Widget _getBody() {
@@ -25,6 +37,12 @@ class _HomeScreenState extends State<HomeScreen> {
       default:
         return _buildHomeContent();
     }
+  }
+
+  void _restartRecognition() {
+    setState(() {
+      // 화면을 다시 시작하는 로직을 여기에 구현합니다.
+    });
   }
 
   Widget _buildHomeContent() {
@@ -84,28 +102,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ],
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: _getBody(),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: '홈'),
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: '검색'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: '프로필'),
-        ],
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-      ),
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'welcome_screen.dart';
 
 class LoginScreen extends StatelessWidget {
   @override
@@ -32,37 +33,45 @@ class LoginScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   SizedBox(height: 30),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    '운전자 인식중',
-                    style: TextStyle(
-                      fontSize: 25,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(width: 10),
-                  SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF014FFA)),
-                      strokeWidth: 3.5,
-                    ),
-                  ),
-                ],
-              ),
-                  SizedBox(height: 30),
-                  AspectRatio(
-                    aspectRatio: 1,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Color(0xFF014FFA), width: 3),
-                        borderRadius: BorderRadius.circular(10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        '운전자 인식중',
+                        style: TextStyle(
+                          fontSize: 25,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                      child: Center(
-                        child: Text('카메라 화면 영역'),
+                      SizedBox(width: 10),
+                      SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF014FFA)),
+                          strokeWidth: 3.5,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 30),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => WelcomeScreen()),
+                      );
+                    },
+                    child: AspectRatio(
+                      aspectRatio: 1,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Color(0xFF014FFA), width: 3),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Center(
+                          child: Text('카메라 화면 영역'),
+                        ),
                       ),
                     ),
                   ),

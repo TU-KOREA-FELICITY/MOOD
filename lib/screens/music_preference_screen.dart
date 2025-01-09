@@ -15,11 +15,11 @@ class _MusicPreferenceScreenState extends State<MusicPreferenceScreen> {
   List<String> selectedGenres = [];
 
   final List<Color> buttonColors = [
-    Color(0xFFDBE4FF)!, Color(0xFFDBE4FF)!, Color(0xFFDBE4FF)!, Color(0xFFDBE4FF)!,
-    Color(0xFFDBE4FF)!, Color(0xFFDBE4FF)!, Color(0xFFDBE4FF)!, Color(0xFFDBE4FF)!,
-    Color(0xFFDBE4FF)!, Color(0xFFDBE4FF)!, Color(0xFFDBE4FF)!, Color(0xFFDBE4FF)!,
-    Color(0xFFDBE4FF)!, Color(0xFFDBE4FF)!, Color(0xFFDBE4FF)!, Color(0xFFDBE4FF)!,
-    Color(0xFFDBE4FF)!, Color(0xFFDBE4FF)!, Color(0xFFDBE4FF)!, Color(0xFFDBE4FF)!,
+    Color(0xFFF2FAFE)!, Color(0xFFF2FAFE)!, Color(0xFFF2FAFE)!, Color(0xFFF2FAFE)!,
+    Color(0xFFF2FAFE)!, Color(0xFFF2FAFE)!, Color(0xFFF2FAFE)!, Color(0xFFF2FAFE)!,
+    Color(0xFFF2FAFE)!, Color(0xFFF2FAFE)!, Color(0xFFF2FAFE)!, Color(0xFFF2FAFE)!,
+    Color(0xFFF2FAFE)!, Color(0xFFF2FAFE)!, Color(0xFFF2FAFE)!, Color(0xFFF2FAFE)!,
+    Color(0xFFF2FAFE)!, Color(0xFFF2FAFE)!, Color(0xFFF2FAFE)!, Color(0xFFF2FAFE)!,
   ];
 
   @override
@@ -96,7 +96,7 @@ class _MusicPreferenceScreenState extends State<MusicPreferenceScreen> {
                 child: ElevatedButton(
                   onPressed: selectedGenres.isNotEmpty
                       ? () {
-                    Navigator.pushReplacementNamed(context, '/main');
+                    Navigator.pushReplacementNamed(context, '/home');
                   }
                       : null,
                   style: ElevatedButton.styleFrom(

@@ -34,8 +34,38 @@ class MyApp extends StatelessWidget {
         '/login_failed': (context) => LoginFailedScreen(),
         '/signup': (context) => SignupScreen(),
         '/music_preference': (context) => MusicPreferenceScreen(),
-        '/main': (context) => HomeScreen(),
+        '/home': (context) => HomeScreen(),
       },
+    );
+  }
+}
+
+class BottomNavigationWidget extends StatelessWidget {
+  final int currentIndex;
+  final Function(int) onTap;
+
+  const BottomNavigationWidget({
+    Key? key,
+    required this.currentIndex,
+    required this.onTap
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return BottomNavigationBar(
+      iconSize: 50,
+      items: const [
+        BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
+        BottomNavigationBarItem(icon: Icon(Icons.search), label: ''),
+        BottomNavigationBarItem(icon: Icon(Icons.person), label: ''),
+      ],
+      currentIndex: currentIndex,
+      onTap: onTap,
+      backgroundColor: Colors.white,
+      selectedItemColor: Color(0xFF014FFA),
+      unselectedItemColor: Colors.grey,
+      type: BottomNavigationBarType.fixed,
+      elevation: 8,
     );
   }
 }
