@@ -53,11 +53,11 @@ class BottomNavigationWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
-      iconSize: 50,
+      iconSize: 30,
       items: const [
-        BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
-        BottomNavigationBarItem(icon: Icon(Icons.search), label: ''),
-        BottomNavigationBarItem(icon: Icon(Icons.person), label: ''),
+        BottomNavigationBarItem(icon: Icon(Icons.home), label: '홈'),
+        BottomNavigationBarItem(icon: Icon(Icons.search), label: '검색'),
+        BottomNavigationBarItem(icon: Icon(Icons.person), label: '프로필'),
       ],
       currentIndex: currentIndex,
       onTap: onTap,
