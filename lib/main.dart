@@ -10,75 +10,108 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: '얼굴 인증 및 감정 분석',
+      title: '얼굴 등록 및 인증',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: AuthPage(),
+      home: HomePage(),
     );
   }
 }
 
-class AuthPage extends StatefulWidget {
+class HomePage extends StatefulWidget {
   @override
-  _AuthPageState createState() => _AuthPageState();
+  _HomePageState createState() => _HomePageState();
 }
 
-class _AuthPageState extends State<AuthPage> {
-  bool _isAuthenticating = false;
-  String _authStatus = '';
-  String _emotionResult = '';
+class _HomePageState extends State<HomePage> {
+  String _status = '';
 
-  void _startAuthentication() async {
+  void _register() async {
+    final TextEditingController controller = TextEditingController();
+    final username = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('사용자 이름 입력'),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          decoration: InputDecoration(hintText: "사용자 이름을 입력하세요"),
+        ),
+        actions: [
+          TextButton(
+            child: Text('확인'),
+            onPressed: () => Navigator.of(context).pop(controller.text),
+          ),
+        ],
+      ),
+    );
+
+    if (username != null && username.isNotEmpty) {
+      setState(() {
+        _status = '얼굴 등록 중...';
+      });
+      try {
+        final response = await http.post(
+          Uri.parse('http://10.0.2.2:3000/register'),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({'username': username}),
+        );
+        _checkRegistrationStatus();
+      } catch (e) {
+        setState(() {
+          _status = '등록 시작 오류: $e';
+        });
+      }
+    }
+  }
+
+  void _login() async {
     setState(() {
-      _isAuthenticating = true;
-      _authStatus = '인증 시작 중...';
+      _status = '얼굴 인증 중...';
     });
     try {
-      await http.post(Uri.parse('http://10.0.2.2:3000/start_auth'));
+      await http.post(Uri.parse('http://10.0.2.2:3000/login'));
       _checkAuthStatus();
     } catch (e) {
       setState(() {
-        _isAuthenticating = false;
-        _authStatus = '인증 시작 오류: $e';
+        _status = '인증 시작 오류: $e';
+      });
+    }
+  }
+
+  void _checkRegistrationStatus() async {
+    try {
+      final response = await http.get(Uri.parse('http://10.0.2.2:3000/check_registration'));
+      final result = json.decode(response.body);
+      if (result['registered'] == true) {
+        setState(() {
+          _status = '등록 성공! 사용자 ID: ${result['user_id']}';
+        });
+      } else {
+        Future.delayed(Duration(seconds: 2), _checkRegistrationStatus);
+      }
+    } catch (e) {
+      setState(() {
+        _status = '등록 상태 확인 오류: $e';
       });
     }
   }
 
   void _checkAuthStatus() async {
-    if (!_isAuthenticating) return;
     try {
-      final response = await http.get(
-        Uri.parse('http://10.0.2.2:3000/check_auth'),
-        headers: {'Content-Type': 'application/json'},
-      ).timeout(Duration(seconds: 10));
+      final response = await http.get(Uri.parse('http://10.0.2.2:3000/check_auth'));
       final result = json.decode(response.body);
       if (result['authenticated'] == true) {
         setState(() {
-          _isAuthenticating = false;
-          _authStatus = '인증 성공! 사용자 ID: ${result['user_id']}';
+          _status = '인증 성공! 사용자 ID: ${result['user_id']}';
         });
       } else {
         Future.delayed(Duration(seconds: 2), _checkAuthStatus);
       }
     } catch (e) {
       setState(() {
-        _isAuthenticating = false;
-        _authStatus = '인증 상태 확인 오류: $e';
-      });
-    }
-  }
-
-  void _getEmotionResult() async {
-    try {
-      final response = await http.get(Uri.parse('http://10.0.2.2:3000/get_emotions'));
-      final result = json.decode(response.body);
-      setState(() {
-        _emotionResult = result.toString();
-      });
-    } catch (e) {
-      setState(() {
-        _emotionResult = '감정 데이터 가져오기 오류: $e';
+        _status = '인증 상태 확인 오류: $e';
       });
     }
   }
@@ -87,25 +120,23 @@ class _AuthPageState extends State<AuthPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('얼굴 인증 및 감정 분석'),
+        title: Text('얼굴 등록 및 인증'),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             ElevatedButton(
-              onPressed: _isAuthenticating ? null : _startAuthentication,
-              child: Text('인증 시작'),
+              onPressed: _register,
+              child: Text('회원가입'),
             ),
-            SizedBox(height: 20),
-            Text(_authStatus),
             SizedBox(height: 20),
             ElevatedButton(
-              onPressed: _getEmotionResult,
-              child: Text('감정 결과 가져오기'),
+              onPressed: _login,
+              child: Text('로그인'),
             ),
             SizedBox(height: 20),
-            Text('감정 결과: $_emotionResult'),
+            Text(_status),
           ],
         ),
       ),

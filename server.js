@@ -10,48 +10,69 @@ app.use(bodyParser.json());
 app.use(cors({origin: '*'}));
 
 let authResult = null;
-let latestEmotions = null;
+let registrationResult = null;
 
-app.post('/start_auth', (req, res) => {
-    authResult = null;
-    const python = spawn('python', ['face_auth.py']);
+app.post('/register', (req, res) => {
+  const { username } = req.body;
+  if (!username) {
+    return res.status(400).json({ error: "사용자 이름이 필요합니다." });
+  }
 
-    python.stdout.on('data', (data) => {
-        console.log('Python script output:', data.toString());
-    });
+  const python = spawn('python', ['aws-face-reg.py', username]);
 
-    python.on('close', (code) => {
-        console.log(`Python script exited with code ${code}`);
-    });
+  python.stdout.on('data', (data) => {
+    console.log('Python 스크립트 출력:', data.toString());
+  });
 
-    res.json({ message: "Authentication process started" });
+  python.stderr.on('data', (data) => {
+    console.error('Python 스크립트 오류:', data.toString());
+  });
+
+  python.on('close', (code) => {
+    console.log(`Python 스크립트 종료 코드: ${code}`);
+    res.json({ message: "얼굴 등록 프로세스 완료" });
+  });
+});
+
+app.post('/login', (req, res) => {
+  authResult = null;
+  const python = spawn('python', ['aws-face-auth.py']);
+
+  python.stdout.on('data', (data) => {
+    console.log('Python 스크립트 출력:', data.toString());
+  });
+
+  python.stderr.on('data', (data) => {
+    console.error('Python 스크립트 오류:', data.toString());
+  });
+
+  python.on('close', (code) => {
+    console.log(`Python 스크립트 종료 코드: ${code}`);
+  });
+
+  res.json({ message: "얼굴 인증 프로세스 시작됨" });
+});
+
+app.post('/registration_result', (req, res) => {
+  registrationResult = req.body;
+  console.log('얼굴 등록 결과:', registrationResult);
+  res.sendStatus(200);
 });
 
 app.post('/auth_result', (req, res) => {
-    authResult = req.body;
-    console.log('Received authentication result:', authResult);
-    res.sendStatus(200);
+  authResult = req.body;
+  console.log('얼굴 인증 결과:', authResult);
+  res.sendStatus(200);
+});
+
+app.get('/check_registration', (req, res) => {
+  res.json(registrationResult || { registered: false, user_id: null });
 });
 
 app.get('/check_auth', (req, res) => {
-    res.json(authResult || { authenticated: false, user_id: null });
-});
-
-app.post('/emotion_result', (req, res) => {
-    latestEmotions = req.body.emotions;
-    console.log('감정 결과:', latestEmotions);
-    res.sendStatus(200);
-});
-
-app.get('/get_emotions', (req, res) => {
-    res.json(latestEmotions || { message: "감정 데이터 없음" });
+  res.json(authResult || { authenticated: false, user_id: null });
 });
 
 app.listen(port, () => {
-    console.log(`Server running at http://127.0.0.1:${port}`);
-});
-
-app.post('/test', (req, res) => {
-  console.log('Received test request:', req.body);
-  res.json({ message: 'Test request received successfully!' });
+  console.log(`서버 실행 중: http://127.0.0.1:${port}`);
 });
