@@ -12,6 +12,26 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        title: Padding(
+        padding: EdgeInsets.only(left: 20),
+          child: Row(
+            children: [
+              Icon(Icons.home),
+              SizedBox(width: 8),
+              Text(
+                '홈',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                ),
+              ),
+            ],
+          ),
+        ),
+        titleSpacing: 0,
+      ),
       body: SafeArea(
         child: _getBody(),
       ),
