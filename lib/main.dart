@@ -26,6 +26,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   String _status = '';
+  String _emotionResult = '';
 
   void _register() async {
     final TextEditingController controller = TextEditingController();
@@ -116,6 +117,24 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  void _analyzeEmotion() async {
+    setState(() {
+      _status = '감정 분석 중...';
+    });
+    try {
+      final response = await http.post(Uri.parse('http://10.0.2.2:3000/analyze_emotion'));
+      final result = json.decode(response.body);
+      setState(() {
+        _emotionResult = result['result'];
+        _status = '감정 분석 완료';
+      });
+    } catch (e) {
+      setState(() {
+        _status = '감정 분석 오류: $e';
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -136,7 +155,13 @@ class _HomePageState extends State<HomePage> {
               child: Text('로그인'),
             ),
             SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _analyzeEmotion,
+              child: Text('감정 분석'),
+            ),
+            SizedBox(height: 20),
             Text(_status),
+            Text(_emotionResult),
           ],
         ),
       ),
