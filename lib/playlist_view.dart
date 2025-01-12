@@ -12,6 +12,7 @@ class PlaylistView extends StatefulWidget {
 
 class _PlaylistViewState extends State<PlaylistView> {
   List<dynamic> _playlists = [];
+  TextEditingController _playlistNameController = TextEditingController();
   bool _isLoading = false;
 
   @override
@@ -34,25 +35,65 @@ class _PlaylistViewState extends State<PlaylistView> {
     }
   }
 
+  Future<void> _createPlaylist() async {
+    final name = _playlistNameController.text;
+    if (name.isNotEmpty) {
+      try {
+        await widget.spotifyService.createPlaylist(name);
+        _playlistNameController.clear();
+        await _loadPlaylists();
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('플레이리스트 생성 실패: $e')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return _isLoading
-        ? Center(child: CircularProgressIndicator())
-        : ListView.builder(
-      itemCount: _playlists.length,
-      itemBuilder: (context, index) {
-        final playlist = _playlists[index];
-        return ListTile(
-          title: Text(playlist['name']),
-          subtitle: Text('${playlist['tracks']['total']} 트랙'),
-          onTap: () => _showPlaylistTracks(playlist['id'], playlist['name']),
-        );
-      },
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _playlistNameController,
+                  decoration: InputDecoration(
+                    hintText: '새 플레이리스트 이름',
+                  ),
+                ),
+              ),
+              ElevatedButton(
+                onPressed: _createPlaylist,
+                child: Text('생성'),
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: _isLoading
+              ? Center(child: CircularProgressIndicator())
+              : ListView.builder(
+            itemCount: _playlists.length,
+            itemBuilder: (context, index) {
+              final playlist = _playlists[index];
+              return ListTile(
+                title: Text(playlist['name']),
+                subtitle: Text('${playlist['tracks']['total']} 트랙'),
+                onTap: () => _showPlaylistTracks(playlist['id'], playlist['name']),
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 
-  void _showPlaylistTracks(String playlistId, String playlistName) {
-    Navigator.push(
+  void _showPlaylistTracks(String playlistId, String playlistName) async {
+    final result = await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => PlaylistTracksView(
@@ -62,6 +103,9 @@ class _PlaylistViewState extends State<PlaylistView> {
         ),
       ),
     );
+    if (result == true) {
+      _loadPlaylists();
+    }
   }
 }
 
@@ -104,6 +148,54 @@ class _PlaylistTracksViewState extends State<PlaylistTracksView> {
     }
   }
 
+  Future<List<dynamic>> _getPlaylists() async {
+    try {
+      return await widget.spotifyService.getPlaylists();
+    } catch (e) {
+      print('플레이리스트 가져오기 오류: $e');
+      return [];
+    }
+  }
+
+  void _addTrackToPlaylist(String trackUri) async {
+    final playlists = await _getPlaylists();
+
+    final selectedPlaylist = await showDialog<Map<String, dynamic>>(
+      context: context,
+      builder: (BuildContext context) {
+        return SimpleDialog(
+          title: Text('플레이리스트 선택'),
+          children: playlists.map((playlist) {
+            return SimpleDialogOption(
+              onPressed: () {
+                Navigator.pop(context, playlist);
+              },
+              child: Text(playlist['name'] ?? '알 수 없는 플레이리스트'),
+            );
+          }).toList(),
+        );
+      },
+    );
+
+    if (selectedPlaylist != null) {
+      try {
+        await widget.spotifyService.addTrackToPlaylist(
+          selectedPlaylist['id'],
+          trackUri,
+        );
+        selectedPlaylist['tracks']['total']++;
+        Navigator.pop(context, true);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('곡이 플레이리스트에 추가되었습니다.')),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('곡 추가에 실패했습니다: $e')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -117,6 +209,10 @@ class _PlaylistTracksViewState extends State<PlaylistTracksView> {
           return ListTile(
             title: Text(track['name']),
             subtitle: Text(track['artists'][0]['name']),
+            trailing: IconButton(
+              icon: Icon(Icons.playlist_add),
+              onPressed: () => _addTrackToPlaylist(track['uri']),
+            ),
             onTap: () => widget.spotifyService.playTrack(track['uri']),
           );
         },

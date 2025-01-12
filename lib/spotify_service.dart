@@ -202,6 +202,77 @@ class SpotifyService {
     }
   }
 
+  Future<String> getCurrentUserId() async {
+    await _refreshTokenIfNeeded();
+    final url = Uri.parse('https://api.spotify.com/v1/me');
+    final response = await http.get(
+      url,
+      headers: {'Authorization': 'Bearer $_accessToken'},
+    );
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      return data['id'];
+    } else {
+      throw Exception('사용자 ID 가져오기 실패: ${response.body}');
+    }
+  }
+
+  Future<String> createPlaylist(String name, {String description = ''}) async {
+    await _refreshTokenIfNeeded();
+    final userId = await getCurrentUserId();
+    final url = 'https://api.spotify.com/v1/users/$userId/playlists';
+
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          'Authorization': 'Bearer $_accessToken',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'name': name,
+          'description': description,
+          'public': false,
+        }),
+      );
+
+      if (response.statusCode == 201) {
+        final data = json.decode(response.body);
+        return data['id'];
+      } else {
+        throw Exception('플레이리스트 생성 실패: ${response.body}');
+      }
+    } catch (e) {
+      print('플레이리스트 생성 중 오류 발생: $e');
+      throw e;
+    }
+  }
+
+  Future<void> addTrackToPlaylist(String playlistId, String trackUri) async {
+    await _refreshTokenIfNeeded();
+    final url = 'https://api.spotify.com/v1/playlists/$playlistId/tracks';
+
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          'Authorization': 'Bearer $_accessToken',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'uris': [trackUri],
+        }),
+      );
+
+      if (response.statusCode != 201) {
+        throw Exception('곡 추가 실패: ${response.body}');
+      }
+    } catch (e) {
+      print('곡 추가 중 오류 발생: $e');
+      throw e;
+    }
+  }
+
   Future<List<dynamic>> searchTracks(String query) async {
     await _refreshTokenIfNeeded();
     final url = Uri.parse('https://api.spotify.com/v1/search?q=$query&type=track&limit=10');
