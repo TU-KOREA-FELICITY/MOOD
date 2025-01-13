@@ -39,33 +39,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
-class BottomNavigationWidget extends StatelessWidget {
-  final int currentIndex;
-  final Function(int) onTap;
-
-  const BottomNavigationWidget({
-    Key? key,
-    required this.currentIndex,
-    required this.onTap
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return BottomNavigationBar(
-      iconSize: 30,
-      items: const [
-        BottomNavigationBarItem(icon: Icon(Icons.home), label: '홈'),
-        BottomNavigationBarItem(icon: Icon(Icons.search), label: '검색'),
-        BottomNavigationBarItem(icon: Icon(Icons.person), label: '프로필'),
-      ],
-      currentIndex: currentIndex,
-      onTap: onTap,
-      backgroundColor: Colors.white,
-      selectedItemColor: Color(0xFF014FFA),
-      unselectedItemColor: Colors.grey,
-      type: BottomNavigationBarType.fixed,
-      elevation: 8,
-    );
-  }
-}
