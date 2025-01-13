@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'main.dart';
+import 'package:mood/screens/bottom_navigation_widget.dart';
+import 'package:mood/screens/home_recognition_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -15,7 +16,7 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: Padding(
-        padding: EdgeInsets.only(left: 20),
+          padding: EdgeInsets.only(left: 20),
           child: Row(
             children: [
               Icon(Icons.home),
@@ -36,8 +37,7 @@ class _HomeScreenState extends State<HomeScreen> {
         child: _getBody(),
       ),
       bottomNavigationBar: BottomNavigationWidget(
-        currentIndex: _currentIndex,
-        onTap: (index) {
+        onTabChange: (index) {
           setState(() {
             _currentIndex = index;
           });
@@ -70,7 +70,7 @@ class _HomeScreenState extends State<HomeScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: EdgeInsets.only(left: 40, top: 60, bottom: 20),
+          padding: EdgeInsets.only(left: 55, top: 60, bottom: 20),
           child: Row(
             children: [
               Text(
@@ -90,14 +90,22 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         Center(
-          child: Container(
-            width: 300,
-            height: 400,
-            decoration: BoxDecoration(
-              border: Border.all(color: Color(0xFF014FFA), width: 3),
-            ),
-            child: Center(
-              child: Text('카메라 화면이 여기에 표시됩니다'),
+          child: GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => HomeRecognitionScreen()),
+              );
+            },
+            child: Container(
+              width: 300,
+              height: 400,
+              decoration: BoxDecoration(
+                border: Border.all(color: Color(0xFF014FFA), width: 3),
+              ),
+              child: Center(
+                child: Text('카메라 화면이 여기에 표시됩니다'),
+              ),
             ),
           ),
         ),
