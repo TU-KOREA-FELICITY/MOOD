@@ -70,6 +70,7 @@ class _SpotifyHomePageState extends State<SpotifyHomePage> with SingleTickerProv
           tabs: [
             Tab(text: '플레이리스트'),
             Tab(text: '검색'),
+            Tab(text: '카테고리')
           ],
         ) : null,
       ),
