@@ -14,26 +14,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: Padding(
-          padding: EdgeInsets.only(left: 20),
-          child: Row(
-            children: [
-              Icon(Icons.home),
-              SizedBox(width: 8),
-              Text(
-                '홈',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                ),
-              ),
-            ],
-          ),
-        ),
-        titleSpacing: 0,
-      ),
+      appBar: _buildAppBar(),
       body: SafeArea(
         child: _getBody(),
       ),
@@ -44,6 +25,53 @@ class _HomeScreenState extends State<HomeScreen> {
           });
         },
       ),
+    );
+  }
+
+  PreferredSizeWidget _buildAppBar() {
+    return AppBar(
+      title: Padding(
+        padding: EdgeInsets.only(left: 20),
+        child: _getAppBarTitle(),
+      ),
+      titleSpacing: 0,
+      backgroundColor: Colors.white,
+      elevation: 0,
+      automaticallyImplyLeading: false,
+    );
+  }
+
+  Widget _getAppBarTitle() {
+    IconData icon;
+    String title;
+
+    switch (_currentIndex) {
+      case 0:
+        icon = Icons.home;
+        title = '홈';
+        break;
+      case 1:
+        icon = Icons.search;
+        title = '검색';
+        break;
+      case 2:
+        icon = Icons.person;
+        title = '프로필';
+        break;
+      default:
+        return Container();
+    }
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, color: Colors.black),
+        SizedBox(width: 8),
+        Text(
+          title,
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 20),
+        ),
+      ],
     );
   }
 
