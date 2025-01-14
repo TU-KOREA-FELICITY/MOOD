@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'profile_screen.dart';
 
 class BottomNavigationWidget extends StatefulWidget {
   final Function(int) onTabChange;
