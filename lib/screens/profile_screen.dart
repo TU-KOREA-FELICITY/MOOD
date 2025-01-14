@@ -5,7 +5,7 @@ import 'package:mood/screens/warning_record_screen.dart';
 import 'delete_account_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
-  final String userName = "NAME : IN SUN";
+  final String userName = "이름 : IN SUN";
 
   @override
   Widget build(BuildContext context) {
@@ -86,7 +86,46 @@ class ProfileScreen extends StatelessWidget {
                       ],
                     ),
                     onPressed: () {
-                      // 로그아웃 로직
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              side: BorderSide(color: Colors.grey),
+                            ),
+                            backgroundColor: Colors.white,
+                            title: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text('로그아웃', style: TextStyle(fontWeight: FontWeight.bold)),
+                                IconButton(
+                                  icon: Icon(Icons.close),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                              ],
+                            ),
+                            content: Text('로그아웃 하시겠습니까?',
+                          style: TextStyle(fontSize: 16)),
+                            actions: <Widget>[
+                              TextButton(
+                                child: Text('NO'),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                              TextButton(
+                                child: Text('YES'),
+                                onPressed: () {
+                                  Navigator.of(context).pushNamedAndRemoveUntil('/login', (Route<dynamic> route) => false);
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      );
                     },
                   ),
                   TextButton(
