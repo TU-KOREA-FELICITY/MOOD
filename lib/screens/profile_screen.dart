@@ -152,6 +152,7 @@ class ProfileScreen extends StatelessWidget {
                 children: [
                   SizedBox(height: 10),
                   TextButton(
+                    onPressed: () {  },
                     child: Row(
                       children: [
                         Icon(Icons.announcement, color: Colors.black, size: 20),
@@ -159,11 +160,6 @@ class ProfileScreen extends StatelessWidget {
                         Text('공지사항', style: TextStyle(fontSize: 17, color: Colors.black)),
                       ],
                     ),
-                    onPressed: () {
-                      Navigator.push(context, MaterialPageRoute(
-                          builder: (context) => EditProfileScreen()
-                      ));
-                    },
                   ),
                   TextButton(
                     child: Row(
@@ -183,6 +179,8 @@ class ProfileScreen extends StatelessWidget {
                         Icon(Icons.info, color: Colors.black, size: 20),
                         SizedBox(width: 10),
                         Text('버전정보', style: TextStyle(fontSize: 17, color: Colors.black)),
+                        Spacer(),
+                        Text('1.0', style: TextStyle(fontSize: 17, color: Colors.grey)),
                       ],
                     ),
                     onPressed: () {
