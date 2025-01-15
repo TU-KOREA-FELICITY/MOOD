@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'splash_screen.dart';
-import 'login_screen.dart';
-import 'welcome_screen.dart';
-import 'login_failed_screen.dart';
-import 'signup_screen.dart';
-import 'music_preference_screen.dart';
-import 'home_screen.dart';
-import 'profile_screen.dart';
+import 'start_screens/splash_screen.dart';
+import 'start_screens/login_screen.dart';
+import 'start_screens/welcome_screen.dart';
+import 'start_screens/login_failed_screen.dart';
+import 'start_screens/signup_screen.dart';
+import 'start_screens/music_preference_screen.dart';
+import 'homestart_screens/home_screen.dart';
+import 'profilestart_screens/profile_screen.dart';
 
 void main() {
   runApp(MyApp());

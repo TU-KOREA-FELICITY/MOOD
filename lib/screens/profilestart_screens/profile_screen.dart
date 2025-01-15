@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:mood/screens/edit_profile_screen.dart';
-import 'package:mood/screens/emotion_record_screen.dart';
-import 'package:mood/screens/warning_record_screen.dart';
+import 'package:mood/screens/profilestart_screens/edit_profile_screen.dart';
+import 'package:mood/screens/profilestart_screens/emotion_record_screen.dart';
+import 'package:mood/screens/profilestart_screens/warning_record_screen.dart';
 import 'delete_account_screen.dart';
 
 class ProfileScreen extends StatelessWidget {

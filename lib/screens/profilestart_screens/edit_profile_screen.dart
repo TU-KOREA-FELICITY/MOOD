@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'face_recognition_guide_screen.dart';
+import '../start_screens/face_recognition_guide_screen.dart';
 
 class EditProfileScreen extends StatefulWidget {
   @override

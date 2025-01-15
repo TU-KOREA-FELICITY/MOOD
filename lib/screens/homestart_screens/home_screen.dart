@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mood/screens/bottom_navigation_widget.dart';
-import 'package:mood/screens/home_recognition_screen.dart';
-import 'package:mood/screens/profile_screen.dart';
+import 'package:mood/screens/homestart_screens/home_recognition_screen.dart';
+import 'package:mood/screens/profilestart_screens/profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   @override

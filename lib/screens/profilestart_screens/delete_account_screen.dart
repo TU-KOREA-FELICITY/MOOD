@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mood/screens/login_screen.dart';
+import 'package:mood/screens/start_screens/login_screen.dart';
 
 class DeleteAccountScreen extends StatelessWidget {
   final String userName = 'IN SUN';

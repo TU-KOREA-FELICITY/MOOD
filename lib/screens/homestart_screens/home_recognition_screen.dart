@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'bottom_navigation_widget.dart';
+import '../bottom_navigation_widget.dart';
 
 class HomeRecognitionScreen extends StatefulWidget {
   @override
