@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mood/screens/bottom_navigation_widget.dart';
 import 'package:mood/screens/homestart_screens/home_recognition_screen.dart';
 import 'package:mood/screens/profilestart_screens/profile_screen.dart';
+import 'package:mood/screens/searchstart_screens/search_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -80,7 +81,7 @@ class _HomeScreenState extends State<HomeScreen> {
       case 0:
         return _buildHomeContent();
       case 1:
-        return Center(child: Text('검색 화면', style: TextStyle(fontSize: 24)));
+        return SearchScreen();
       case 2:
         return ProfileScreen();
       default:

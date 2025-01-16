@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:mood/screens/start_screens/spotify_login_screen.dart';
+import 'searchstart_screens/search_screen.dart';
 import 'start_screens/splash_screen.dart';
 import 'start_screens/login_screen.dart';
 import 'start_screens/welcome_screen.dart';
@@ -36,6 +38,7 @@ class MyApp extends StatelessWidget {
         '/login_failed': (context) => LoginFailedScreen(),
         '/signup': (context) => SignupScreen(),
         '/music_preference': (context) => MusicPreferenceScreen(),
+        '/spotify_login': (context) => SpotifyLoginScreen(),
         '/home': (context) => HomeScreen(),
         '/profile': (context) => ProfileScreen(),
       },

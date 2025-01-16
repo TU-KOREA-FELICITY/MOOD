@@ -30,7 +30,7 @@ class FaceRecognitionGuideScreen extends StatelessWidget {
                       SizedBox(width: 5),
                       Expanded(
                         child: Text(
-                            "사진은 2초 간격으로 총 10장이 촬영됩니다.",
+                            "사진은 버튼을 누르는 즉시 1장이 촬영됩니다.",
                             style: TextStyle(
                                 fontSize: 13,
                                 color: Color(0xFF707070),
@@ -49,7 +49,7 @@ class FaceRecognitionGuideScreen extends StatelessWidget {
                       )),
                       SizedBox(width: 5),
                       Expanded(
-                        child: Text("얼굴을 등록할때는 전체가 잘 보이도록 해주세요. 마스크, 선글라스, 모자와 같이 얼굴을 가리는 소품을 벗고 등록해 주세요",
+                        child: Text("얼굴을 등록할 때는 전체가 잘 보이도록 해주세요.",
                           style: TextStyle(
                             fontSize: 13,
                             color: Color(0xFF707070),
@@ -68,7 +68,7 @@ class FaceRecognitionGuideScreen extends StatelessWidget {
                       )),
                       SizedBox(width: 5),
                       Expanded(
-                        child: Text("안경, 수염, 특수 화장 등으로 기존에 등록했던 얼굴과 특징이 달라지면 잘 인식되지 않을 수 있습니다",
+                        child: Text("안경, 수염, 특수 화장 등으로 기존에 등록했던 얼굴과 특징이 달라지면 잘 인식되지 않을 수 있습니다.",
                           style: TextStyle(
                             fontSize: 13,
                             color: Color(0xFF707070),

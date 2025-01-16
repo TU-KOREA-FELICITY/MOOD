@@ -96,7 +96,7 @@ class _MusicPreferenceScreenState extends State<MusicPreferenceScreen> {
                 child: ElevatedButton(
                   onPressed: selectedGenres.isNotEmpty
                       ? () {
-                    Navigator.pushReplacementNamed(context, '/home');
+                    Navigator.pushReplacementNamed(context, '/spotify_login');
                   }
                       : null,
                   style: ElevatedButton.styleFrom(
@@ -105,7 +105,7 @@ class _MusicPreferenceScreenState extends State<MusicPreferenceScreen> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  child: Text('회원가입 완료', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,
+                  child: Text('다음으로', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,
                     color: Colors.white,)),
                 ),
               ),
