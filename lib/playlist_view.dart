@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'spotify_service.dart';
+import 'package:mood/ui/MusicPlayerScreen.dart';
 
 class PlaylistView extends StatefulWidget {
   final SpotifyService spotifyService;
@@ -52,43 +53,121 @@ class _PlaylistViewState extends State<PlaylistView> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: _playlistNameController,
-                  decoration: InputDecoration(
-                    hintText: '새 플레이리스트 이름',
-                  ),
-                ),
-              ),
-              ElevatedButton(
-                onPressed: _createPlaylist,
-                child: Text('생성'),
-              ),
-            ],
-          ),
-        ),
-        Expanded(
-          child: _isLoading
-              ? Center(child: CircularProgressIndicator())
-              : ListView.builder(
-            itemCount: _playlists.length,
-            itemBuilder: (context, index) {
-              final playlist = _playlists[index];
-              return ListTile(
-                title: Text(playlist['name']),
-                subtitle: Text('${playlist['tracks']['total']} 트랙'),
-                onTap: () => _showPlaylistTracks(playlist['id'], playlist['name']),
-              );
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          leading: IconButton(
+            icon: Icon(Icons.close, color: Colors.black),
+            onPressed: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => MusicPlayerScreen()));
             },
           ),
+          title: Text(
+            '재생목록',
+            style: TextStyle(color: Colors.black),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {},
+              child: Text(
+                '편집',
+                style: TextStyle(color: Colors.grey, fontSize: 14),
+              ),
+            ),
+          ],
         ),
-      ],
+        body: Column(
+          children: [
+            TabBar(
+              labelColor: Colors.black,
+              unselectedLabelColor: Colors.grey,
+              tabs: [
+                Tab(text: '노래'),
+                Tab(text: '플레이리스트'),
+              ],
+            ),
+            SizedBox(height: 16),
+            Expanded(
+              child: TabBarView(
+                children: [
+                  // 노래 탭
+                  SingleChildScrollView(
+                    child: Column(
+                      children: List.generate(6, (index) {
+                        return Container(
+                          width: double.infinity,
+                          height: 80,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[300],
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          padding: EdgeInsets.all(16),
+                          margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                          child: Text('노래 ${index + 1}'),
+                        );
+                      }),
+                    ),
+                  ),
+                  // 플레이리스트 탭
+                  Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                controller: _playlistNameController,
+                                decoration: InputDecoration(
+                                  hintText: '새 플레이리스트 이름',
+                                ),
+                              ),
+                            ),
+                            ElevatedButton(
+                              onPressed: _createPlaylist,
+                              child: Text('생성'),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                        child: _isLoading
+                            ? Center(child: CircularProgressIndicator())
+                            : ListView.builder(
+                          itemCount: _playlists.length,
+                          itemBuilder: (context, index) {
+                            final playlist = _playlists[index];
+                            return Container(
+                              width: double.infinity,
+                              height: 80,
+                              decoration: BoxDecoration(
+                                color: Colors.grey[300],
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              padding: EdgeInsets.all(16),
+                              margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                              child: ListTile(
+                                title: Text(playlist['name']),
+                                subtitle: Text('${playlist['tracks']['total']} 트랙'),
+                                onTap: () => _showPlaylistTracks(playlist['id'], playlist['name']),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
