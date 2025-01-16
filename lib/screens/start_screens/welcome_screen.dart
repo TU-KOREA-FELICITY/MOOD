@@ -72,7 +72,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               Icon(
                 Icons.directions_car,
                 size: 150,
-                color: Colors.blue,
+                color: Color(0xFF423EFF),
               ),
               SizedBox(height: 100),
               Center(
