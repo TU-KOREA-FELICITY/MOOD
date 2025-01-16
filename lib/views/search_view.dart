@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'spotify_service.dart';
+import '../services/spotify_service.dart';
 
 class SearchView extends StatefulWidget {
   final SpotifyService spotifyService;

@@ -1,12 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:mood/ui/PlaylistScreen.dart';
-import 'spotify_service.dart';
-import 'spotify_auth_webview.dart';
+import '../services/spotify_service.dart';
+import '../widgets/spotify_auth_webview.dart';
 import 'playlist_view.dart';
 import 'package:spotify_sdk/spotify_sdk.dart';
-
-
 
 class SpotifyHomePage extends StatefulWidget {
   @override

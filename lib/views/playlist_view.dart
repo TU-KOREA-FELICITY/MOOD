@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'spotify_service.dart';
-import 'package:mood/ui/MusicPlayerScreen.dart';
+import '../services/spotify_service.dart';
 
 class PlaylistView extends StatefulWidget {
   final SpotifyService spotifyService;
@@ -59,14 +58,6 @@ class _PlaylistViewState extends State<PlaylistView> {
         backgroundColor: Colors.white,
         appBar: AppBar(
           backgroundColor: Colors.white,
-          leading: IconButton(
-            icon: Icon(Icons.close, color: Colors.black),
-            onPressed: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => MusicPlayerScreen()));
-            },
-          ),
           title: Text(
             '재생목록',
             style: TextStyle(color: Colors.black),
