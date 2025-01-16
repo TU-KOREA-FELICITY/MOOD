@@ -81,12 +81,6 @@ flutter:
   fonts:
     - family: MaruBuri
       fonts:
-        - asset: assets/fonts/MaruBuri-ExtraLight.ttf
-          weight: 100
-        - asset: assets/fonts/MaruBuri-Light.ttf
-          weight: 200
-        - asset: assets/fonts/MaruBuri-Regular.ttf
-          weight: 300
         - asset: assets/fonts/MaruBuri-SemiBold.ttf
           weight: 400
         - asset: assets/fonts/MaruBuri-Bold.ttf
@@ -103,12 +97,6 @@ flutter:
   #         weight: 700
   #   - family: MaruBuri
   #     fonts:
-  #       - assets: assets/fonts/MaruBuri-ExtraLight.ttf
-  #         weight: 100
-  #       - assets: assets/fonts/MaruBuri-Light.ttf
-  #         weight: 200
-  #       - assets: assets/fonts/MaruBuri-Regular.ttf
-  #         weight: 300
   #       - assets: assets/fonts/MaruBuri-SemiBold.ttf
   #         weight: 400
   #       - assets: assets/fonts/MaruBuri-Bold.ttf

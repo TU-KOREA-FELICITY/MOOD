@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
         appBarTheme: AppBarTheme(
           color: Colors.white,
           iconTheme: IconThemeData(color: Colors.black),
-          titleTextStyle: TextStyle(color: Colors.black, fontSize: 26),
+          titleTextStyle: TextStyle(fontFamily: "MaruBuri",color: Colors.black, fontSize: 26),
         ),
       ),
       initialRoute: '/',
