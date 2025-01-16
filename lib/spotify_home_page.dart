@@ -4,9 +4,7 @@ import 'package:mood/ui/PlaylistScreen.dart';
 import 'spotify_service.dart';
 import 'spotify_auth_webview.dart';
 import 'playlist_view.dart';
-import 'search_view.dart';
 import 'package:spotify_sdk/spotify_sdk.dart';
-import 'package:spotify_sdk/models/image_uri.dart';
 
 
 
