@@ -1,29 +1,11 @@
 import 'package:flutter/material.dart';
-import 'welcome_screen.dart';
 
-class LoginScreen extends StatelessWidget {
+class FaceRecognitionScreen extends StatelessWidget {
+  final _formKey = GlobalKey<FormState>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Padding(
-          padding: EdgeInsets.only(left: 10),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Icon(Icons.login),
-              SizedBox(width: 8),
-              Text(
-                '로그인',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 25,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
       body: Column(
         children: [
           Expanded(
@@ -48,10 +30,6 @@ class LoginScreen extends StatelessWidget {
                   SizedBox(height: 40),
                   GestureDetector(
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => WelcomeScreen()),
-                      );
                     },
                     child:  SizedBox(
                       width: 260,
@@ -100,24 +78,34 @@ class LoginScreen extends StatelessWidget {
                       ),
                     ],
                   ),
-                  SizedBox(height: 90),
                 ],
               ),
             ),
           ),
-          Align(
-            alignment: Alignment.bottomRight,
-            child: Padding(
-              padding: const EdgeInsets.only(right: 50.0, bottom: 200.0),
-              child: GestureDetector(
-                onTap: () {
+          SizedBox(height: 70),
+          Container(
+            width: MediaQuery.of(context).size.width * 0.7,
+            child: ElevatedButton(
+              onPressed: () {
+                if (_formKey.currentState!.validate()) {
+                  _formKey.currentState!.save();
                   Navigator.pushNamed(context, '/signup');
-                },
-                child: Text(
-                  '회원가입',
-                  style: TextStyle(
-                    fontSize: 19.0,
-                    decoration: TextDecoration.underline,
+                }
+              },
+              child: Text(
+                '얼굴 등록 완료',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              style: ButtonStyle(
+                backgroundColor: WidgetStateProperty.all(Color(0xFF0126FA)),
+                foregroundColor: WidgetStateProperty.all(Colors.white),
+                padding: WidgetStateProperty.all(EdgeInsets.symmetric(vertical: 12)),
+                shape: WidgetStateProperty.all(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
                   ),
                 ),
               ),

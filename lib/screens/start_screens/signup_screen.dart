@@ -34,6 +34,7 @@ class _SignupScreenState extends State<SignupScreen> {
         child: ListView(
           padding: EdgeInsets.all(40.0),
           children: [
+            SizedBox(height: 10),
             RichText(
               textAlign: TextAlign.center,
               text: TextSpan(
@@ -69,7 +70,6 @@ class _SignupScreenState extends State<SignupScreen> {
                         context,
                         MaterialPageRoute(builder: (context) => FaceRecognitionGuideScreen()),
                     );
-                    // 사진 등록 로직 구현
                   },
                 ),
               ),
@@ -138,7 +138,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 ),
               ],
             ),
-            SizedBox(height: 250),
+            SizedBox(height: 240),
             Container(
               width: MediaQuery.of(context).size.width * 0.25,
               child: ElevatedButton(

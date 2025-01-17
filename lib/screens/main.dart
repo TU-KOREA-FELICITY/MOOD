@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mood/screens/start_screens/face_recognition_screen.dart';
 import 'package:mood/screens/start_screens/spotify_login_screen.dart';
 import 'searchstart_screens/search_screen.dart';
 import 'start_screens/splash_screen.dart';
@@ -27,7 +28,7 @@ class MyApp extends StatelessWidget {
         appBarTheme: AppBarTheme(
           color: Colors.white,
           iconTheme: IconThemeData(color: Colors.black),
-          titleTextStyle: TextStyle(fontFamily: "Pretendard",color: Colors.black, fontSize: 26),
+          titleTextStyle: TextStyle(fontFamily: "Pretendard",color: Colors.black, fontSize: 30),
         ),
       ),
       initialRoute: '/',
@@ -37,6 +38,7 @@ class MyApp extends StatelessWidget {
         '/welcome': (context) => WelcomeScreen(),
         '/login_failed': (context) => LoginFailedScreen(),
         '/signup': (context) => SignupScreen(),
+        '/face_recognition': (context) => FaceRecognitionScreen(),
         '/music_preference': (context) => MusicPreferenceScreen(),
         '/spotify_login': (context) => SpotifyLoginScreen(),
         '/home': (context) => HomeScreen(),

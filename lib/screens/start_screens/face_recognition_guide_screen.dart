@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'face_recognition_screen.dart';
 
 class FaceRecognitionGuideScreen extends StatelessWidget {
   @override
@@ -84,21 +85,24 @@ class FaceRecognitionGuideScreen extends StatelessWidget {
             width: MediaQuery.of(context).size.width * 0.8,
             child: ElevatedButton(
               onPressed: () {
-                //네비게이션 기능 작성
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => FaceRecognitionScreen()),
+                );
               },
                 child: Text(
                   "얼굴 등록 시작",
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
-                style: ButtonStyle(
-                  backgroundColor: WidgetStateProperty.all(Color(0xFF0126FA)),
-                  foregroundColor: WidgetStateProperty.all(Colors.white),
-                  padding: WidgetStateProperty.all(EdgeInsets.symmetric(vertical: 12)),
-                  shape: WidgetStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(20),
-                  ),
-                  ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFF0126FA),
+                foregroundColor: Colors.white,
+                padding: EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
                 ),
               ),
+            ),
           ),
             ],
           ),
