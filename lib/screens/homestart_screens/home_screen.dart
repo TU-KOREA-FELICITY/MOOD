@@ -3,6 +3,7 @@ import 'package:mood/screens/bottom_navigation_widget.dart';
 import 'package:mood/screens/homestart_screens/home_recognition_screen.dart';
 import 'package:mood/screens/profilestart_screens/profile_screen.dart';
 import 'package:mood/screens/searchstart_screens/search_screen.dart';
+import 'package:mood/screens/searchstart_screens/spotify_service.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -10,7 +11,22 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final SpotifyService _spotifyService = SpotifyService();
+  bool _isLoggedIn = false;
   int _currentIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkLoginStatus();
+  }
+
+  Future<void> _checkLoginStatus() async {
+    bool isLoggedIn = await _spotifyService.isLoggedIn();
+    setState(() {
+      _isLoggedIn = isLoggedIn;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -81,7 +97,7 @@ class _HomeScreenState extends State<HomeScreen> {
       case 0:
         return _buildHomeContent();
       case 1:
-        return SearchScreen();
+        return SearchScreen(spotifyService: _spotifyService);
       case 2:
         return ProfileScreen();
       default:
