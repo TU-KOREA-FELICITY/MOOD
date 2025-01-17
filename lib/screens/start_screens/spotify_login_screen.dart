@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:mood/screens/start_screens/spotify_web_login_screen.dart';
 import '../homestart_screens/home_screen.dart';
 import '../searchstart_screens/spotify_service.dart';
-import 'spotify_web_login_screen.dart';
 
 class SpotifyLoginScreen extends StatelessWidget {
   final SpotifyService _spotifyService = SpotifyService();
@@ -10,11 +9,24 @@ class SpotifyLoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Spotify 로그인')),
+      appBar: AppBar(
+        title: Align(
+          alignment: Alignment.centerLeft,
+          child: Text(
+            'Spotify 연동하기',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        titleSpacing: 0,
+      ),
       body: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
+            SizedBox(height: 300),
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Text(
@@ -23,9 +35,29 @@ class SpotifyLoginScreen extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
             ),
-            ElevatedButton(
-              onPressed: () => _navigateToSpotifyLogin(context),
-              child: Text('Spotify 로그인'),
+            SizedBox(height: 300),
+            Container(
+              width: MediaQuery.of(context).size.width * 0.7,
+              child: ElevatedButton(
+                onPressed: () => _navigateToSpotifyLogin(context),
+                child: Text(
+                  'Spotify 로그인하기',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                style: ButtonStyle(
+                  backgroundColor: WidgetStateProperty.all(Color(0xFF0126FA)),
+                  foregroundColor: WidgetStateProperty.all(Colors.white),
+                  padding: WidgetStateProperty.all(EdgeInsets.symmetric(vertical: 12)),
+                  shape: WidgetStateProperty.all(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                  ),
+                ),
+              ),
             ),
           ],
         ),

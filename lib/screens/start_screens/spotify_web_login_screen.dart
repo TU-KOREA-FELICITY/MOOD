@@ -51,7 +51,17 @@ class _SpotifyAuthWebViewState extends State<SpotifyAuthWebView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Spotify 로그인'),
+        title: Align(
+          alignment: Alignment.centerLeft,
+          child: Text(
+            'Spotify 로그인',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        titleSpacing: 0,
       ),
       body: WebViewWidget(controller: controller),
     );

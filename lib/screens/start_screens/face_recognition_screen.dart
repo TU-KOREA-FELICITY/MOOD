@@ -12,9 +12,9 @@ class FaceRecognitionScreen extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  SizedBox(height: 10),
+                  SizedBox(height: 100),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -78,15 +78,13 @@ class FaceRecognitionScreen extends StatelessWidget {
                       ),
                     ],
                   ),
-                  SizedBox(height: 60),
+                  SizedBox(height: 250),
                   Container(
                     width: MediaQuery.of(context).size.width * 0.7,
                     child: ElevatedButton(
                       onPressed: () {
-                        if (_formKey.currentState!.validate()) {
-                          _formKey.currentState!.save();
-                          Navigator.pushNamed(context, '/signup');
-                        }
+                        // 변경: 회원가입 화면으로 이동하는 로직 수정
+                        Navigator.pushNamed(context, '/signup');
                       },
                       child: Text(
                         '얼굴 등록 완료',
