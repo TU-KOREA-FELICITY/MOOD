@@ -20,14 +20,14 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'MOOD Driver App',
       theme: ThemeData(
-        fontFamily: "MaruBuri",
+        fontFamily: "Pretendard",
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
         scaffoldBackgroundColor: Colors.white,
         appBarTheme: AppBarTheme(
           color: Colors.white,
           iconTheme: IconThemeData(color: Colors.black),
-          titleTextStyle: TextStyle(fontFamily: "MaruBuri",color: Colors.black, fontSize: 26),
+          titleTextStyle: TextStyle(fontFamily: "Pretendard",color: Colors.black, fontSize: 26),
         ),
       ),
       initialRoute: '/',

@@ -79,12 +79,16 @@ flutter:
   # list giving the asset and other descriptors for the font. For
   # example:
   fonts:
-    - family: MaruBuri
+    - family: Pretendard
       fonts:
-        - asset: assets/fonts/MaruBuri-SemiBold.ttf
+        - asset: assets/fonts/Pretendard-Medium.otf
+          weight: 100
+        - asset: assets/fonts/Pretendard-SemiBold.otf
+          weight: 200
+        - asset: assets/fonts/Pretendard-Bold.otf
+          weight: 300
+        - asset: assets/fonts/Pretendard-ExtraBold.otf
           weight: 400
-        - asset: assets/fonts/MaruBuri-Bold.ttf
-          weight: 500
   #   - family: Schyler
   #     fonts:
   #       - asset: fonts/Schyler-Regular.ttf
@@ -95,12 +99,16 @@ flutter:
   #       - asset: fonts/TrajanPro.ttf
   #       - asset: fonts/TrajanPro_Bold.ttf
   #         weight: 700
-  #   - family: MaruBuri
+  #   - family: Pretendard
   #     fonts:
-  #       - assets: assets/fonts/MaruBuri-SemiBold.ttf
+  #       - asset: assets/fonts/Pretendard-Medium.otf
+  #         weight: 100
+  #       - asset: assets/fonts/Pretendard-SemiBold.otf
+  #         weight: 200
+  #       - asset: assets/fonts/Pretendard-Bold.otf
+  #         weight: 300
+  #       - asset: assets/fonts/Pretendard-ExtraBold.otf
   #         weight: 400
-  #       - assets: assets/fonts/MaruBuri-Bold.ttf
-  #         weight: 500
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
