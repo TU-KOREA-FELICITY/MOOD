@@ -78,36 +78,36 @@ class FaceRecognitionScreen extends StatelessWidget {
                       ),
                     ],
                   ),
-                ],
-              ),
-            ),
-          ),
-          SizedBox(height: 70),
-          Container(
-            width: MediaQuery.of(context).size.width * 0.7,
-            child: ElevatedButton(
-              onPressed: () {
-                if (_formKey.currentState!.validate()) {
-                  _formKey.currentState!.save();
-                  Navigator.pushNamed(context, '/signup');
-                }
-              },
-              child: Text(
-                '얼굴 등록 완료',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              style: ButtonStyle(
-                backgroundColor: WidgetStateProperty.all(Color(0xFF0126FA)),
-                foregroundColor: WidgetStateProperty.all(Colors.white),
-                padding: WidgetStateProperty.all(EdgeInsets.symmetric(vertical: 12)),
-                shape: WidgetStateProperty.all(
-                  RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
+                  SizedBox(height: 60),
+                  Container(
+                    width: MediaQuery.of(context).size.width * 0.7,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
+                          _formKey.currentState!.save();
+                          Navigator.pushNamed(context, '/signup');
+                        }
+                      },
+                      child: Text(
+                        '얼굴 등록 완료',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      style: ButtonStyle(
+                        backgroundColor: WidgetStateProperty.all(Color(0xFF0126FA)),
+                        foregroundColor: WidgetStateProperty.all(Colors.white),
+                        padding: WidgetStateProperty.all(EdgeInsets.symmetric(vertical: 12)),
+                        shape: WidgetStateProperty.all(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
           ),
