@@ -1,6 +1,8 @@
-import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'dart:typed_data';
+import 'package:http/http.dart' as http;
 
 void main() {
   runApp(MyApp());
@@ -27,6 +29,46 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   String _status = '';
   String _emotionResult = '';
+  IO.Socket? socket;
+  Uint8List? imageBytes;
+
+  @override
+  void initState() {
+    super.initState();
+    connectToServer();
+  }
+
+  void connectToServer() {
+    try {
+      socket = IO.io('http://10.0.2.2:3000', <String, dynamic>{
+        'transports': ['websocket'],
+        'autoConnect': true,
+      });
+
+      socket!.onConnect((_) {
+        print('서버에 연결되었습니다.');
+      });
+
+      socket!.on('webcam_stream', (data) {
+        if (data != null) {
+          setState(() {
+            if (data is String) {
+              imageBytes = Uint8List.fromList(base64Decode(data));
+            } else if (data is List<int>) {
+              imageBytes = Uint8List.fromList(data);
+            }
+          });
+        }
+      });
+
+      socket!.onDisconnect((_) => print('서버와 연결이 끊어졌습니다.'));
+      socket!.onError((err) => print('에러 발생: $err'));
+
+      socket!.connect();
+    } catch (e) {
+      print('서버 연결 중 오류 발생: $e');
+    }
+  }
 
   void _register() async {
     final TextEditingController controller = TextEditingController();
@@ -136,6 +178,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   @override
+  void dispose() {
+    socket?.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -162,6 +210,13 @@ class _HomePageState extends State<HomePage> {
             SizedBox(height: 20),
             Text(_status),
             Text(_emotionResult),
+            SizedBox(height: 20),
+            imageBytes != null
+                ? Image.memory(
+              imageBytes!,
+              gaplessPlayback: true,
+            )
+                : CircularProgressIndicator(),
           ],
         ),
       ),
