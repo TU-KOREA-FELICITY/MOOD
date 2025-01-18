@@ -9,9 +9,15 @@ class HomeRecognitionScreen extends StatefulWidget {
 class _HomeRecognitionScreenState extends State<HomeRecognitionScreen> {
   int _currentIndex = 0;
 
-  final List<String> emotions = [
-    'SURPRISED', 'HAPPY', 'FEAR', 'DISGUSTED',
-    'ANGRY', 'CONFUSED', 'SAD', 'CALM'
+  final List<Map<String, dynamic>> emotions = [
+    {'name': 'ANGRY', 'color': Color(0xFFFFDBD6)},
+    {'name': 'HAPPY', 'color': Color(0xFFFEEFF2)},
+    {'name': 'SURPRISED', 'color': Color(0xFFFFFAD7)},
+    {'name': 'DISGUSTED', 'color': Color(0xFFFFFBF4)},
+    {'name': 'CALM', 'color': Color(0xFFE0F0E2)},
+    {'name': 'SAD', 'color': Color(0xFFE9F5FD)},
+    {'name': 'CONFUSED', 'color': Color(0xFFFBF4FB)},
+    {'name': 'FEAR', 'color': Color(0xFFEFEFEF)},
   ];
 
   @override
@@ -49,10 +55,21 @@ class _HomeRecognitionScreenState extends State<HomeRecognitionScreen> {
                   '나의 집중도',
                   style: TextStyle(fontSize: 23, fontWeight: FontWeight.bold),
                 ),
-                SizedBox(height: 10),
+                SizedBox(height: 20),
                 Container(
                   height: 200,
-                  color: Colors.grey[200],
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withAlpha(128),
+                        blurRadius: 10,
+                        spreadRadius: 5,
+                        offset: Offset(0, 3),
+                      ),
+                    ],
+                  ),
                   child: Center(child: Text('차트 그래프')),
                 ),
                 SizedBox(height: 30),
@@ -69,11 +86,19 @@ class _HomeRecognitionScreenState extends State<HomeRecognitionScreen> {
                         width: MediaQuery.of(context).size.width * 0.9,
                         padding: EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          border: Border.all(color: Colors.black),
+                          color: emotion['color'],
                           borderRadius: BorderRadius.circular(8),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withAlpha(128),
+                              blurRadius: 5,
+                              spreadRadius: 1,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
                         ),
                         child: Text(
-                          emotion,
+                          emotion['name'],
                           textAlign: TextAlign.center,
                           style: TextStyle(fontSize: 20),
                         ),
