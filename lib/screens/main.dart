@@ -29,10 +29,11 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/',
       routes: {
-        '/': (context) => SplashScreen(),
+        // '/': (context) => SplashScreen(),
+        '/': (context) => HomeScreen(),
         '/login': (context) => LoginScreen(),
         '/welcome': (context) => WelcomeScreen(),
-        '/login_failed': (context) => LoginFailedScreen(),
+        '/login_failed': (context) => LoginFailedScreen(), // 경로 추가
         '/signup': (context) => SignupScreen(),
         '/music_preference': (context) => MusicPreferenceScreen(),
         '/home': (context) => HomeScreen(),

@@ -1,7 +1,11 @@
+import 'dart:convert';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:mood/screens/bottom_navigation_widget.dart';
-import 'package:mood/screens/home_recognition_screen.dart';
-import 'package:mood/screens/profile_screen.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:web_socket_channel/status.dart' as status;
+import 'bottom_navigation_widget.dart';
+import 'home_recognition_screen.dart';
+import 'package:jsg/screens/profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -10,6 +14,90 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
+  WebSocketChannel? _channel;
+  WebSocketChannel? _warningChannel;
+  String _concentrationResult = '결과 없음';
+  Uint8List? _imageData;
+  String _warningMessage = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _startConcentrationMonitoring();
+    _connectWarningWebSocket();
+  }
+
+  Future<void> _startConcentrationMonitoring() async {
+    try {
+      print('Attempting to connect to WebSocket...');
+      _channel = WebSocketChannel.connect(Uri.parse('ws://10.0.2.2:5000'));
+      _channel!.stream.listen((message) {
+        _handleWebSocketMessage(message);
+      }, onError: (error) {
+        print('WebSocket error: $error');
+        _updateConcentrationResult('연결 오류');
+      }, onDone: () {
+        print('WebSocket connection closed');
+        _updateConcentrationResult('연결 종료');
+      });
+    } catch (e) {
+      print('WebSocket connection error: $e');
+      _updateConcentrationResult('연결 실패');
+    }
+  }
+
+  void _connectWarningWebSocket() {
+    try {
+      print('Attempting to connect to warning WebSocket...');
+      _warningChannel = WebSocketChannel.connect(Uri.parse('ws://10.0.2.2:3002'));
+      _warningChannel!.stream.listen((message) {
+        _handleWarningWebSocketMessage(message);
+      }, onError: (error) {
+        print('Warning WebSocket error: $error');
+      }, onDone: () {
+        print('Warning WebSocket connection closed');
+      });
+    } catch (e) {
+      print('Warning WebSocket connection error: $e');
+    }
+  }
+
+  void _handleWebSocketMessage(dynamic message) {
+    print('Received message: $message');
+    if (message is String && message.startsWith('data:image/jpeg;base64,')) {
+      final base64String = message.split(',')[1];
+      setState(() {
+        _imageData = base64Decode(base64String);
+      });
+    } else if (message is String) {
+      _updateConcentrationResult(message);
+    }
+  }
+
+  void _handleWarningWebSocketMessage(dynamic message) {
+    print('Received warning message: $message');
+    final decodedMessage = jsonDecode(message);
+    if (decodedMessage['level'] != null) {
+      setState(() {
+        _warningMessage = 'Warning: ${decodedMessage['level']} ${decodedMessage['axis']} error ${decodedMessage['error']}';
+      });
+    }
+  }
+
+  void _updateConcentrationResult(String result) {
+    if (mounted) {
+      setState(() {
+        _concentrationResult = result;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _channel?.sink.close(status.goingAway);
+    _warningChannel?.sink.close(status.goingAway);
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -132,10 +220,25 @@ class _HomeScreenState extends State<HomeScreen> {
               decoration: BoxDecoration(
                 border: Border.all(color: Color(0xFF014FFA), width: 3),
               ),
-              child: Center(
+              child: _imageData != null
+                  ? Image.memory(_imageData!)
+                  : Center(
                 child: Text('카메라 화면이 여기에 표시됩니다'),
               ),
             ),
+          ),
+        ),
+        if (_warningMessage.isNotEmpty)
+          Center(
+            child: Text(
+              _warningMessage,
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red),
+            ),
+          ),
+        Center(
+          child: Text(
+            '집중도 인식 결과: $_concentrationResult',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
         ),
         Expanded(

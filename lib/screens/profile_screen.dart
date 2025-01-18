@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:mood/screens/edit_profile_screen.dart';
-import 'package:mood/screens/emotion_record_screen.dart';
-import 'package:mood/screens/warning_record_screen.dart';
+import 'package:jsg/screens/warning_record_screen.dart';
 import 'delete_account_screen.dart';
+import 'edit_profile_screen.dart';
+import 'emotion_record_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   final String userName = "NAME : IN SUN";
