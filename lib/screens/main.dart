@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         // '/': (context) => SplashScreen(),
-        '/': (context) => HomeScreen(),
+        '/': (context) => SplashScreen(),
         '/login': (context) => LoginScreen(),
         '/welcome': (context) => WelcomeScreen(),
         '/login_failed': (context) => LoginFailedScreen(), // 경로 추가
