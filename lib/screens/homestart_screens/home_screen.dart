@@ -82,11 +82,11 @@ class _HomeScreenState extends State<HomeScreen> {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, color: Colors.black),
-        SizedBox(width: 8),
+        Icon(icon, color: Colors.black, size: 32),
+        SizedBox(width: 12),
         Text(
           title,
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 20),
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 24),
         ),
       ],
     );
@@ -113,26 +113,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildHomeContent() {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Padding(
-          padding: EdgeInsets.only(left: 55, top: 60, bottom: 20),
-          child: Row(
-            children: [
-              Text(
-                '감정/집중도 인식중',
-                style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(width: 10),
-              SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF014FFA)),
-                  strokeWidth: 3.5,
-                ),
-              ),
-            ],
+          padding: EdgeInsets.only(top: 60, bottom: 20),
+          child: Text(
+            '감정/집중도 인식중',
+            style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
           ),
         ),
         Center(
@@ -147,7 +134,16 @@ class _HomeScreenState extends State<HomeScreen> {
               width: 300,
               height: 400,
               decoration: BoxDecoration(
-                border: Border.all(color: Color(0xFF014FFA), width: 3),
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withAlpha(128),
+                    spreadRadius: 5,
+                    blurRadius: 7,
+                    offset: Offset(0, 3),
+                  ),
+                ],
               ),
               child: Center(
                 child: Text('카메라 화면이 여기에 표시됩니다'),
@@ -159,7 +155,7 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Align(
             alignment: Alignment.bottomRight,
             child: Padding(
-              padding: EdgeInsets.only(right: 60, bottom: 200),
+              padding: EdgeInsets.only(right: 60, bottom: 150),
               child: GestureDetector(
                 onTap: _restartRecognition,
                 child: Text(
