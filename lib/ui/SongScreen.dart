@@ -1,10 +1,6 @@
-//카테고리 song 스크린
-
 import 'package:flutter/material.dart';
-import 'MusicPlayerScreen.dart';
 import 'package:mood/services/spotify_service.dart';
 import 'package:mood/views/search_view.dart';
-import '../ui/CategoryTagScreen.dart';
 
 class SongScreen extends StatefulWidget {
   final String title;
@@ -26,16 +22,16 @@ class _SongScreenState extends State<SongScreen> {
           icon: Icon(Icons.close, color: Colors.black),
           onPressed: () {
             Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => SearchView(spotifyService: widget.spotifyService,
-                      onTabChange: (index) {}
-                  ),));
+              context,
+              MaterialPageRoute(
+                builder: (context) => SearchView(spotifyService: widget.spotifyService, onTabChange: (index) {}),
+              ),
+            );
           },
         ),
         title: Text(
-          '${widget.title} 플레이리스트',
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+          '${widget.title} 플레이리스트', // Concatenate the title with "플레이리스트"
+          style: TextStyle(color: Colors.black),
         ),
         actions: [
           TextButton(
@@ -49,22 +45,19 @@ class _SongScreenState extends State<SongScreen> {
       ),
       body: SingleChildScrollView(
         child: Column(
-          children: [
-            SizedBox(height: 20),
-          ... List.generate(6, (index) {
+          children: List.generate(6, (index) {
             return Container(
-              width: MediaQuery.of(context).size.width*0.9,
+              width: MediaQuery.of(context).size.width * 0.9, // Adjust width here
               height: 80,
               decoration: BoxDecoration(
                 color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(20), // More rounded corners
               ),
               padding: EdgeInsets.all(16),
               margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-              child: Text('노래 ${index + 1}'),
+              child: Center(child: Text('노래 ${index + 1}')),
             );
           }),
-    ],
         ),
       ),
     );

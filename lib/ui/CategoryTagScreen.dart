@@ -4,8 +4,7 @@ import 'SongScreen.dart';
 import 'package:mood/services/spotify_service.dart';
 
 class CategoryTagScreen extends StatefulWidget {
-  final SpotifyService spotifyService;
-  const CategoryTagScreen({Key? key, required this.spotifyService}) : super(key: key);
+  const CategoryTagScreen({Key? key}) : super(key: key);
 
   @override
   _CategoryTagScreenState createState() => _CategoryTagScreenState();

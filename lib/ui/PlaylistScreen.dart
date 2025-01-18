@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'MusicPlayerScreen.dart';
 import 'CategoryTagScreen.dart';
 import 'package:mood/services/spotify_service.dart';
 import 'package:mood/views/search_view.dart';
@@ -29,9 +28,9 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
               Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => SearchView(spotifyService: widget.spotifyService,
-                               onTabChange: (index) {}
-              ),));
+                    builder: (context) => SearchView(spotifyService: widget.spotifyService,
+                        onTabChange: (index) {}
+                    ),));
             },
           ),
           title: Text(
