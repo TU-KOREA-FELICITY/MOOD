@@ -1,3 +1,5 @@
+//검색창 (최근검색)
+
 import 'package:flutter/material.dart';
 import 'CategoryTagScreen.dart';
 

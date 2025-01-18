@@ -1,3 +1,4 @@
+// views (search_view 와 유사함,)
 
 import 'package:flutter/material.dart';
 import 'CategoryTagScreen.dart';

@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:mood/ui/Search_View.dart';
+import 'package:mood/views/search_view.dart';
 import '../services/spotify_service.dart';
 import '../widgets/spotify_auth_webview.dart';
 import 'playlist_view.dart';
@@ -17,6 +19,7 @@ class _SpotifyHomePageState extends State<SpotifyHomePage> with SingleTickerProv
   String _currentTrack = 'No track playing';
   String _artistName = 'Unknown artist';
   late TabController _tabController;
+
   Timer? _updateTimer;
   bool _isLiked = false;
   double _sliderValue = 0.0;
@@ -67,7 +70,10 @@ class _SpotifyHomePageState extends State<SpotifyHomePage> with SingleTickerProv
         leading: IconButton(
             icon: Icon(Icons.keyboard_arrow_down_outlined,
                 color: Colors.black),
-            onPressed: () {}
+            onPressed: () {Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => SearchView(spotifyService: _spotifyService, onTabChange: (int ) {  },),
+            ));}
         ),
         actions: [
           if (_isConnected)
