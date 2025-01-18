@@ -1,10 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:mood/ui/Search_View.dart';
 import 'package:mood/views/search_view.dart';
 import '../services/spotify_service.dart';
 import '../widgets/spotify_auth_webview.dart';
-import 'playlist_view.dart';
 import 'package:spotify_sdk/spotify_sdk.dart';
 
 class SpotifyHomePage extends StatefulWidget {
@@ -12,7 +10,8 @@ class SpotifyHomePage extends StatefulWidget {
   _SpotifyHomePageState createState() => _SpotifyHomePageState();
 }
 
-class _SpotifyHomePageState extends State<SpotifyHomePage> with SingleTickerProviderStateMixin {
+class _SpotifyHomePageState extends State<SpotifyHomePage>
+    with SingleTickerProviderStateMixin {
   final SpotifyService _spotifyService = SpotifyService();
   bool _isConnected = false;
   bool _isPlaying = false;
@@ -25,7 +24,6 @@ class _SpotifyHomePageState extends State<SpotifyHomePage> with SingleTickerProv
   double _sliderValue = 0.0;
   double _duration = 1.0;
   String _currentTrackImageUri = '';
-
 
   @override
   void initState() {
@@ -68,13 +66,14 @@ class _SpotifyHomePageState extends State<SpotifyHomePage> with SingleTickerProv
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-            icon: Icon(Icons.keyboard_arrow_down_outlined,
-                color: Colors.black),
-            onPressed: () {Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => SearchView(spotifyService: _spotifyService, onTabChange: (int ) {  },),
-            ));}
-        ),
+            icon: Icon(Icons.keyboard_arrow_down_outlined, color: Colors.black),
+            onPressed: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => SearchView(spotifyService: _spotifyService),
+                  ));
+            }),
         actions: [
           if (_isConnected)
             IconButton(
@@ -151,7 +150,8 @@ class _SpotifyHomePageState extends State<SpotifyHomePage> with SingleTickerProv
                 Row(
                   children: [
                     IconButton(
-                      icon: Icon(Icons.skip_previous, color: Colors.black, size: 24),
+                      icon: Icon(Icons.skip_previous,
+                          color: Colors.black, size: 24),
                       onPressed: _playPreviousTrack,
                     ),
                     IconButton(
@@ -160,7 +160,8 @@ class _SpotifyHomePageState extends State<SpotifyHomePage> with SingleTickerProv
                       onPressed: _togglePlayPause,
                     ),
                     IconButton(
-                      icon: Icon(Icons.skip_next, color: Colors.black, size: 24),
+                      icon:
+                          Icon(Icons.skip_next, color: Colors.black, size: 24),
                       onPressed: _playNextTrack,
                     ),
                   ],
@@ -188,8 +189,7 @@ class _SpotifyHomePageState extends State<SpotifyHomePage> with SingleTickerProv
                 onChangeEnd: (value) async {
                   try {
                     await SpotifySdk.seekTo(
-                        positionedMilliseconds: (value * _duration).toInt()
-                    );
+                        positionedMilliseconds: (value * _duration).toInt());
                   } catch (e) {
                     print('Failed to seek: $e');
                   }
@@ -202,27 +202,21 @@ class _SpotifyHomePageState extends State<SpotifyHomePage> with SingleTickerProv
     );
   }
 
-
-
-
-
   String _formatDuration(double milliseconds) {
     final Duration duration = Duration(milliseconds: milliseconds.toInt());
     final minutes = duration.inMinutes;
     final seconds = duration.inSeconds % 60;
-    return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(
-        2, '0')}';
+    return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
   }
 
   Future<void> _authenticate() async {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) =>
-            SpotifyAuthWebView(
-              authUrl: _spotifyService.getAuthUrl(),
-              redirectUri: _spotifyService.redirectUri,
-            ),
+        builder: (context) => SpotifyAuthWebView(
+          authUrl: _spotifyService.getAuthUrl(),
+          redirectUri: _spotifyService.redirectUri,
+        ),
       ),
     );
 
@@ -277,7 +271,6 @@ class _SpotifyHomePageState extends State<SpotifyHomePage> with SingleTickerProv
     }
   }
 
-
   Future<void> _updateCurrentTrack() async {
     try {
       final playerState = await SpotifySdk.getPlayerState();
@@ -286,7 +279,7 @@ class _SpotifyHomePageState extends State<SpotifyHomePage> with SingleTickerProv
           _currentTrack = playerState.track!.name;
           _artistName = playerState.track!.artist.name!;
           _isPlaying =
-          playerState.isPaused != null ? !playerState.isPaused! : false;
+              playerState.isPaused != null ? !playerState.isPaused! : false;
           _duration = playerState.track!.duration.toDouble();
           _sliderValue = playerState.playbackPosition / _duration;
           _currentTrackImageUri = playerState.track!.imageUri.raw;

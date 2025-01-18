@@ -1,21 +1,31 @@
-//플레이리스트 안
-
 import 'package:flutter/material.dart';
-import 'CategoryTagScreen.dart';
 import 'package:mood/services/spotify_service.dart';
-import 'package:mood/views/search_view.dart';
+import 'package:mood/views/playlist_detail_view.dart';
 
 class PlaylistScreen extends StatefulWidget {
   final SpotifyService spotifyService;
+  final Map<String, List> searchResults;
 
-  const PlaylistScreen({Key? key, required this.spotifyService}) : super(key: key);
+  const PlaylistScreen({
+    Key? key,
+    required this.spotifyService,
+    required this.searchResults,
+  }) : super(key: key);
 
   @override
   _PlaylistScreenState createState() => _PlaylistScreenState();
 }
 
-
 class _PlaylistScreenState extends State<PlaylistScreen> {
+  bool _isLoading = false;
+  late Map<String, List> _searchResults;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchResults = widget.searchResults;
+  }
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -24,85 +34,87 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
         backgroundColor: Colors.white,
         appBar: AppBar(
           backgroundColor: Colors.white,
+          elevation: 0,
           leading: IconButton(
-            icon: Icon(Icons.close, color: Colors.black),
-            onPressed: () {
-              Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => SearchView(spotifyService: widget.spotifyService,
-                        onTabChange: (index) {}
-                    ),));
-            },
+            icon: Icon(Icons.arrow_back, color: Colors.black),
+            onPressed: () => Navigator.pop(context),
           ),
           title: Text(
-            '재생목록',
+            '검색 결과',
             style: TextStyle(color: Colors.black),
           ),
-          actions: [
-            TextButton(
-              onPressed: () {},
-              child: Text(
-                '편집',
-                style: TextStyle(color: Colors.grey, fontSize: 14),
-              ),
-            ),
-          ],
+          bottom: TabBar(
+            labelColor: Colors.black,
+            unselectedLabelColor: Colors.grey,
+            indicatorColor: Colors.black,
+            tabs: [
+              Tab(text: '트랙'),
+              Tab(text: '플레이리스트'),
+            ],
+          ),
         ),
-        body: Column(
+        body: TabBarView(
           children: [
-            TabBar(
-              labelColor: Colors.black,
-              unselectedLabelColor: Colors.grey,
-              tabs: [
-                Tab(text: '노래'),
-                Tab(text: '플레이리스트'),
-              ],
-            ),
-            SizedBox(height: 16),
-            Expanded(
-              child: TabBarView(
-                children: [
-                  SingleChildScrollView(
-                    child: Column(
-                      children: List.generate(6, (index) {
-                        return Container(
-                          width: double.infinity,
-                          height: 80,
-                          decoration: BoxDecoration(
-                            color: Colors.grey[300],
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          padding: EdgeInsets.all(16),
-                          margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                          child: Text('노래 ${index + 1}'),
-                        );
-                      }),
-                    ),
-                  ),
-                  SingleChildScrollView(
-                    child: Column(
-                      children: List.generate(6, (index) {
-                        return Container(
-                          width: double.infinity,
-                          height: 80,
-                          decoration: BoxDecoration(
-                            color: Colors.grey[300],
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          padding: EdgeInsets.all(16),
-                          margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                          child: Text('플레이리스트 ${index + 1}'),
-                        );
-                      }),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            _buildTracksTab(),
+            _buildPlaylistsTab(),
           ],
         ),
       ),
     );
+  }
+
+  Widget _buildTracksTab() {
+    final tracks = widget.searchResults['tracks'] ?? [];
+    if (tracks.isEmpty) {
+      return Center(child: Text('검색 결과가 없습니다'));
+    }
+    return _isLoading
+        ? Center(child: CircularProgressIndicator())
+        : ListView(
+      children: _buildTrackList(),
+    );
+  }
+
+  Widget _buildPlaylistsTab() {
+    final playlists = widget.searchResults['playlists'] ?? [];
+    if (playlists.isEmpty) {
+      return Center(child: Text('검색 결과가 없습니다'));
+    }
+    return _isLoading
+        ? Center(child: CircularProgressIndicator())
+        : ListView(
+      children: _buildPlaylistList(),
+    );
+  }
+
+  List<Widget> _buildTrackList() {
+    return (_searchResults['tracks'] as List<dynamic>).map((track) {
+      return ListTile(
+        title: Text(track['name'] ?? '알 수 없는 트랙'),
+        subtitle: Text(track['artists']?[0]?['name'] ?? '알 수 없는 아티스트'),
+        onTap: () => widget.spotifyService.playTrack(track['uri']),
+      );
+    }).toList();
+  }
+
+  List<Widget> _buildPlaylistList() {
+    return (_searchResults['playlists'] as List<dynamic>).map((playlist) {
+      return ListTile(
+        title: Text(playlist?['name'] ?? '알 수 없는 플레이리스트'),
+        subtitle: Text('${playlist?['tracks']?['total'] ?? 0} 트랙'),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => PlaylistDetailView(
+                spotifyService: widget.spotifyService,
+                playlistId: playlist?['id'] ?? '',
+                playlistName: playlist?['name'] ?? '플레이리스트',
+              ),
+            ),
+          );
+        },
+      );
+    }).toList();
   }
 }

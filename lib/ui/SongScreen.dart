@@ -8,7 +8,9 @@ class SongScreen extends StatefulWidget {
   final String title;
   final SpotifyService spotifyService;
 
-  const SongScreen({Key? key, required this.title, required this.spotifyService}) : super(key: key);
+  const SongScreen(
+      {Key? key, required this.title, required this.spotifyService})
+      : super(key: key);
 
   @override
   _SongScreenState createState() => _SongScreenState();
@@ -26,7 +28,7 @@ class _SongScreenState extends State<SongScreen> {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                builder: (context) => SearchView(spotifyService: widget.spotifyService, onTabChange: (index) {}),
+                builder: (context) => SearchView(spotifyService: widget.spotifyService),
               ),
             );
           },
@@ -49,7 +51,8 @@ class _SongScreenState extends State<SongScreen> {
         child: Column(
           children: List.generate(6, (index) {
             return Container(
-              width: MediaQuery.of(context).size.width * 0.9, // Adjust width here
+              width: MediaQuery.of(context).size.width * 0.9,
+              // Adjust width here
               height: 80,
               decoration: BoxDecoration(
                 color: Colors.grey[300],

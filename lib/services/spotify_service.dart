@@ -273,9 +273,9 @@ class SpotifyService {
     }
   }
 
-  Future<List<dynamic>> searchTracks(String query) async {
+  Future<Map<String, List>> search(String query) async {
     await _refreshTokenIfNeeded();
-    final url = Uri.parse('https://api.spotify.com/v1/search?q=$query&type=track&limit=10');
+    final url = Uri.parse('https://api.spotify.com/v1/search?q=$query&type=track,playlist&limit=50');
     try {
       final response = await http.get(
         url,
@@ -283,14 +283,17 @@ class SpotifyService {
       );
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        return data['tracks']['items'];
+        return {
+          'tracks': data['tracks']['items'] ?? [],
+          'playlists': data['playlists']['items'] ?? [],
+        };
       } else {
-        print('Failed to search tracks: ${response.statusCode}');
-        return [];
+        print('검색 실패: ${response.statusCode}');
+        return {'tracks': [], 'playlists': []};
       }
     } catch (e) {
-      print('Error searching tracks: $e');
-      return [];
+      print('검색 중 오류 발생: $e');
+      return {'tracks': [], 'playlists': []};
     }
   }
 
