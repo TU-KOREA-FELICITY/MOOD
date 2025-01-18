@@ -91,7 +91,7 @@ class LoginScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        '정면을 응시해주세요',
+                        '카메라를 응시해주세요',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,

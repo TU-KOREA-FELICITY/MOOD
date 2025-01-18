@@ -19,7 +19,7 @@ class FaceRecognitionScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        '얼굴인식을 진행합니다.',
+                        '얼굴등록을 시작합니다.',
                         style: TextStyle(
                           fontSize: 26,
                           fontWeight: FontWeight.bold,
@@ -69,7 +69,7 @@ class FaceRecognitionScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        '정면을 응시해주세요',
+                        '카메라를 응시해주세요',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -78,7 +78,7 @@ class FaceRecognitionScreen extends StatelessWidget {
                       ),
                     ],
                   ),
-                  SizedBox(height: 250),
+                  SizedBox(height: 200),
                   Container(
                     width: MediaQuery.of(context).size.width * 0.7,
                     child: ElevatedButton(
