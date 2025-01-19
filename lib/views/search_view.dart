@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../services/spotify_service.dart';
 import '../ui/CategoryTagScreen.dart';
 import '../ui/PlaylistScreen.dart';
+import '../views/spotify_home_page.dart';
 
 class SearchView extends StatefulWidget {
   final SpotifyService spotifyService;
@@ -22,6 +23,7 @@ class _SearchViewState extends State<SearchView> {
   bool _showCancelIcon = false;
   List<String> recentSearches = [];
   Map<String, List> _searchResults = {'tracks': [], 'playlists': []};
+
 
   @override
   void initState() {
@@ -71,6 +73,8 @@ class _SearchViewState extends State<SearchView> {
           builder: (context) => PlaylistScreen(
             spotifyService: widget.spotifyService,
             searchResults: _searchResults,
+            searchQuery: query,
+            recentSearches: recentSearches,
           ),
         ),
       );
