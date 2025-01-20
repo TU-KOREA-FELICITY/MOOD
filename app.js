@@ -1,64 +1,38 @@
 const express = require('express');
+const http = require('http');
+const { Server } = require('socket.io');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const { exec } = require('child_process');
-const { Server } = require('ws'); // WebSocket 서버를 추가합니다.
 
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server);
+
 const PORT = 3001; // 포트를 3001로 변경
 
-app.use(cors());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json({ limit: '50mb' }));
+app.use(cors({ origin: '*' }));
 
-// WebSocket 서버 설정
-const wss = new Server({ port: 3002 }); // WebSocket 서버 포트를 3002로 설정합니다.
-
-wss.on('connection', ws => {
-  console.log('WebSocket client connected');
-  ws.on('message', message => {
-    console.log('Received message from client:', message);
-  });
-  ws.on('close', () => {
-    console.log('WebSocket client disconnected');
-  });
+app.post('/webcam_frame', (req, res) => {
+  const { frame } = req.body;
+  io.emit('webcam_stream', frame);
+  res.sendStatus(200);
 });
 
-// 기존의 로그인 관련 코드
-app.post('/login', (req, res) => {
-  // 로그인 로직
-  res.status(200).send({ success: true });
-});
-
-// 집중도 인식을 위한 엔드포인트 추가
-app.post('/detect-concentration', (req, res) => {
-  exec('python3 estimator.py', (error, stdout, stderr) => {
-    if (error) {
-      console.error(`exec error: ${error}`);
-      return res.status(500).send({ error: 'Failed to execute estimator.py' });
-    }
-    console.log(`stdout: ${stdout}`);
-    console.error(`stderr: ${stderr}`);
-
-    // estimator.py의 출력 결과를 클라이언트로 전송
-    res.status(200).send({ result: stdout });
-  });
-});
-
-// 경고 메시지를 수신하기 위한 엔드포인트 추가
 app.post('/warning', (req, res) => {
   console.log('Received warning:', req.body);
-
-  // WebSocket을 통해 Flutter 앱으로 경고 메시지를 전송
-  wss.clients.forEach(client => {
-    if (client.readyState === client.OPEN) {
-      client.send(JSON.stringify(req.body));
-    }
-  });
-
-  res.status(200).send({ success: true });
+  io.emit('warning', req.body);
+  res.sendStatus(200);
 });
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+io.on('connection', (socket) => {
+  console.log('클라이언트가 연결되었습니다.');
+
+  socket.on('disconnect', () => {
+    console.log('클라이언트 연결이 끊어졌습니다.');
+  });
+});
+
+server.listen(PORT, () => {
+  console.log(`서버가 ${PORT} 포트에서 실행 중입니다.`);
 });
