@@ -209,7 +209,7 @@ class _SearchViewState extends State<SearchView> {
                         ],
                       ),
                     )
-                  : CategoryTagScreen(),
+                  : CategoryTagScreen(spotifyService: widget.spotifyService,),
             ),
           ],
         ),

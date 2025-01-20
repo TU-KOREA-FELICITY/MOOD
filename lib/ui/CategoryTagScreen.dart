@@ -8,7 +8,8 @@ import 'SongScreen.dart';
 import 'package:mood/services/spotify_service.dart';
 
 class CategoryTagScreen extends StatefulWidget {
-  const CategoryTagScreen({Key? key}) : super(key: key);
+  final SpotifyService spotifyService;
+  const CategoryTagScreen({Key? key, required this.spotifyService}) : super(key: key);
 
   @override
   _CategoryTagScreenState createState() => _CategoryTagScreenState();
@@ -17,53 +18,39 @@ class CategoryTagScreen extends StatefulWidget {
 class _CategoryTagScreenState extends State<CategoryTagScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final TextEditingController _playlistNameController = TextEditingController();
-  final SpotifyService spotifyService = SpotifyService();
+  List<dynamic> _playlists = [];
   List<dynamic> _tracks = [];
   bool _isLoading = false;
 
-
-  void _createPlaylist() async {
-    if (_playlistNameController.text.isNotEmpty) {
-      try {
-        await spotifyService.createPlaylist(_playlistNameController.text);
-        _playlistNameController.clear();
-        setState(() {});
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('플레이리스트 생성 실패: $e')),
-        );
-      }
-    }
-  }
-
-  void _showPlaylistTracks(String playlistId, String playlistName) {
-    Navigator.push(
+  void _showPlaylistTracks(String playlistId, String playlistName) async {
+    final result = await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => PlaylistTracksView(
-          spotifyService: spotifyService,
+          spotifyService: widget.spotifyService,
           playlistId: playlistId,
           playlistName: playlistName,
         ),
       ),
     );
+    if (result == true) {
+      _loadPlaylists();
+    }
   }
-
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    _loadTracks();
+    _loadPlaylists();
   }
 
-  Future<void> _loadTracks() async {
+  Future<void> _loadPlaylists() async {
     setState(() => _isLoading = true);
     try {
-      final userId = await spotifyService.getCurrentUserId();
-      final tracks = await spotifyService.getPlaylists();
+      final playlists = await widget.spotifyService.getPlaylists();
       setState(() {
-        _tracks = tracks;
+        _playlists = playlists;
         _isLoading = false;
       });
     } catch (e) {
@@ -72,6 +59,19 @@ class _CategoryTagScreenState extends State<CategoryTagScreen> with SingleTicker
     }
   }
 
+  Future<void> _deletePlaylist(String playlistId) async {
+    try {
+      await widget.spotifyService.deletePlaylist(playlistId);
+      await _loadPlaylists();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('플레이리스트가 삭제되었습니다.')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('플레이리스트 삭제에 실패했습니다: $e')),
+      );
+    }
+  }
 
   @override
   void dispose() {
@@ -104,9 +104,7 @@ class _CategoryTagScreenState extends State<CategoryTagScreen> with SingleTicker
                 child: TabBarView(
                   controller: _tabController,
                   children: [
-                    // Emotion Categories Tab
                     _buildEmotionCategories(),
-                    // My Playlist Tab
                     _buildMyPlaylist(),
                   ],
                 ),
@@ -137,70 +135,44 @@ class _CategoryTagScreenState extends State<CategoryTagScreen> with SingleTicker
   }
 
   Widget _buildMyPlaylist() {
-    return FutureBuilder<List<dynamic>>(
-      future: spotifyService.getPlaylists(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return Center(child: Text('플레이리스트를 불러오는 데 실패했습니다.'));
-        }
+    return Column(
+      children: [
+        ElevatedButton(
+          onPressed: () => _showCreatePlaylistDialog(),
+          child: Text(
+            '새 플레이리스트 생성',
+            style: TextStyle(color: Colors.blueAccent),
+          ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.white,
+            minimumSize: Size(200, 50),
+            side: BorderSide(color: Colors.blueAccent),
+          ),
+        ),
+        SizedBox(height: 16),
 
-        List<dynamic> playlists = snapshot.data ?? [];
-        return Column(
-          children: [
-            ElevatedButton(
-              onPressed: () => _showCreatePlaylistDialog(),
-              child: Text('새 플레이리스트 생성',
-              style: TextStyle(color: Colors.blueAccent),),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                minimumSize: Size(200, 50),
-                side: BorderSide(color: Colors.blueAccent)
-              ),
-            ),
-            SizedBox(height: 16),
-            Expanded(
-              child: GridView.builder(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  childAspectRatio: 1.8,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
+        Expanded(
+          child: _isLoading
+              ? Center(child: CircularProgressIndicator())
+              : ListView.builder(
+            itemCount: _playlists.length,
+            itemBuilder: (context, index) {
+              final playlist = _playlists[index];
+              return ListTile(
+                title: Text(playlist['name']),
+                subtitle: Text('${playlist['tracks']['total']} 트랙'),
+                onTap: () => _showPlaylistTracks(playlist['id'], playlist['name']),
+                trailing: IconButton(
+                  icon: Icon(Icons.close),
+                  onPressed: () => _deletePlaylist(playlist['id']),
                 ),
-                itemCount: playlists.length,
-                itemBuilder: (context, index) {
-                  return Container(
-                    decoration: BoxDecoration(
-                      color: Colors.grey[300],
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: Center(
-                        child: Text(
-                          playlists[index]['name'],
-                          style: const TextStyle(
-                            color: Colors.black87,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          textAlign: TextAlign.center,
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 2,
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
-        );
-      },
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
-
 
 
   Widget _buildCategoryCard(String title, Color color) {
@@ -210,7 +182,7 @@ class _CategoryTagScreenState extends State<CategoryTagScreen> with SingleTicker
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) =>
-              SongScreen(title: title, spotifyService: spotifyService)),
+              SongScreen(title: title, spotifyService: widget.spotifyService)),
         );
       },
       child: Container(
@@ -291,7 +263,7 @@ class _CategoryTagScreenState extends State<CategoryTagScreen> with SingleTicker
               onPressed: () async {
                 if (_playlistNameController.text.isNotEmpty) {
                   try {
-                    await spotifyService.createPlaylist(
+                    await widget.spotifyService.createPlaylist(
                         _playlistNameController.text);
                     Navigator.of(context).pop();
                     setState(() {}); // 화면 새로고침

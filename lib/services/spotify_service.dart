@@ -248,6 +248,27 @@ class SpotifyService {
     }
   }
 
+  Future<void> deletePlaylist(String playlistId) async {
+    final url = 'https://api.spotify.com/v1/playlists/$playlistId/followers';
+    final headers = {
+      'Authorization': 'Bearer $_accessToken',
+      'Content-Type': 'application/json',
+    };
+
+    try {
+      final response = await http.delete(Uri.parse(url), headers: headers);
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        print('플레이리스트가 성공적으로 삭제되었습니다.');
+      } else {
+        throw Exception('플레이리스트 삭제 실패: ${response.statusCode}, ${response.body}');
+      }
+    } catch (e) {
+      print('플레이리스트 삭제 중 오류 발생: $e');
+      throw e;
+    }
+  }
+
   Future<void> addTrackToPlaylist(String playlistId, String trackUri) async {
     await _refreshTokenIfNeeded();
     final url = 'https://api.spotify.com/v1/playlists/$playlistId/tracks';
