@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-import 'signup_complete_screen.dart';
+import 'signup_completion_screen.dart';
 
 class SpotifyAuthWebView extends StatefulWidget {
   final String authUrl;
@@ -39,13 +39,20 @@ class _SpotifyAuthWebViewState extends State<SpotifyAuthWebView> {
     final fragment = uri.fragment;
     final params = Uri.splitQueryString(fragment);
 
-    Navigator.pop(context, {
+    final authData = {
       'accessToken': params['access_token'],
       'refreshToken': params['refresh_token'],
       'expiryTime': DateTime.now().add(
         Duration(seconds: int.tryParse(params['expires_in'] ?? '3600') ?? 3600),
       ),
-    });
+    };
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SignUpCompletionScreen(authData: authData),
+      ),
+    );
   }
 
   @override

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
 class SignUpCompletionScreen extends StatelessWidget {
-  final String username;
+  final Map<String, Object?> authData;
+  final String userName = 'IN SUN';
 
-  const SignUpCompletionScreen({Key? key, required this.username}) : super(key: key);
+  const SignUpCompletionScreen({Key? key, required this.authData}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +47,7 @@ class SignUpCompletionScreen extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               Text(
-                '$username님의 회원가입이\n성공적으로 완료되었습니다.',
+                '$userName님의 회원가입이\n성공적으로 완료되었습니다.',
                 textAlign: TextAlign.center,
                 style: const TextStyle(fontSize: 16),
               ),
