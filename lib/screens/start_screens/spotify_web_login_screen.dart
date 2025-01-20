@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'signup_complete_screen.dart';
 
 class SpotifyAuthWebView extends StatefulWidget {
   final String authUrl;
@@ -51,17 +52,20 @@ class _SpotifyAuthWebViewState extends State<SpotifyAuthWebView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Color(0xFF121212),
         title: Align(
           alignment: Alignment.centerLeft,
           child: Text(
-            'Spotify 로그인',
+            'Spotify 연동하기',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
+              color: Colors.white,
             ),
           ),
         ),
         titleSpacing: 0,
+        iconTheme: IconThemeData(color: Colors.white),
       ),
       body: WebViewWidget(controller: controller),
     );

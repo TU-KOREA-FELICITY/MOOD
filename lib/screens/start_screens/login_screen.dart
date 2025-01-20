@@ -66,7 +66,7 @@ class LoginScreen extends StatelessWidget {
                           child: Icon(
                             Icons.person,
                             size: 170,
-                            color: Colors.grey[600],
+                            color: Colors.black,
                           ),
                         ),
                       ),
