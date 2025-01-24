@@ -151,7 +151,7 @@ class _CategoryTagScreenState extends State<CategoryTagScreen> with SingleTicker
         ),
         SizedBox(height: 16),
 
-        Expanded(
+        /*Expanded(
           child: _isLoading
               ? Center(child: CircularProgressIndicator())
               : ListView.builder(
@@ -169,7 +169,47 @@ class _CategoryTagScreenState extends State<CategoryTagScreen> with SingleTicker
               );
             },
           ),
+        ),*/
+        
+        Expanded(
+          child: _isLoading
+              ? Center(child: CircularProgressIndicator())
+              : ListView.builder(
+            itemCount: _playlists.length,
+            itemBuilder: (context, index) {
+              final playlist = _playlists[index];
+              return Padding(
+                padding: EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
+                child: Card(
+                  elevation: 3,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15.0),
+                  ),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(15.0),
+                    ),
+                    child: ListTile(
+                      contentPadding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                      title: Text(
+                        playlist['name'],
+                        style: TextStyle(fontSize:20, fontWeight: FontWeight.bold),
+                      ),
+                      subtitle: Text('${playlist['tracks']['total']} 트랙'),
+                      onTap: () => _showPlaylistTracks(playlist['id'], playlist['name']),
+                      trailing: IconButton(
+                        icon: Icon(Icons.close),
+                        onPressed: () => _deletePlaylist(playlist['id']),
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
         ),
+
       ],
     );
   }

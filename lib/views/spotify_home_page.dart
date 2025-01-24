@@ -4,6 +4,7 @@ import 'package:mood/views/search_view.dart';
 import '../services/spotify_service.dart';
 import '../widgets/spotify_auth_webview.dart';
 import 'package:spotify_sdk/spotify_sdk.dart';
+import '../ui/Miniplayer.dart';
 
 class SpotifyHomePage extends StatefulWidget {
   @override
@@ -202,6 +203,8 @@ class _SpotifyHomePageState extends State<SpotifyHomePage>
     );
   }
 
+
+
   String _formatDuration(double milliseconds) {
     final Duration duration = Duration(milliseconds: milliseconds.toInt());
     final minutes = duration.inMinutes;
@@ -271,6 +274,8 @@ class _SpotifyHomePageState extends State<SpotifyHomePage>
     }
   }
 
+
+
   Future<void> _updateCurrentTrack() async {
     try {
       final playerState = await SpotifySdk.getPlayerState();
@@ -290,3 +295,4 @@ class _SpotifyHomePageState extends State<SpotifyHomePage>
     }
   }
 }
+

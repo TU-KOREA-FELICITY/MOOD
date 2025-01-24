@@ -1,6 +1,7 @@
 // views (search_view 와 유사함,)
 
 import 'package:flutter/material.dart';
+import 'package:mood/ui/Miniplayer.dart';
 import '../services/spotify_service.dart';
 import '../ui/CategoryTagScreen.dart';
 import '../ui/PlaylistScreen.dart';
@@ -70,12 +71,13 @@ class _SearchViewState extends State<SearchView> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => PlaylistScreen(
-            spotifyService: widget.spotifyService,
-            searchResults: _searchResults,
-            searchQuery: query,
-            recentSearches: recentSearches,
-          ),
+          builder: (context) =>
+              PlaylistScreen(
+                spotifyService: widget.spotifyService,
+                searchResults: _searchResults,
+                searchQuery: query,
+                recentSearches: recentSearches,
+              ),
         ),
       );
     } catch (e) {
