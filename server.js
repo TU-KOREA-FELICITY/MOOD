@@ -101,9 +101,9 @@ app.post('/auth_result', (req, res) => {
 app.post('/analyze_emotion', async (req, res) => {
   await stopEstimator();
   try {
-    const result = await runPythonScript('aws-emotion.py');
-    console.log('감정 분석 결과:\n', result);
-    res.json({ result: result });
+    await runPythonScript('aws-emotion.py');
+    console.log('감정 분석 결과:\n', emotionResult);
+    res.json({ result: emotionResult.result });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -111,22 +111,21 @@ app.post('/analyze_emotion', async (req, res) => {
 });
 
 app.post('/emotion_result', (req, res) => {
+  emotionResult = req.body;
   console.log('Received /emotion_result with body:', req.body);
   if (!req.body) {
     res.status(400).send('Invalid request: "result" field is missing');
     return;
   }
-
-  emotionResult = req.body;
-  console.log('감정 분석 결과:');
-  for (const [emotion, confidence] of Object.entries(emotionResult)) {
-    // 숫자인지 확인하고 toFixed 사용
-    if (typeof confidence === 'number') {
-      console.log(`${emotion}: ${confidence.toFixed(2)}%`);
-    } else {
-      console.log(`${emotion}: ${confidence}%`);
-    }
-  }
+  console.log('감정 분석 결과:\n', emotionResult);
+//  for (const [emotion, confidence] of Object.entries(emotionResult)) {
+//    // 숫자인지 확인하고 toFixed 사용
+//    if (typeof confidence === 'number') {
+//      console.log(`${emotion}: ${confidence.toFixed(2)}%`);
+//    } else {
+//      console.log(`${emotion}: ${confidence}%`);
+//    }
+//  }
   res.sendStatus(200);
 });
 

@@ -21,7 +21,8 @@ class _HomeScreenState extends State<HomeScreen> {
   String _concentrationResult = '결과 없음';
   Uint8List? _imageData;
   String _warningMessage = '';
-  String _emotionResult = '감정 분석 결과 없음';
+  String _emotionResult = '';
+  String _status = '';
 
   @override
   void initState() {
@@ -108,6 +109,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _analyzeEmotion() async {
+    setState(() {
+      _status = '감정 분석 중...';
+    });
     try {
       // 감정 분석 시작 요청을 서버로 보냄
       final response = await http.post(
@@ -115,27 +119,21 @@ class _HomeScreenState extends State<HomeScreen> {
       );
 
       if (response.statusCode == 200) {
-        final result = jsonDecode(utf8.decode(response.bodyBytes)); // UTF-8로 디코딩
+        final result = json.decode(response.body);
         setState(() {
-          _emotionResult = _formatEmotionResult(result['result']);
+          _emotionResult = result['result'];
+          _status = '감정 분석 완료';
         });
       } else {
         setState(() {
-          _emotionResult = '감정 분석 실패';
+          _status = '감정 분석 실패';
         });
       }
     } catch (e) {
       setState(() {
-        _emotionResult = '서버 연결 오류';
+        _status = '서버 연결 오류: $e';
       });
     }
-  }
-
-  String _formatEmotionResult(dynamic result) {
-    if (result is Map) {
-      return result.entries.map((entry) => '${entry.key}: ${entry.value.toStringAsFixed(2)}%').join('\n');
-    }
-    return result.toString();
   }
 
   @override
@@ -271,6 +269,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ? Image.memory(
                   _imageData!,
                   gaplessPlayback: true,
+                  fit: BoxFit.cover,
                 )
                     : Center(
                   child: Text('카메라 화면이 여기에 표시됩니다'),
@@ -298,11 +297,13 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           Center(
-            child: Text(
-              _emotionResult,
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
+              child: Text(_status),
           ),
+          Center(
+            child: Text(
+            _emotionResult,
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),),
           Padding(
             padding: EdgeInsets.only(right: 60, bottom: 20),
             child: Align(
