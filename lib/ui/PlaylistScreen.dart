@@ -118,6 +118,53 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
     }
   }
 
+  Future<List<dynamic>> _getPlaylists() async {
+    try {
+      return await widget.spotifyService.getPlaylists();
+    } catch (e) {
+      print('플레이리스트 가져오기 오류: $e');
+      return [];
+    }
+  }
+
+  void _addTrackToPlaylist(String trackUri) async {
+    final playlists = await _getPlaylists();
+
+    final selectedPlaylist = await showDialog<Map<String, dynamic>>(
+      context: context,
+      builder: (BuildContext context) {
+        return SimpleDialog(
+          title: Text('플레이리스트 선택'),
+          children: playlists.map((playlist) {
+            return SimpleDialogOption(
+              onPressed: () {
+                Navigator.pop(context, playlist);
+              },
+              child: Text(playlist['name'] ?? '알 수 없는 플레이리스트'),
+            );
+          }).toList(),
+        );
+      },
+    );
+
+    if (selectedPlaylist != null) {
+      try {
+        await widget.spotifyService.addTrackToPlaylist(
+          selectedPlaylist['id'],
+          trackUri,
+        );
+        selectedPlaylist['tracks']['total']++;
+        Navigator.pop(context, true);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('곡이 플레이리스트에 추가되었습니다.')),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('곡 추가에 실패했습니다: $e')),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -383,9 +430,7 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
             ),
             IconButton(
               icon: Icon(Icons.playlist_add, color: Colors.black),
-              onPressed: () {
-                // 플레이리스트에 추가 기능 구현
-              },
+              onPressed: () => _addTrackToPlaylist(track['uri']),
             ),
           ],
         ),

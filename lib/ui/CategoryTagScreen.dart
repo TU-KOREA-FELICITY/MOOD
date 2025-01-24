@@ -139,14 +139,14 @@ class _CategoryTagScreenState extends State<CategoryTagScreen> with SingleTicker
       children: [
         ElevatedButton(
           onPressed: () => _showCreatePlaylistDialog(),
-          child: Text(
-            '새 플레이리스트 생성',
-            style: TextStyle(color: Colors.blueAccent),
-          ),
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.white,
             minimumSize: Size(200, 50),
             side: BorderSide(color: Colors.blueAccent),
+          ),
+          child: Text(
+            '새 플레이리스트 생성',
+            style: TextStyle(color: Colors.blueAccent),
           ),
         ),
         SizedBox(height: 16),
