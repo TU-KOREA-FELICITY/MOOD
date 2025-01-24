@@ -8,7 +8,6 @@ const cors = require('cors');
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
-
 const PORT = process.env.PORT || 3000;
 
 app.use(bodyParser.json({ limit: '50mb' }));
@@ -17,6 +16,7 @@ app.use(cors({ origin: '*' }));
 let authResult = null;
 let registrationResult = null;
 let emotionResult = null;
+let webcamProcess = null;
 
 function runPythonScript(scriptName, args = []) {
   return new Promise((resolve, reject) => {
@@ -39,11 +39,22 @@ function runPythonScript(scriptName, args = []) {
   });
 }
 
-app.post('/webcam_frame', (req, res) => {
-  const { frame } = req.body;
-  io.emit('webcam_stream', frame);
-  res.sendStatus(200);
-});
+function startWebcam () {
+  webcamProcess = spawn('python', ['webcam.py']);
+    console.log('webcam.py 실행');
+    app.post('/webcam_frame', (req, res) => {
+      const { frame } = req.body;
+      io.emit('webcam_stream', frame);
+      res.sendStatus(200);
+    });
+}
+
+function stopWebcam () {
+  if (webcamProcess) {
+    webcamProcess.kill();
+    console.log('webcam.py 종료');
+  }
+}
 
 app.post('/register', async (req, res) => {
   const { username } = req.body;
@@ -51,9 +62,19 @@ app.post('/register', async (req, res) => {
     return res.status(400).json({ error: "사용자 이름이 필요합니다." });
   }
   try {
-    const result = await runPythonScript('aws-face-reg.py', [username]);
-    console.log('얼굴 등록 결과:\n', result);
-    res.json({ message: "얼굴 등록 프로세스 완료", result });
+    startWebcam();
+    // 5초 후 webcam.py 종료 및 aws-face-reg.py 실행
+    setTimeout(async () => {
+      try {
+        stopWebcam ();
+        const result = await runPythonScript('aws-face-reg.py', [username]);
+        console.log('얼굴 등록 결과:\n', result);
+        res.json({ message: "얼굴 등록 프로세스 완료", result });
+      } catch (error) {
+        console.error('aws-face-reg.py 실행 중 오류:', error);
+        res.status(500).json({ error: error.message });
+      }
+    }, 5000);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -62,9 +83,19 @@ app.post('/register', async (req, res) => {
 app.post('/login', async (req, res) => {
   authResult = null;
   try {
-    const result = await runPythonScript('aws-face-auth.py');
-    console.log('얼굴 인증 결과:\n', result);
-    res.json({ message: "얼굴 인증 프로세스 완료", result });
+    startWebcam();
+    // 5초 후 webcam.py 종료 및 aws-face-reg.py 실행
+    setTimeout(async () => {
+      try {
+        stopWebcam ();
+        const result = await runPythonScript('aws-face-auth.py');
+        console.log('얼굴 인증 결과:\n', result);
+        res.json({ message: "얼굴 인증 프로세스 완료", result });
+      } catch (error) {
+        console.error('aws-face-reg.py 실행 중 오류:', error);
+        res.status(500).json({ error: error.message });
+      }
+    }, 5000);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
