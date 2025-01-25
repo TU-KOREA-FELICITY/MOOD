@@ -1,9 +1,7 @@
 //카테고리 태그 -> SongScreen
 
 import 'package:flutter/material.dart';
-import 'package:mood/views/playlist_detail_view.dart';
-import '../views/playlist_view.dart';
-import 'PlaylistScreen.dart';
+import '../views/playlist_tracks_view.dart';
 import 'SongScreen.dart';
 import 'package:mood/services/spotify_service.dart';
 
@@ -22,6 +20,19 @@ class _CategoryTagScreenState extends State<CategoryTagScreen> with SingleTicker
   List<dynamic> _tracks = [];
   bool _isLoading = false;
 
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+    _loadPlaylists();
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
   void _showPlaylistTracks(String playlistId, String playlistName) async {
     final result = await Navigator.push(
       context,
@@ -36,13 +47,6 @@ class _CategoryTagScreenState extends State<CategoryTagScreen> with SingleTicker
     if (result == true) {
       _loadPlaylists();
     }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 2, vsync: this);
-    _loadPlaylists();
   }
 
   Future<void> _loadPlaylists() async {
@@ -68,15 +72,9 @@ class _CategoryTagScreenState extends State<CategoryTagScreen> with SingleTicker
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('플레이리스트 삭제에 실패했습니다: $e')),
+        SnackBar(content: Text('플레이리스트 삭제 실패: $e')),
       );
     }
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
   }
 
   @override
@@ -89,7 +87,6 @@ class _CategoryTagScreenState extends State<CategoryTagScreen> with SingleTicker
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 20),
               TabBar(
                 controller: _tabController,
                 tabs: [
@@ -99,7 +96,7 @@ class _CategoryTagScreenState extends State<CategoryTagScreen> with SingleTicker
                 labelColor: Colors.black,
                 unselectedLabelColor: Colors.grey,
               ),
-              const SizedBox(height: 13),
+              const SizedBox(height: 16),
               Expanded(
                 child: TabBarView(
                   controller: _tabController,
@@ -214,7 +211,6 @@ class _CategoryTagScreenState extends State<CategoryTagScreen> with SingleTicker
     );
   }
 
-
   Widget _buildCategoryCard(String title, Color color) {
     return GestureDetector(
       onTap: () {
@@ -306,7 +302,10 @@ class _CategoryTagScreenState extends State<CategoryTagScreen> with SingleTicker
                     await widget.spotifyService.createPlaylist(
                         _playlistNameController.text);
                     Navigator.of(context).pop();
-                    setState(() {}); // 화면 새로고침
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('플레이리스트가 생성되었습니다.')),
+                    );
+                    await _loadPlaylists();
                   } catch (e) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('플레이리스트 생성 실패: $e')),

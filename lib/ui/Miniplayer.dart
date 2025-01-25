@@ -1,15 +1,15 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:mood/views/search_view.dart';
 import '../services/spotify_service.dart';
-import '../widgets/spotify_auth_webview.dart';
 import 'package:spotify_sdk/spotify_sdk.dart';
-import '../views/spotify_home_page.dart';
-
 
 class Miniplayer extends StatefulWidget {
-@override
-_MiniplayerState createState() => _MiniplayerState();
+  final SpotifyService spotifyService;
+
+  const Miniplayer({super.key, required this.spotifyService});
+
+  @override
+  _MiniplayerState createState() => _MiniplayerState();
 }
 
 class _MiniplayerState extends State<Miniplayer>
@@ -18,13 +18,31 @@ class _MiniplayerState extends State<Miniplayer>
   bool _isPlaying = false;
   String _currentTrack = 'No track playing';
   String _artistName = 'Unknown artist';
-
+  String _currentTrackImageUri = '';
   double _sliderValue = 0.0;
   double _duration = 1.0;
-  String _currentTrackImageUri = '';
+  Timer? _updateTimer;
 
+  @override
+  void initState() {
+    super.initState();
+    _updateCurrentTrack();
+    _startPeriodicUpdate();
+  }
 
-    Future<void> _togglePlayPause() async {
+  void _startPeriodicUpdate() {
+    _updateTimer = Timer.periodic(Duration(seconds: 1), (timer) {
+      _updateCurrentTrack();
+    });
+  }
+
+  @override
+  void dispose() {
+    _updateTimer?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _togglePlayPause() async {
     try {
       if (_isPlaying) {
         await SpotifySdk.pause();
@@ -74,12 +92,11 @@ class _MiniplayerState extends State<Miniplayer>
     }
   }
 
-
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       child: Container(
-        height: 130,
+        height: 100,
         padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: Colors.grey[200],

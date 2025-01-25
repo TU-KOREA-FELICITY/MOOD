@@ -1,10 +1,13 @@
+// 검색 후 화면
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:mood/services/spotify_service.dart';
-import 'package:mood/views/playlist_detail_view.dart';
+import 'package:mood/views/search_view.dart';
 import 'package:spotify_sdk/spotify_sdk.dart';
-import '../views/search_view.dart';
+
+import '../services/spotify_service.dart';
+import '../views/playlist_detail_view.dart';
 
 class PlaylistScreen extends StatefulWidget {
   final SpotifyService spotifyService;
@@ -90,19 +93,6 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
     }
   }
 
-  Future<void> _togglePlayPause(String uri) async {
-    try {
-      if (_isPlaying) {
-        await SpotifySdk.pause();
-      } else {
-        await SpotifySdk.play(spotifyUri: uri);
-      }
-      _updateCurrentTrack();
-    } catch (e) {
-      print('Failed to toggle play/pause: $e');
-    }
-  }
-
   Future<void> _updateCurrentTrack() async {
     try {
       final playerState = await SpotifySdk.getPlayerState();
@@ -185,9 +175,7 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
                       onPressed: () => Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => SearchView(
-                            spotifyService: widget.spotifyService,
-                          ),
+                          builder: (context) => SearchView(spotifyService: widget.spotifyService),
                         ),
                       ),
                     ),
@@ -440,7 +428,20 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
 
   List<Widget> _buildPlaylistList() {
     return (_searchResults['playlists'] as List<dynamic>).map((playlist) {
-      return Container(
+      return GestureDetector(
+          onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PlaylistDetailView(
+              spotifyService: widget.spotifyService, // spotifyService 인스턴스를 전달해야 합니다
+              playlistId: playlist?['id'] ?? '',
+              playlistName: playlist?['name'] ?? '알 수 없는 플레이리스트',
+            ),
+          ),
+        );
+      },
+      child: Container(
         margin: EdgeInsets.symmetric(vertical: 8.0),
         padding: EdgeInsets.all(12.0),
         decoration: BoxDecoration(
@@ -489,6 +490,7 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
             ),
           ],
         ),
+      ),
       );
     }).toList();
   }
