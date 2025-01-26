@@ -31,7 +31,7 @@ class FaceRecognitionGuideScreen extends StatelessWidget {
                       SizedBox(width: 5),
                       Expanded(
                         child: Text(
-                            "사진은 버튼을 누르는 즉시 1장이 촬영됩니다.",
+                            "사진은 버튼을 누르고 5초 뒤에 1장이 촬영됩니다.",
                             style: TextStyle(
                                 fontSize: 13,
                                 color: Color(0xFF707070),
@@ -90,10 +90,6 @@ class FaceRecognitionGuideScreen extends StatelessWidget {
                   MaterialPageRoute(builder: (context) => FaceRecognitionScreen()),
                 );
               },
-                child: Text(
-                  "얼굴 등록 시작",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Color(0xFF0126FA),
                 foregroundColor: Colors.white,
@@ -102,6 +98,10 @@ class FaceRecognitionGuideScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(20),
                 ),
               ),
+                child: Text(
+                  "얼굴 등록 시작",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
             ),
           ),
             ],

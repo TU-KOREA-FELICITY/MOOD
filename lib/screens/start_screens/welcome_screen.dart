@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 
 class WelcomeScreen extends StatefulWidget {
+  final String userId;
+
+  WelcomeScreen({super.key, required this.userId});
+
   @override
   _WelcomeScreenState createState() => _WelcomeScreenState();
 }
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
-  final String userName = 'IN SUN'; // 이 부분은 실제 인식된 사용자 이름으로 대체
   final String carModel = 'Mercedes-Benz AMG G63'; // 이 부분은 실제 등록된 차종으로 대체
 
   @override
@@ -63,7 +66,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               SizedBox(height: 10),
               Center(
                 child: Text(
-                  '$userName님 어서오세요',
+                  '${widget.userId}님 어서오세요',
                   style: TextStyle(fontSize: 18),
                   textAlign: TextAlign.center,
                 ),
@@ -77,7 +80,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               SizedBox(height: 100),
               Center(
                 child: Text(
-                  '이름 : $userName',
+                  '이름 : ${widget.userId}',
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   textAlign: TextAlign.center,
                 ),

@@ -35,9 +35,9 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => SplashScreen(),
         '/login': (context) => LoginScreen(),
-        '/welcome': (context) => WelcomeScreen(),
+        '/welcome': (context) => WelcomeScreen(userId: '',),
         '/login_failed': (context) => LoginFailedScreen(),
-        '/signup': (context) => SignupScreen(),
+        '/signup': (context) => SignupScreen(userId: ModalRoute.of(context)!.settings.arguments as String,),
         '/face_recognition': (context) => FaceRecognitionScreen(),
         '/music_preference': (context) => MusicPreferenceScreen(),
         '/spotify_login': (context) => SpotifyLoginScreen(),
