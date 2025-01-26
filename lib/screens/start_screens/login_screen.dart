@@ -12,6 +12,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   String _status = '';
+  String? userId;
   IO.Socket? socket;
   Uint8List? imageBytes;
 
@@ -81,11 +82,13 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _checkAuthStatus() async {
     try {
-      final response = await http.get(Uri.parse('http://10.0.2.2:3000/check_auth'));
+      final response =
+          await http.get(Uri.parse('http://10.0.2.2:3000/check_auth'));
       final result = json.decode(response.body);
       if (result['authenticated'] == true) {
         setState(() {
           _status = '인증 성공! 사용자 ID: ${result['user_id']}';
+          userId = result['user_id'];
         });
         // 인증 성공 시 WelcomeScreen으로 이동
         Navigator.pushReplacement(
@@ -149,27 +152,41 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   SizedBox(height: 40),
                   GestureDetector(
-                    child:  SizedBox(
+                    child: SizedBox(
                       width: 260,
                       height: 260,
                       child: Container(
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: Color(0xFFF2F2F1),
-                          border: Border.all(color: Color(0xFF2265F0), width: 6),
+                          border:
+                              Border.all(color: Color(0xFF2265F0), width: 6),
                         ),
                         child: ClipOval(
                           child: imageBytes != null
                               ? Image.memory(
-                            imageBytes!,
-                            fit: BoxFit.cover,
-                            gaplessPlayback: true,
-                          )
-                              : Icon(
-                            Icons.person,
-                            size: 170,
-                            color: Colors.black,
-                          ),
+                                  imageBytes!,
+                                  fit: BoxFit.cover,
+                                  gaplessPlayback: true,
+                                )
+                              : Stack(
+                                  alignment: Alignment.center,
+                                  children: [
+                                    SizedBox(
+                                      width: 260,
+                                      height: 260,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 10,
+                                        color: Color(0xFF2265F0),
+                                      ),
+                                    ),
+                                    Icon(
+                                      Icons.person,
+                                      size: 170,
+                                      color: Colors.black,
+                                    ),
+                                  ],
+                                ),
                         ),
                       ),
                     ),
@@ -178,11 +195,14 @@ class _LoginScreenState extends State<LoginScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(_status, style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF97BCF3),
-                      ),),
+                      Text(
+                        _status,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF97BCF3),
+                        ),
+                      ),
                     ],
                   ),
                 ],
@@ -195,7 +215,11 @@ class _LoginScreenState extends State<LoginScreen> {
               padding: const EdgeInsets.only(right: 50.0, bottom: 200.0),
               child: GestureDetector(
                 onTap: () {
-                  Navigator.pushNamed(context, '/signup');
+                  Navigator.pushNamed(
+                    context,
+                    '/signup',
+                    arguments: userId,
+                  );
                 },
                 child: Text(
                   '회원가입',

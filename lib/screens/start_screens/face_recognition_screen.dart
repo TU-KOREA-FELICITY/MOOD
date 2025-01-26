@@ -170,10 +170,23 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
                                   fit: BoxFit.cover,
                                   gaplessPlayback: true,
                                 )
-                              : Icon(
-                                  Icons.person,
-                                  size: 170,
-                                  color: Colors.black,
+                              : Stack(
+                                  alignment: Alignment.center,
+                                  children: [
+                                    SizedBox(
+                                      width: 260,
+                                      height: 260,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 10,
+                                        color: Color(0xFF2265F0),
+                                      ),
+                                    ),
+                                    Icon(
+                                      Icons.person,
+                                      size: 170,
+                                      color: Colors.black,
+                                    ),
+                                  ],
                                 ),
                         ),
                       ),
