@@ -1,9 +1,9 @@
 //카테고리 태그 -> SongScreen
 
 import 'package:flutter/material.dart';
+import '../services/spotify_service.dart';
 import '../views/playlist_tracks_view.dart';
 import 'SongScreen.dart';
-import 'package:mood/services/spotify_service.dart';
 
 class CategoryTagScreen extends StatefulWidget {
   final SpotifyService spotifyService;
@@ -16,8 +16,8 @@ class CategoryTagScreen extends StatefulWidget {
 class _CategoryTagScreenState extends State<CategoryTagScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final TextEditingController _playlistNameController = TextEditingController();
+  final List<String> _emotionCategories = ['행복', '슬픔', '분노', '놀람', '혐오', '공포', '중립', '경멸'];
   List<dynamic> _playlists = [];
-  List<dynamic> _tracks = [];
   bool _isLoading = false;
 
   @override
@@ -50,16 +50,32 @@ class _CategoryTagScreenState extends State<CategoryTagScreen> with SingleTicker
   }
 
   Future<void> _loadPlaylists() async {
-    setState(() => _isLoading = true);
-    try {
-      final playlists = await widget.spotifyService.getPlaylists();
-      setState(() {
-        _playlists = playlists;
-        _isLoading = false;
-      });
-    } catch (e) {
-      print('플레이리스트 로딩 중 오류 발생: $e');
-      setState(() => _isLoading = false);
+    List playlists = await widget.spotifyService.getPlaylists();
+
+    for (String emotion in _emotionCategories) {
+      if (!playlists.any((playlist) => playlist['name'] == emotion)) {
+        // 해당 감정의 플레이리스트가 없으면 새로 생성
+        await widget.spotifyService.createPlaylist(emotion);
+        playlists.add({'name': emotion, 'id': 'new_${emotion}_id'});
+      }
+    }
+
+    setState(() {
+      _playlists = playlists;
+    });
+  }
+
+  Color _getColorForEmotion(String emotion) {
+    switch (emotion) {
+      case '행복': return Colors.yellow[300]!;
+      case '슬픔': return Colors.blue[300]!;
+      case '분노': return Colors.red[300]!;
+      case '놀람': return Colors.purple[300]!;
+      case '혐오': return Colors.green[300]!;
+      case '공포': return Colors.black54;
+      case '중립': return Colors.grey[300]!;
+      case '경멸': return Colors.orange[300]!;
+      default: return Colors.grey[300]!;
     }
   }
 
@@ -114,20 +130,22 @@ class _CategoryTagScreenState extends State<CategoryTagScreen> with SingleTicker
   }
 
   Widget _buildEmotionCategories() {
-    return GridView.count(
-      crossAxisCount: 2,
-      childAspectRatio: 1.8,
-      crossAxisSpacing: 16,
-      mainAxisSpacing: 16,
-      children: [
-        _buildCategoryCard('분노', Colors.pink[300]!),
-        _buildCategoryCard('중립', Colors.purple[300]!),
-        _buildCategoryCard('감정', Colors.teal[300]!),
-        _buildCategoryCard('감정', Colors.orange[300]!),
-        _buildCategoryCard('슬픔', Colors.blue[300]!),
-        _buildCategoryCard('감정', Colors.green[300]!),
-        _buildCategoryCard('기쁨', Colors.yellow[300]!),
-      ],
+    return GridView.builder(
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        childAspectRatio: 1.8,
+        crossAxisSpacing: 16,
+        mainAxisSpacing: 16,
+      ),
+      itemCount: _emotionCategories.length,
+      itemBuilder: (context, index) {
+        final emotion = _emotionCategories[index];
+        final playlist = _playlists.firstWhere(
+              (p) => p['name'] == emotion,
+          orElse: () => {'name': emotion, 'id': 'new_${emotion}_id'},
+        );
+        return _buildCategoryCard(playlist['name'], _getColorForEmotion(playlist['name']));
+      },
     );
   }
 
@@ -167,14 +185,14 @@ class _CategoryTagScreenState extends State<CategoryTagScreen> with SingleTicker
             },
           ),
         ),*/
-        
+
         Expanded(
           child: _isLoading
               ? Center(child: CircularProgressIndicator())
               : ListView.builder(
-            itemCount: _playlists.length,
+            itemCount: _playlists.where((playlist) => !_emotionCategories.contains(playlist['name'])).length,
             itemBuilder: (context, index) {
-              final playlist = _playlists[index];
+              final playlist = _playlists.where((playlist) => !_emotionCategories.contains(playlist['name'])).toList()[index];
               return Padding(
                 padding: EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
                 child: Card(

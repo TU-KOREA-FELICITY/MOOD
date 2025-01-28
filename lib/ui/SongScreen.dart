@@ -9,14 +9,28 @@ class SongScreen extends StatefulWidget {
   final SpotifyService spotifyService;
 
   const SongScreen(
-      {Key? key, required this.title, required this.spotifyService})
-      : super(key: key);
+      {super.key, required this.title, required this.spotifyService});
 
   @override
   _SongScreenState createState() => _SongScreenState();
 }
 
 class _SongScreenState extends State<SongScreen> {
+  List<dynamic> tracks = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchTracks();
+  }
+
+  Future<void> _fetchTracks() async {
+    var fetchedTracks = await widget.spotifyService.getPlaylistTracks(widget.title);
+    setState(() {
+      tracks = fetchedTracks;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,7 +63,7 @@ class _SongScreenState extends State<SongScreen> {
       ),
       body: SingleChildScrollView(
         child: Column(
-          children: List.generate(6, (index) {
+          children: List.generate(tracks.length, (index) {
             return Container(
               width: MediaQuery.of(context).size.width * 0.9,
               // Adjust width here
@@ -60,7 +74,7 @@ class _SongScreenState extends State<SongScreen> {
               ),
               padding: EdgeInsets.all(16),
               margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-              child: Center(child: Text('노래 ${index + 1}')),
+              child: Center(child: Text(tracks[index])),
             );
           }),
         ),
