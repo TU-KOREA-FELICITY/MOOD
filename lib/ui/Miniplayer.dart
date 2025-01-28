@@ -14,11 +14,9 @@ class Miniplayer extends StatefulWidget {
 
 class _MiniplayerState extends State<Miniplayer>
     with SingleTickerProviderStateMixin {
-  final SpotifyService _spotifyService = SpotifyService();
   bool _isPlaying = false;
   String _currentTrack = 'No track playing';
   String _artistName = 'Unknown artist';
-  String _currentTrackImageUri = '';
   double _sliderValue = 0.0;
   double _duration = 1.0;
   Timer? _updateTimer;
@@ -81,10 +79,9 @@ class _MiniplayerState extends State<Miniplayer>
           _currentTrack = playerState.track!.name;
           _artistName = playerState.track!.artist.name!;
           _isPlaying =
-          playerState.isPaused != null ? !playerState.isPaused! : false;
+          playerState.isPaused != null ? !playerState.isPaused : false;
           _duration = playerState.track!.duration.toDouble();
           _sliderValue = playerState.playbackPosition / _duration;
-          _currentTrackImageUri = playerState.track!.imageUri.raw;
         });
       }
     } catch (e) {

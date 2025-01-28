@@ -7,7 +7,7 @@ import 'SongScreen.dart';
 
 class CategoryTagScreen extends StatefulWidget {
   final SpotifyService spotifyService;
-  const CategoryTagScreen({Key? key, required this.spotifyService}) : super(key: key);
+  const CategoryTagScreen({super.key, required this.spotifyService});
 
   @override
   _CategoryTagScreenState createState() => _CategoryTagScreenState();
@@ -18,7 +18,7 @@ class _CategoryTagScreenState extends State<CategoryTagScreen> with SingleTicker
   final TextEditingController _playlistNameController = TextEditingController();
   final List<String> _emotionCategories = ['행복', '슬픔', '분노', '놀람', '혐오', '공포', '중립', '경멸'];
   List<dynamic> _playlists = [];
-  bool _isLoading = false;
+  final bool _isLoading = false;
 
   @override
   void initState() {
@@ -232,7 +232,6 @@ class _CategoryTagScreenState extends State<CategoryTagScreen> with SingleTicker
   Widget _buildCategoryCard(String title, Color color) {
     return GestureDetector(
       onTap: () {
-        // Navigate to SongScreen when the card is tapped
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) =>

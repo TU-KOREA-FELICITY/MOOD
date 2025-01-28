@@ -31,16 +31,11 @@ class PlaylistScreen extends StatefulWidget {
 class _PlaylistScreenState extends State<PlaylistScreen> {
   final TextEditingController _searchController = TextEditingController();
   bool _isLoading = false;
-  bool _isPlaying = false;
   bool _showCancelIcon = false;
   bool _isSearchFocused = false;
-  String _currentTrack = 'No track playing';
-  String _artistName = 'Unknown artist';
   late Map<String, List> _searchResults;
   late List<String> _recentSearches;
   final FocusNode _focusNode = FocusNode();
-
-  Timer? _updateTimer;
 
   @override
   void initState() {
@@ -98,9 +93,6 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
       final playerState = await SpotifySdk.getPlayerState();
       if (playerState != null && playerState.track != null) {
         setState(() {
-          _currentTrack = playerState.track!.name;
-          _artistName = playerState.track!.artist.name!;
-          _isPlaying = playerState.isPaused != null ? !playerState.isPaused! : false;
         });
       }
     } catch (e) {

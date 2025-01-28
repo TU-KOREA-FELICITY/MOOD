@@ -16,7 +16,6 @@ class SearchView extends StatefulWidget {
 class _SearchViewState extends State<SearchView> {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
-  bool _isLoading = false;
   bool _isSearching = false;
   bool _showCancelIcon = false;
   List<String> recentSearches = [];
@@ -58,12 +57,10 @@ class _SearchViewState extends State<SearchView> {
   Future _performSearch() async {
     final query = _searchController.text;
     if (query.isEmpty) return;
-    setState(() => _isLoading = true);
     try {
       final results = await widget.spotifyService.search(query);
       setState(() {
         _searchResults = results;
-        _isLoading = false;
       });
       Navigator.push(
         context,
@@ -79,7 +76,6 @@ class _SearchViewState extends State<SearchView> {
       );
     } catch (e) {
       print('검색 중 오류 발생: $e');
-      setState(() => _isLoading = false);
     }
   }
 
