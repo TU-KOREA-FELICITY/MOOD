@@ -103,15 +103,16 @@ class _CategoryTagScreenState extends State<CategoryTagScreen> with SingleTicker
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              TabBar(
-                controller: _tabController,
+                  TabBar(
+                    labelColor: Colors.blueAccent[700],
+                    unselectedLabelColor: Colors.grey,
+                    indicatorColor: Colors.blueAccent,
+                      controller: _tabController,
                 tabs: [
                   Tab(text: '감정 카테고리'),
                   Tab(text: '내 플레이리스트'),
                 ],
-                labelColor: Colors.black,
-                unselectedLabelColor: Colors.grey,
-              ),
+                ),
               const SizedBox(height: 16),
               Expanded(
                 child: TabBarView(
@@ -152,39 +153,41 @@ class _CategoryTagScreenState extends State<CategoryTagScreen> with SingleTicker
   Widget _buildMyPlaylist() {
     return Column(
       children: [
+        SizedBox(height: 7),
         ElevatedButton(
           onPressed: () => _showCreatePlaylistDialog(),
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.white,
-            minimumSize: Size(200, 50),
-            side: BorderSide(color: Colors.blueAccent),
+            backgroundColor: Colors.blueAccent[400],
+            foregroundColor: Colors.white,
+            minimumSize: Size(200, 45),
+            side: BorderSide(color: Colors.blue),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15)
+            )
           ),
-          child: Text(
-            '새 플레이리스트 생성',
-            style: TextStyle(color: Colors.blueAccent),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.add,
+                size: 25,
+                color: Colors.white,
+              ),
+              SizedBox(width: 8), //아이콘 텍스트 간격
+              Text(
+                '새 플레이리스트',
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.2
+                ),
+              ),
+            ],
           ),
         ),
-        SizedBox(height: 16),
 
-        /*Expanded(
-          child: _isLoading
-              ? Center(child: CircularProgressIndicator())
-              : ListView.builder(
-            itemCount: _playlists.length,
-            itemBuilder: (context, index) {
-              final playlist = _playlists[index];
-              return ListTile(
-                title: Text(playlist['name']),
-                subtitle: Text('${playlist['tracks']['total']} 트랙'),
-                onTap: () => _showPlaylistTracks(playlist['id'], playlist['name']),
-                trailing: IconButton(
-                  icon: Icon(Icons.close),
-                  onPressed: () => _deletePlaylist(playlist['id']),
-                ),
-              );
-            },
-          ),
-        ),*/
+        SizedBox(height: 16),
 
         Expanded(
           child: _isLoading
@@ -194,37 +197,40 @@ class _CategoryTagScreenState extends State<CategoryTagScreen> with SingleTicker
             itemBuilder: (context, index) {
               final playlist = _playlists.where((playlist) => !_emotionCategories.contains(playlist['name'])).toList()[index];
               return Padding(
-                padding: EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
-                child: Card(
-                  elevation: 3,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15.0),
+                padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.grey[100],
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.3),
+                        spreadRadius: 1,
+                        blurRadius: 5,
+                        offset: Offset(0, 3),
+                      ),
+                    ],
                   ),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(15.0),
+                  child: ListTile(
+                    contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    title: Text(
+                      playlist['name'],
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold),
                     ),
-                    child: ListTile(
-                      contentPadding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                      title: Text(
-                        playlist['name'],
-                        style: TextStyle(fontSize:20, fontWeight: FontWeight.bold),
-                      ),
-                      subtitle: Text('${playlist['tracks']['total']} 트랙'),
-                      onTap: () => _showPlaylistTracks(playlist['id'], playlist['name']),
-                      trailing: IconButton(
-                        icon: Icon(Icons.close),
-                        onPressed: () => _deletePlaylist(playlist['id']),
-                      ),
+                    subtitle: Text('${playlist['tracks']['total']}곡'),
+                    trailing: IconButton(
+                      icon: Icon(Icons.close),
+                      onPressed: () => _deletePlaylist(playlist['id']),
                     ),
+                    onTap: () => _showPlaylistTracks(playlist['id'], playlist['name']),
                   ),
                 ),
               );
             },
           ),
         ),
-
       ],
     );
   }
@@ -265,25 +271,6 @@ class _CategoryTagScreenState extends State<CategoryTagScreen> with SingleTicker
                 ),
               ),
             ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCreatePlaylistButton() {
-    return GestureDetector(
-      onTap: () => _showCreatePlaylistDialog(),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.grey[300],
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Center(
-          child: Icon(
-            Icons.add,
-            size: 40,
-            color: Colors.black54,
           ),
         ),
       ),

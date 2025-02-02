@@ -16,6 +16,7 @@ class PlaylistScreen extends StatefulWidget {
   final List<String> recentSearches;
 
 
+
   const PlaylistScreen({
     Key? key,
     required this.spotifyService,
@@ -92,8 +93,7 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
     try {
       final playerState = await SpotifySdk.getPlayerState();
       if (playerState != null && playerState.track != null) {
-        setState(() {
-        });
+        setState(() {});
       }
     } catch (e) {
       print('Failed to get player state: $e');
@@ -115,19 +115,88 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
     final selectedPlaylist = await showDialog<Map<String, dynamic>>(
       context: context,
       builder: (BuildContext context) {
-        return SimpleDialog(
-          title: Text('플레이리스트 선택'),
-          children: playlists.map((playlist) {
-            return SimpleDialogOption(
-              onPressed: () {
-                Navigator.pop(context, playlist);
-              },
-              child: Text(playlist['name'] ?? '알 수 없는 플레이리스트'),
-            );
-          }).toList(),
+        return Dialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16.0),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(16.0),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery
+                    .of(context)
+                    .size
+                    .height * 0.55,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: Colors.blue[800],
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(16.0),
+                        topRight: Radius.circular(16.0),
+                      ),
+                    ),
+                    padding: EdgeInsets.symmetric(vertical: 16.0),
+                    child: Text(
+                      '플레이리스트 선택',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  Flexible(
+                    child: SingleChildScrollView(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: playlists.map((playlist) {
+                            return Column(
+                              children: [
+                                ListTile(
+                                  leading: Icon(
+                                      Icons.add, color: Colors.blueAccent),
+                                  title: Text(
+                                    playlist['name'] ?? '알 수 없는 플레이리스트',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w500,
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
+                                  onTap: () {
+                                    Navigator.pop(context, playlist);
+                                  },
+                                ),
+                                if (playlist != playlists.last)
+                                  Divider(
+                                    height: 7,
+                                    indent: 16, //구분선 좌우 여백
+                                    endIndent: 16,
+                                  ),
+                              ],
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         );
       },
     );
+
 
     if (selectedPlaylist != null) {
       try {
@@ -148,6 +217,7 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
     }
   }
 
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -164,12 +234,15 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
                   children: [
                     IconButton(
                       icon: Icon(Icons.arrow_back, color: Colors.black),
-                      onPressed: () => Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => SearchView(spotifyService: widget.spotifyService),
-                        ),
-                      ),
+                      onPressed: () =>
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  SearchView(
+                                      spotifyService: widget.spotifyService),
+                            ),
+                          ),
                     ),
                     Expanded(
                       child: Container(
@@ -354,7 +427,7 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
         SizedBox(height: 7.0),
         Expanded(
           child: Padding(
-            padding: EdgeInsets.symmetric(vertical:12.0, horizontal: 16.0),
+            padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
             child: ListView(
               children: _buildPlaylistList(),
             ),
@@ -367,126 +440,137 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
 
   List<Widget> _buildTrackList() {
     return (_searchResults['tracks'] as List<dynamic>).map((track) {
-      return Container(
-        margin: EdgeInsets.symmetric(vertical: 8.0),
-        padding: EdgeInsets.all(12.0),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10.0),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.5),
-              spreadRadius: 2,
-              blurRadius: 5,
-              offset: Offset(0, 3),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    track['name'] ?? '알 수 없는 트랙',
-                    style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(height: 4.0),
-                  Text(
-                    track['artists']?[0]?['name'] ?? '알 수 없는 아티스트',
-                    style: TextStyle(fontSize: 14.0, color: Colors.grey),
-                  ),
-                ],
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.grey[100],
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.3),
+                spreadRadius: 1,
+                blurRadius: 5,
+                offset: Offset(0, 3),
               ),
+            ],
+          ),
+          child: ListTile(
+            contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            leading: _buildAlbumCover(track),
+            title: Text(
+              track['name'] ?? '알 수 없는 트랙',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
-            IconButton(
-              icon: Icon(Icons.play_arrow, color: Colors.black),
-              onPressed: () async {
-                await SpotifySdk.play(spotifyUri: track['uri']);
-                _updateCurrentTrack();
-                // 재생 기능 구현
-              },
-            ),
-            IconButton(
-              icon: Icon(Icons.playlist_add, color: Colors.black),
-              onPressed: () => _addTrackToPlaylist(track['uri']),
-            ),
-          ],
-        ),
-      );
-    }).toList();
-  }
-
-  List<Widget> _buildPlaylistList() {
-    return (_searchResults['playlists'] as List<dynamic>).map((playlist) {
-      return GestureDetector(
-          onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => PlaylistDetailView(
-              spotifyService: widget.spotifyService, // spotifyService 인스턴스를 전달해야 합니다
-              playlistId: playlist?['id'] ?? '',
-              playlistName: playlist?['name'] ?? '알 수 없는 플레이리스트',
+            subtitle: Text(track['artists']?[0]?['name'] ?? '알 수 없는 아티스트'),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: Icon(Icons.play_arrow, color: Colors.black),
+                  onPressed: () async {
+                    await SpotifySdk.play(spotifyUri: track['uri']);
+                    _updateCurrentTrack();
+                  },
+                ),
+                IconButton(
+                  icon: Icon(Icons.playlist_add, color: Colors.black),
+                  onPressed: () => _addTrackToPlaylist(track['uri']),
+                ),
+              ],
             ),
           ),
-        );
-      },
+        ),
+      );
+    }).toList();
+  }
+
+
+  Widget _buildAlbumCover(dynamic track) {
+    final images = track['album']?['images'] as List?;
+    final imageUrl = images?.isNotEmpty == true ? images?.first['url'] as String? : null;
+
+    return Container(
+      width: 50,
+      height: 50,
+      decoration: BoxDecoration(
+        color: Colors.grey[300],
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: imageUrl != null
+          ? ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: Image.network(
+          imageUrl,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            return Center(child: Icon(Icons.music_note, color: Colors.grey[600]));
+          },
+        ),
+      )
+          : Center(child: Icon(Icons.music_note, color: Colors.grey[600])),
+    );
+  }
+
+
+  List<Widget> _buildPlaylistList() {
+  return (_searchResults['playlists'] as List<dynamic>).map((playlist) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
       child: Container(
-        margin: EdgeInsets.symmetric(vertical: 8.0),
-        padding: EdgeInsets.all(12.0),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10.0),
+          color: Colors.grey[100],
+          borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.5),
-              spreadRadius: 2,
+              color: Colors.grey.withOpacity(0.3),
+              spreadRadius: 1,
               blurRadius: 5,
               offset: Offset(0, 3),
             ),
           ],
         ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    playlist?['name'] ?? '알 수 없는 플레이리스트',
-                    style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(height: 4.0),
-                  Text(
-                    '${playlist?['tracks']?['total'] ?? 0} 트랙',
-                    style: TextStyle(fontSize: 14.0, color: Colors.grey),
-                  ),
-                ],
+        child: ListTile(
+          contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          title: Text(
+            playlist?['name'] ?? '알 수 없는 플레이리스트',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          ),
+          subtitle: Text('${playlist?['tracks']?['total'] ?? 0} 트랙'),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                icon: Icon(Icons.play_arrow, color: Colors.black),
+                onPressed: () async {
+                  await SpotifySdk.play(spotifyUri: playlist['uri']);
+                  _updateCurrentTrack();
+                },
               ),
-            ),
-            IconButton(
-              icon: Icon(Icons.play_arrow, color: Colors.black),
-              onPressed: () async{
-                await SpotifySdk.play(spotifyUri: playlist['uri']);
-                _updateCurrentTrack();
-                // 플레이리스트 재생 기능 구현
-              },
-            ),
-            IconButton(
-              icon: Icon(Icons.playlist_add, color: Colors.black),
-              onPressed: () {
-                // 플레이리스트에 추가 기능 구현
-              },
-            ),
-          ],
+              IconButton(
+                icon: Icon(Icons.playlist_add, color: Colors.black),
+                onPressed: () {
+                  // �뚮젅�대━�ㅽ듃�� 異붽� 湲곕뒫 援ы쁽
+                },
+              ),
+            ],
+          ),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    PlaylistDetailView(
+                      spotifyService: widget.spotifyService,
+                      playlistId: playlist?['id'] ?? '',
+                      playlistName: playlist?['name'] ?? '알 수 없는 플레이리스트',
+                    ),
+              ),
+            );
+          },
         ),
       ),
-      );
-    }).toList();
-  }
+    );
+  }).toList();
 }
-
-
-
+}

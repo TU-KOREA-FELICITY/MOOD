@@ -6,7 +6,7 @@ class SpotifyService {
   final String clientId = 'b97a6ed3a4d24de0b0ee76f73e54df74';
   final String clientSecret = '3d31c7ba27094d239c015ce6a1b86477';
   final String redirectUri = 'http://localhost:8080/callback';
-  final String scopes = 'user-read-playback-state user-modify-playback-state playlist-read-private playlist-read-collaborative user-library-read playlist-modify-private playlist-modify-public';
+  final String scopes = 'user-read-playback-state user-modify-playback-state playlist-read-private playlist-read-collaborative user-library-read playlist-modify-private playlist-modify-public streaming';
 
   String _accessToken = '';
   String _refreshToken = '';
@@ -139,6 +139,7 @@ class SpotifyService {
           'name': playerState.track!.name,
           'artist': playerState.track!.artist.name,
           'isPlaying': !playerState.isPaused,
+          'albumCoverUrl': playerState.track!.imageUri.raw,
         };
       }
     } catch (e) {
@@ -148,6 +149,7 @@ class SpotifyService {
       'name': 'No track playing',
       'artist': 'Unknown artist',
       'isPlaying': false,
+      'albumCoverUrl': null,
     };
   }
 

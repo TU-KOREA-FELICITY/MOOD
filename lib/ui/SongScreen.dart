@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:mood/services/spotify_service.dart';
 import 'package:mood/views/search_view.dart';
+import '../views/playlist_tracks_view.dart';
 
 class SongScreen extends StatefulWidget {
   final String title;
@@ -25,7 +26,8 @@ class _SongScreenState extends State<SongScreen> {
   }
 
   Future<void> _fetchTracks() async {
-    var fetchedTracks = await widget.spotifyService.getPlaylistTracks(widget.title);
+    var fetchedTracks = await widget.spotifyService.getPlaylistTracks(
+        widget.title);
     setState(() {
       tracks = fetchedTracks;
     });
@@ -36,20 +38,25 @@ class _SongScreenState extends State<SongScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.close, color: Colors.black),
           onPressed: () {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                builder: (context) => SearchView(spotifyService: widget.spotifyService),
+                builder: (context) =>
+                    SearchView(spotifyService: widget.spotifyService),
               ),
             );
           },
         ),
         title: Text(
           '${widget.title} 플레이리스트', // Concatenate the title with "플레이리스트"
-          style: TextStyle(color: Colors.black),
+          style: TextStyle(
+              fontWeight: FontWeight.w500,
+              color: Colors.black),
         ),
         actions: [
           TextButton(
@@ -61,6 +68,7 @@ class _SongScreenState extends State<SongScreen> {
           ),
         ],
       ),
+
       body: SingleChildScrollView(
         child: Column(
           children: List.generate(tracks.length, (index) {
@@ -82,3 +90,4 @@ class _SongScreenState extends State<SongScreen> {
     );
   }
 }
+
