@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:mood/screens/start_screens/face_recognition_screen.dart';
 import 'package:mood/screens/start_screens/spotify_login_screen.dart';
-import 'searchstart_screens/search_screen.dart';
-import 'start_screens/splash_screen.dart';
-import 'start_screens/login_screen.dart';
-import 'start_screens/welcome_screen.dart';
-import 'start_screens/login_failed_screen.dart';
-import 'start_screens/signup_screen.dart';
-import 'start_screens/music_preference_screen.dart';
-import 'homestart_screens/home_screen.dart';
-import 'profilestart_screens/profile_screen.dart';
+import 'screens/searchstart_screens/search_screen.dart';
+import 'screens/start_screens/splash_screen.dart';
+import 'screens/start_screens/login_screen.dart';
+import 'screens/start_screens/welcome_screen.dart';
+import 'screens/start_screens/login_failed_screen.dart';
+import 'screens/start_screens/signup_screen.dart';
+import 'screens/start_screens/music_preference_screen.dart';
+import 'screens/homestart_screens/home_screen.dart';
+import 'screens/profilestart_screens/profile_screen.dart';
 
 void main() {
   runApp(MyApp());
@@ -28,12 +28,14 @@ class MyApp extends StatelessWidget {
         appBarTheme: AppBarTheme(
           color: Colors.white,
           iconTheme: IconThemeData(color: Colors.black),
-          titleTextStyle: TextStyle(fontFamily: "Pretendard",color: Colors.black, fontSize: 30),
+          titleTextStyle: TextStyle(
+              fontFamily: "Pretendard", color: Colors.black, fontSize: 30),
         ),
       ),
       initialRoute: '/',
       routes: {
-        '/': (context) => SplashScreen(),
+        // '/': (context) => SplashScreen(),
+        '/': (context) => HomeScreen(),
         '/login': (context) => LoginScreen(),
         '/welcome': (context) {
           final args = ModalRoute.of(context)?.settings.arguments;
