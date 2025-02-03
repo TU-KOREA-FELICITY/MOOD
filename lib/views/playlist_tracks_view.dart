@@ -2,6 +2,8 @@
 
 import 'package:flutter/material.dart';
 import '../services/spotify_service.dart';
+import 'package:spotify_sdk/spotify_sdk.dart';
+
 
 class PlaylistTracksView extends StatefulWidget {
   final SpotifyService spotifyService;
@@ -21,6 +23,7 @@ class PlaylistTracksView extends StatefulWidget {
 class _PlaylistTracksViewState extends State<PlaylistTracksView> {
   List<dynamic> _tracks = [];
   bool _isLoading = false;
+  Map<String, bool> _showButtons = {};
 
   @override
   void initState() {
@@ -52,9 +55,9 @@ class _PlaylistTracksViewState extends State<PlaylistTracksView> {
     }
   }
 
-  void _addTrackToPlaylist(String trackUri) async {
-    final playlists = await _getPlaylists();
 
+  void _showPlaylistOptions(dynamic track, String option) async {
+    final playlists = await _getPlaylists();
     final selectedPlaylist = await showDialog<Map<String, dynamic>>(
       context: context,
       builder: (BuildContext context) {
@@ -75,7 +78,7 @@ class _PlaylistTracksViewState extends State<PlaylistTracksView> {
                   Container(
                     width: double.infinity,
                     decoration: BoxDecoration(
-                      color: Colors.blue[800],
+                      color: Colors.blueAccent,
                       borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(16.0),
                         topRight: Radius.circular(16.0),
@@ -83,7 +86,7 @@ class _PlaylistTracksViewState extends State<PlaylistTracksView> {
                     ),
                     padding: EdgeInsets.symmetric(vertical: 16.0),
                     child: Text(
-                      '플레이리스트 선택',
+                      option,
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -93,39 +96,25 @@ class _PlaylistTracksViewState extends State<PlaylistTracksView> {
                     ),
                   ),
                   Flexible(
-                    child: SingleChildScrollView(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: playlists.map((playlist) {
-                            return Column(
-                              children: [
-                                ListTile(
-                                  leading: Icon(Icons.add, color: Colors.blueAccent),
-                                  title: Text(
-                                    playlist['name'] ?? '알 수 없는 플레이리스트',
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w500,
-                                      letterSpacing: 0.5,
-                                    ),
-                                  ),
-                                  onTap: () {
-                                    Navigator.pop(context, playlist);
-                                  },
-                                ),
-                                if (playlist != playlists.last)
-                                  Divider(
-                                    height: 7,
-                                    indent: 16, //구분선 좌우 여백
-                                    endIndent: 16,
-                                  ),
-                              ],
-                            );
-                          }).toList(),
-                        ),
-                      ),
+                    child: ListView.builder(
+                      itemCount: playlists.length,
+                      itemBuilder: (context, index) {
+                        final playlist = playlists[index];
+                        return ListTile(
+                          leading: Icon(Icons.playlist_play, color: Colors.blueAccent),
+                          title: Text(
+                            playlist['name'] ?? '알 수 없는 플레이리스트',
+                            style: TextStyle(
+                              fontSize: 19,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1.2,
+                            ),
+                          ),
+                          onTap: () {
+                            Navigator.pop(context, playlist);
+                          },
+                        );
+                      },
                     ),
                   ),
                 ],
@@ -135,14 +124,13 @@ class _PlaylistTracksViewState extends State<PlaylistTracksView> {
         );
       },
     );
+
     if (selectedPlaylist != null) {
       try {
         await widget.spotifyService.addTrackToPlaylist(
           selectedPlaylist['id'],
-          trackUri,
+          track['uri'],
         );
-        selectedPlaylist['tracks']['total']++;
-        Navigator.pop(context, true);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('곡이 플레이리스트에 추가되었습니다.')),
         );
@@ -170,45 +158,97 @@ class _PlaylistTracksViewState extends State<PlaylistTracksView> {
         itemCount: _tracks.length,
         itemBuilder: (context, index) {
           final track = _tracks[index]['track'];
-          return Padding(
-            padding: const EdgeInsets.symmetric(
-                vertical: 8.0, horizontal: 16.0),
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.grey[100],
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.3),
-                    spreadRadius: 1,
-                    blurRadius: 5,
-                    offset: Offset(0, 3),
+          final trackId = track['id'] as String;
+          return Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                    vertical: 8.0, horizontal: 16.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.grey[100],
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.3),
+                        spreadRadius: 1,
+                        blurRadius: 5,
+                        offset: Offset(0, 3),
+                      ),
+                    ],
                   ),
-                ],
+                  child: ListTile(
+                    contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    leading: _buildAlbumCover(track),
+                    title: Text(
+                      track['name'],
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Text(track['artists'][0]['name']),
+                    trailing: IconButton(
+                      icon: Icon(Icons.playlist_add),
+                      onPressed: () {
+                        setState(() {
+                          _showButtons[trackId] = !(_showButtons[trackId] ?? false);
+                        });
+                      },
+                    ),
+                    onTap: () => widget.spotifyService.playTrack(track['uri']),
+                  ),
+                ),
               ),
-              child: ListTile(
-                contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                leading: _buildAlbumCover(track),
-                title: Text(
-                  track['name'],
-                  style: TextStyle(fontWeight: FontWeight.bold),
+              if (_showButtons[trackId] ?? false)
+                Container(
+                  margin: EdgeInsets.only(bottom: 8.0),
+                  padding: EdgeInsets.symmetric(horizontal: 30),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ElevatedButton(
+                        child: Text('감정 카테고리',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue[600],
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          elevation: 2,
+                          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                        ),
+                        onPressed: () => _showPlaylistOptions(track, '카테고리'),
+                      ),
+                      ElevatedButton(
+                        child: Text('내 플레이리스트',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue[600],
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          elevation: 2,
+                          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                        ),
+                        onPressed: () => _showPlaylistOptions(track, '내 플레이리스트'),
+                      ),
+                    ],
+                  ),
                 ),
-                subtitle: Text(track['artists'][0]['name']),
-                trailing: IconButton(
-                  icon: Icon(Icons.playlist_add),
-                  onPressed: () => _addTrackToPlaylist(track['uri']),
-                ),
-                onTap: () => widget.spotifyService.playTrack(track['uri'],
-
-                ),
-              ),
-            ),
+            ],
           );
         },
       ),
     );
   }
-}
+
+
 
 Widget _buildAlbumCover(dynamic track) {
   final images = track['album']?['images'] as List?;
@@ -234,4 +274,5 @@ Widget _buildAlbumCover(dynamic track) {
     )
         : Center(child: Icon(Icons.music_note, color: Colors.grey[600])),
   );
+  }
 }

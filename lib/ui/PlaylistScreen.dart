@@ -37,6 +37,7 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
   late Map<String, List> _searchResults;
   late List<String> _recentSearches;
   final FocusNode _focusNode = FocusNode();
+  Map<String, bool> _showButtons = {};
 
   @override
   void initState() {
@@ -109,7 +110,7 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
     }
   }
 
-  void _addTrackToPlaylist(String trackUri) async {
+ /* void _addTrackToPlaylist(String trackUri) async {
     final playlists = await _getPlaylists();
 
     final selectedPlaylist = await showDialog<Map<String, dynamic>>(
@@ -216,6 +217,9 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
       }
     }
   }
+
+  */
+
 
 
   @override
@@ -440,50 +444,190 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
 
   List<Widget> _buildTrackList() {
     return (_searchResults['tracks'] as List<dynamic>).map((track) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.grey[100],
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.3),
-                spreadRadius: 1,
-                blurRadius: 5,
-                offset: Offset(0, 3),
+      final trackId = track['id'] as String;
+      return Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.3),
+                    spreadRadius: 1,
+                    blurRadius: 5,
+                    offset: Offset(0, 3),
+                  ),
+                ],
               ),
-            ],
-          ),
-          child: ListTile(
-            contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            leading: _buildAlbumCover(track),
-            title: Text(
-              track['name'] ?? '알 수 없는 트랙',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-            ),
-            subtitle: Text(track['artists']?[0]?['name'] ?? '알 수 없는 아티스트'),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                  icon: Icon(Icons.play_arrow, color: Colors.black),
-                  onPressed: () async {
-                    await SpotifySdk.play(spotifyUri: track['uri']);
-                    _updateCurrentTrack();
-                  },
+              child: ListTile(
+                contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                leading: _buildAlbumCover(track),
+                title: Text(
+                  track['name'] ?? '알 수 없는 트랙',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                 ),
-                IconButton(
-                  icon: Icon(Icons.playlist_add, color: Colors.black),
-                  onPressed: () => _addTrackToPlaylist(track['uri']),
+                subtitle: Text(track['artists']?[0]?['name'] ?? '알 수 없는 아티스트'),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.play_arrow, color: Colors.black),
+                      onPressed: () async {
+                        await SpotifySdk.play(spotifyUri: track['uri']);
+                        _updateCurrentTrack();
+                      },
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.playlist_add, color: Colors.black),
+                      onPressed: () {
+                        setState(() {
+                          _showButtons[trackId] = !(_showButtons[trackId] ?? false);
+                        });
+                      },
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
-        ),
+          if (_showButtons[trackId] ?? false)
+            Container(
+              margin: EdgeInsets.only(bottom: 8.0),
+              padding: EdgeInsets.only(right: 30,left: 30),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                    child: Text('감정 카테고리',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue[600],
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      elevation: 2,
+                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    ),
+                    onPressed: () => _showPlaylistOptions(track, '카테고리'),
+                  ),
+
+                  ElevatedButton(
+                    child: Text('내 플레이리스트',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue[600],
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      elevation: 2,
+                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    ),
+                    onPressed: () => _showPlaylistOptions(track, '내 플레이리스트'),
+                  ),
+                ],
+              ),
+            ),
+        ],
       );
     }).toList();
   }
+
+
+  void _showPlaylistOptions(dynamic track, String option) async {
+    final playlists = await _getPlaylists();
+    final selectedPlaylist = await showDialog<Map<String, dynamic>>(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16.0),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(16.0),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.55,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: Colors.blueAccent,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(16.0),
+                        topRight: Radius.circular(16.0),
+                      ),
+                    ),
+                    padding: EdgeInsets.symmetric(vertical: 16.0),
+                    child: Text(
+                      option,
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  Flexible(
+                    child: ListView.builder(
+                      itemCount: playlists.length,
+                      itemBuilder: (context, index) {
+                        final playlist = playlists[index];
+                        return ListTile(
+                          leading: Icon(Icons.playlist_play, color: Colors.blueAccent),
+                          title: Text(
+                            playlist['name'] ?? '알 수 없는 플레이리스트',
+                            style: TextStyle(
+                              fontSize: 19,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1.2,
+                            ),
+                          ),
+                          onTap: () {
+                            Navigator.pop(context, playlist);
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+
+    if (selectedPlaylist != null) {
+      try {
+        await widget.spotifyService.addTrackToPlaylist(
+          selectedPlaylist['id'],
+          track['uri'],
+        );
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('곡이 플레이리스트에 추가되었습니다.')),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('곡 추가에 실패했습니다: $e')),
+        );
+      }
+    }
+  }
+
 
 
   Widget _buildAlbumCover(dynamic track) {
