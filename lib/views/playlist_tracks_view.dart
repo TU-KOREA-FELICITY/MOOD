@@ -1,4 +1,4 @@
-// 검색페이지 내 플레이리스트
+// 검색페이지 (내 플레이리스트)
 
 import 'package:flutter/material.dart';
 import '../services/spotify_service.dart';
