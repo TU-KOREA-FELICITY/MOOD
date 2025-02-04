@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../services/spotify_service.dart';
 import '../ui/CategoryTagScreen.dart';
 import '../ui/Miniplayer.dart';
@@ -35,6 +36,7 @@ class _SearchViewState extends State<SearchView> {
         _showCancelIcon = _searchController.text.isNotEmpty;
       });
     });
+    _loadRecentSearches();
   }
 
   @override
@@ -44,6 +46,19 @@ class _SearchViewState extends State<SearchView> {
     super.dispose();
   }
 
+  Future<void> _loadRecentSearches() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      recentSearches = prefs.getStringList('recentSearches') ?? [];
+    });
+  }
+
+  Future<void> _saveRecentSearches() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList('recentSearches', recentSearches);
+  }
+
+
   void _addToRecentSearches(String query) {
     setState(() {
       recentSearches.remove(query);
@@ -52,6 +67,7 @@ class _SearchViewState extends State<SearchView> {
         recentSearches.removeLast();
       }
     });
+    _saveRecentSearches();
   }
 
   Future _performSearch() async {
@@ -62,7 +78,8 @@ class _SearchViewState extends State<SearchView> {
       setState(() {
         _searchResults = results;
       });
-      Navigator.push(
+      _addToRecentSearches(query);
+      final updatedSearches = await Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) =>
@@ -74,6 +91,13 @@ class _SearchViewState extends State<SearchView> {
               ),
         ),
       );
+      if (updatedSearches != null) {
+        setState(() {
+          recentSearches = updatedSearches;
+        });
+        _saveRecentSearches();
+      }
+      setState(() {});
     } catch (e) {
       print('검색 중 오류 발생: $e');
     }
@@ -141,7 +165,6 @@ class _SearchViewState extends State<SearchView> {
                 ),
                 onSubmitted: (value) {
                   if (value.isNotEmpty) {
-                    _addToRecentSearches(value);
                     _performSearch();
                   }
                 },
@@ -206,10 +229,12 @@ class _SearchViewState extends State<SearchView> {
                       setState(() {
                         recentSearches.removeAt(index);
                       });
+                      _saveRecentSearches();
                     },
                   ),
                   onTap: () {
                     _searchController.text = recentSearches[index];
+                    _performSearch();
                   },
                 );
               },

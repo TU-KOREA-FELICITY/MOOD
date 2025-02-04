@@ -84,6 +84,7 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
         _isSearchFocused = false;
       });
       _addToRecentSearches(query);
+      setState(() {});
     } catch (e) {
       print('검색 중 오류 발생: $e');
       setState(() => _isLoading = false);
@@ -110,117 +111,6 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
     }
   }
 
- /* void _addTrackToPlaylist(String trackUri) async {
-    final playlists = await _getPlaylists();
-
-    final selectedPlaylist = await showDialog<Map<String, dynamic>>(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16.0),
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(16.0),
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                maxHeight: MediaQuery
-                    .of(context)
-                    .size
-                    .height * 0.55,
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: Colors.blue[800],
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(16.0),
-                        topRight: Radius.circular(16.0),
-                      ),
-                    ),
-                    padding: EdgeInsets.symmetric(vertical: 16.0),
-                    child: Text(
-                      '플레이리스트 선택',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  Flexible(
-                    child: SingleChildScrollView(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: playlists.map((playlist) {
-                            return Column(
-                              children: [
-                                ListTile(
-                                  leading: Icon(
-                                      Icons.add, color: Colors.blueAccent),
-                                  title: Text(
-                                    playlist['name'] ?? '알 수 없는 플레이리스트',
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w500,
-                                      letterSpacing: 0.5,
-                                    ),
-                                  ),
-                                  onTap: () {
-                                    Navigator.pop(context, playlist);
-                                  },
-                                ),
-                                if (playlist != playlists.last)
-                                  Divider(
-                                    height: 7,
-                                    indent: 16, //구분선 좌우 여백
-                                    endIndent: 16,
-                                  ),
-                              ],
-                            );
-                          }).toList(),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
-    );
-
-
-    if (selectedPlaylist != null) {
-      try {
-        await widget.spotifyService.addTrackToPlaylist(
-          selectedPlaylist['id'],
-          trackUri,
-        );
-        selectedPlaylist['tracks']['total']++;
-        Navigator.pop(context, true);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('곡이 플레이리스트에 추가되었습니다.')),
-        );
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('곡 추가에 실패했습니다: $e')),
-        );
-      }
-    }
-  }
-
-  */
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -238,16 +128,10 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
                   children: [
                     IconButton(
                       icon: Icon(Icons.arrow_back, color: Colors.black),
-                      onPressed: () =>
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  SearchView(
-                                      spotifyService: widget.spotifyService),
-                            ),
+                      onPressed: () {
+                        Navigator.pop(context, _recentSearches);
+                      },
                           ),
-                    ),
                     Expanded(
                       child: Container(
                         decoration: BoxDecoration(
