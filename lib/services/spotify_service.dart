@@ -1,3 +1,4 @@
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:spotify_sdk/spotify_sdk.dart';
 import 'dart:convert';
@@ -12,12 +13,34 @@ class SpotifyService {
   String _refreshToken = '';
   DateTime? _tokenExpiryTime;
 
-  bool get isConnected => _accessToken.isNotEmpty && !_isTokenExpired();
+  bool get isConnected {
+    // 토큰 유효성 3단계 검증
+    final hasValidAccessToken = _accessToken.isNotEmpty;
+    final hasUnexpiredToken = !_isTokenExpired();
+    final hasRefreshToken = _refreshToken.isNotEmpty;
+
+    return hasValidAccessToken && hasUnexpiredToken && hasRefreshToken;
+  }
 
   Future<void> initialize() async {
+    final secureStorage = FlutterSecureStorage();
+
+    // 저장된 토큰 불러오기
+    _accessToken = await secureStorage.read(key: 'accessToken') ?? '';
+    _refreshToken = await secureStorage.read(key: 'refreshToken') ?? '';
+    String? expiryTimeString = await secureStorage.read(key: 'tokenExpiryTime');
+
+    if (expiryTimeString != null) {
+      _tokenExpiryTime = DateTime.parse(expiryTimeString);
+    }
+
+    // 토큰 갱신 시도
     await _refreshTokenIfNeeded();
-    if (isConnected) {
+
+    if (_accessToken.isNotEmpty && !_isTokenExpired()) {
       await _initializeSpotifySDK();
+    } else {
+      print('Spotify 인증 필요');
     }
   }
 
@@ -27,20 +50,35 @@ class SpotifyService {
   }
 
   Future<void> setTokens(Map<String, dynamic> tokens) async {
+    final secureStorage = FlutterSecureStorage();
+
     _accessToken = tokens['accessToken'] ?? '';
     _refreshToken = tokens['refreshToken'] ?? '';
     _tokenExpiryTime = tokens['expiryTime'];
+
+    // FlutterSecureStorage에 저장
+    await secureStorage.write(key: 'accessToken', value: _accessToken);
+    await secureStorage.write(key: 'refreshToken', value: _refreshToken);
+    if (_tokenExpiryTime != null) {
+      await secureStorage.write(key: 'tokenExpiryTime', value: _tokenExpiryTime!.toIso8601String());
+    }
+
     await _initializeSpotifySDK();
   }
 
   Future<void> _initializeSpotifySDK() async {
     try {
-      await SpotifySdk.connectToSpotifyRemote(
+      bool result = await SpotifySdk.connectToSpotifyRemote(
         clientId: clientId,
         redirectUrl: redirectUri,
       );
+      if (result) {
+        print('Spotify SDK 연결 성공');
+      } else {
+        print('Spotify SDK 연결 실패');
+      }
     } catch (e) {
-      print('Failed to initialize Spotify SDK: $e');
+      print('Spotify SDK 시작 실패: $e');
     }
   }
 
@@ -52,7 +90,10 @@ class SpotifyService {
   }
 
   Future<void> _refreshAccessToken() async {
-    if (_refreshToken.isEmpty) return;
+    if (_refreshToken.isEmpty) {
+      print('refreshToken 없음. 재로그인 필요');
+      return;
+    }
 
     final credentials = base64Encode(utf8.encode('$clientId:$clientSecret'));
     final url = 'https://accounts.spotify.com/api/token';
@@ -73,7 +114,13 @@ class SpotifyService {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         _accessToken = data['access_token'];
-        _tokenExpiryTime = DateTime.now().add(Duration(seconds: data['expires_in']));
+        _refreshToken = data['refresh_token'] ?? _refreshToken;
+        _tokenExpiryTime = DateTime.now().add(Duration(seconds: data['expires_in'] ?? 3600));
+
+        // 갱신된 토큰을 저장
+        final secureStorage = FlutterSecureStorage();
+        await secureStorage.write(key: 'accessToken', value: _accessToken);
+        await secureStorage.write(key: 'tokenExpiryTime', value: _tokenExpiryTime!.toIso8601String());
       } else {
         print('토큰 갱신 실패: ${response.body}');
         _accessToken = '';
@@ -90,12 +137,19 @@ class SpotifyService {
 
   Future<void> logout() async {
     try {
+      // SDK 연결 완전 해제
       await SpotifySdk.disconnect();
+
+      // 메모리 내 토큰 초기화
       _accessToken = '';
       _refreshToken = '';
       _tokenExpiryTime = null;
+
+      // 영구 저장소 데이터 삭제
+      final secureStorage = FlutterSecureStorage();
+      await secureStorage.deleteAll();  // 모든 키 삭제
     } catch (e) {
-      print('Failed to disconnect: $e');
+      print('로그아웃 실패: ${e.toString()}');
     }
   }
 
@@ -110,7 +164,7 @@ class SpotifyService {
         return false;
       }
     } catch (e) {
-      print('Failed to toggle play/pause: $e');
+      print('재생/일시 중지 전환 실패: $e');
       return false;
     }
   }
@@ -119,7 +173,7 @@ class SpotifyService {
     try {
       await SpotifySdk.skipNext();
     } catch (e) {
-      print('Failed to play next track: $e');
+      print('다음 트랙 재생 실패: $e');
     }
   }
 
@@ -127,7 +181,7 @@ class SpotifyService {
     try {
       await SpotifySdk.skipPrevious();
     } catch (e) {
-      print('Failed to play previous track: $e');
+      print('이전 트랙 재생 실패: $e');
     }
   }
 
@@ -143,7 +197,7 @@ class SpotifyService {
         };
       }
     } catch (e) {
-      print('Failed to get current track info: $e');
+      print('현재 트랙 가져오기 실패: $e');
     }
     return {
       'name': 'No track playing',
@@ -165,11 +219,11 @@ class SpotifyService {
         final data = json.decode(response.body);
         return data['items'];
       } else {
-        print('Failed to fetch playlists: ${response.statusCode}');
+        print('플레이리스트 가져오기 실패: ${response.statusCode}');
         return [];
       }
     } catch (e) {
-      print('Error fetching playlists: $e');
+      print('플레이리스트 가져오기 에러: $e');
       return [];
     }
   }
@@ -186,11 +240,11 @@ class SpotifyService {
         final data = json.decode(response.body);
         return data['items'];
       } else {
-        print('Failed to fetch playlist tracks: ${response.statusCode}');
+        print('플레이리스트 트랙 가져오기 실패: ${response.statusCode}');
         return [];
       }
     } catch (e) {
-      print('Error fetching playlist tracks: $e');
+      print('플레이리스트 트랙 가져오기 에러: $e');
       return [];
     }
   }
@@ -199,7 +253,34 @@ class SpotifyService {
     try {
       await SpotifySdk.play(spotifyUri: spotifyUri);
     } catch (e) {
-      print('Failed to play track: $e');
+      print('트랙 재생 실패: $e');
+      throw e;
+    }
+  }
+
+  Future<void> deleteTrack(String playlistId, String trackUri) async {
+    await _refreshTokenIfNeeded();
+    final url = 'https://api.spotify.com/v1/playlists/$playlistId/tracks';
+
+    try {
+      final response = await http.delete(
+        Uri.parse(url),
+        headers: {
+          'Authorization': 'Bearer $_accessToken',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'tracks': [{'uri': trackUri}]
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        print('트랙이 성공적으로 삭제되었습니다.');
+      } else {
+        throw Exception('트랙 삭제 실패: ${response.body}');
+      }
+    } catch (e) {
+      print('트랙 삭제 중 오류 발생: $e');
       throw e;
     }
   }

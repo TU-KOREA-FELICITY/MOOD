@@ -4,6 +4,7 @@ import '../services/spotify_service.dart';
 import '../ui/CategoryTagScreen.dart';
 import '../ui/Miniplayer.dart';
 import '../ui/PlaylistScreen.dart';
+import 'spotify_home_page.dart';
 
 class SearchView extends StatefulWidget {
   final SpotifyService spotifyService;
@@ -117,6 +118,21 @@ class _SearchViewState extends State<SearchView> {
                   : Column(
                 children: [
                   Miniplayer(spotifyService: widget.spotifyService),
+                  ElevatedButton(
+                    onPressed: () async {
+                      try {
+                        await widget.spotifyService.logout();
+                        if (mounted) {
+                          Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(builder: (context) => SpotifyHomePage()),
+                          );
+                        }
+                      } catch (e) {
+                        print('로그아웃 후 네비게이션 실패: $e');
+                      }
+                    },
+                    child: Text('로그아웃'),
+                  ),
                   Expanded(
                     child: CategoryTagScreen(spotifyService: widget.spotifyService),
                   ),

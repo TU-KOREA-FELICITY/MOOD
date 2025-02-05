@@ -16,6 +16,7 @@ class _SpotifyHomePageState extends State<SpotifyHomePage> with SingleTickerProv
   final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
 
   bool _isConnected = false;
+  bool _isInitialized = false;
 
   @override
   void initState() {
@@ -25,23 +26,39 @@ class _SpotifyHomePageState extends State<SpotifyHomePage> with SingleTickerProv
 
   Future<void> _initializeApp() async {
     await _spotifyService.initialize();
+
+    // 통합 검증 로직
     final isLoggedIn = await _checkLoginStatus();
-    if (isLoggedIn) {
+    final isSdkConnected = _spotifyService.isConnected;
+
+    if (isLoggedIn && isSdkConnected) {
       await _autoLogin();
+      setState(() {
+        _isConnected = true;
+      });
     }
     setState(() {
-      _isConnected = _spotifyService.isConnected;
+      _isInitialized = true;
     });
   }
 
   Future<bool> _checkLoginStatus() async {
-    final value = await _secureStorage.read(key: 'isLoggedIn');
-    return value == 'true';
+    final accessToken = await _secureStorage.read(key: 'accessToken');
+    final refreshToken = await _secureStorage.read(key: 'refreshToken');
+    final isLoggedIn = await _secureStorage.read(key: 'isLoggedIn');
+
+    print('accessToken: $accessToken');
+    print('refreshToken: $refreshToken');
+    print('isLoggedIn: $isLoggedIn');
+
+    // 3가지 값 모두 존재해야 유효한 로그인 상태로 판단
+    return isLoggedIn == 'true' && accessToken != null && refreshToken != null;
   }
 
   Future<void> _autoLogin() async {
     final accessToken = await _secureStorage.read(key: 'accessToken');
     final refreshToken = await _secureStorage.read(key: 'refreshToken');
+
     if (accessToken != null && refreshToken != null) {
       await _spotifyService.setTokens({
         'accessToken': accessToken,
@@ -50,7 +67,7 @@ class _SpotifyHomePageState extends State<SpotifyHomePage> with SingleTickerProv
     }
   }
 
-  Future<void> _authenticate() async {
+  Future<void> authenticate() async {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -60,6 +77,9 @@ class _SpotifyHomePageState extends State<SpotifyHomePage> with SingleTickerProv
         ),
       ),
     );
+
+    print('Authentication result: $result');
+
     if (result != null && result is Map<String, dynamic>) {
       await _spotifyService.setTokens(result);
       await _secureStorage.write(key: 'isLoggedIn', value: 'true');
@@ -71,18 +91,19 @@ class _SpotifyHomePageState extends State<SpotifyHomePage> with SingleTickerProv
     }
   }
 
-  Future<void> _logout() async {
-    await _secureStorage.delete(key: 'isLoggedIn');
-    await _secureStorage.delete(key: 'accessToken');
-    await _secureStorage.delete(key: 'refreshToken');
-    setState(() {
-      _isConnected = false;
-    });
-    // 여기에 Spotify SDK를 사용한 로그아웃 로직 추가
-  }
-
   @override
   Widget build(BuildContext context) {
+    if (!_isInitialized) {
+      return Container(
+        color: Colors.white,
+        child: Center(
+          child: CircularProgressIndicator(
+            backgroundColor: Colors.white,
+            valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+          ),
+        ),
+      );
+    }
     return Scaffold(
       backgroundColor: Colors.white,
       body: _isConnected ? _buildLoggedInView() : _buildLoginView(),
@@ -102,7 +123,7 @@ class _SpotifyHomePageState extends State<SpotifyHomePage> with SingleTickerProv
   Widget _buildLoginView() {
     return Center(
       child: ElevatedButton(
-        onPressed: _authenticate,
+        onPressed: authenticate,
         child: Text('로그인'),
       ),
     );
