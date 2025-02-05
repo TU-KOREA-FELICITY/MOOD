@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import '../services/spotify_service.dart';
 import 'package:spotify_sdk/spotify_sdk.dart';
 
-
 class PlaylistTracksView extends StatefulWidget {
   final SpotifyService spotifyService;
   final String playlistId;
@@ -13,14 +12,12 @@ class PlaylistTracksView extends StatefulWidget {
   bool _isEditing = false;
   Set<String> _selectedTracks = {};
 
-
   PlaylistTracksView({
+    super.key,
     required this.spotifyService,
     required this.playlistId,
     required this.playlistName,
     required this.isEmotionPlaylist,
-
-
   });
 
   @override
@@ -32,7 +29,6 @@ class _PlaylistTracksViewState extends State<PlaylistTracksView> {
   bool _isLoading = false;
   Map<String, bool> _showButtons = {};
 
-
   @override
   void initState() {
     super.initState();
@@ -42,8 +38,8 @@ class _PlaylistTracksViewState extends State<PlaylistTracksView> {
   Future<void> _loadTracks() async {
     setState(() => _isLoading = true);
     try {
-      final tracks = await widget.spotifyService.getPlaylistTracks(
-          widget.playlistId);
+      final tracks =
+          await widget.spotifyService.getPlaylistTracks(widget.playlistId);
       setState(() {
         _tracks = tracks;
         _isLoading = false;
@@ -54,7 +50,6 @@ class _PlaylistTracksViewState extends State<PlaylistTracksView> {
     }
   }
 
-
   Future<List<dynamic>> _getPlaylists() async {
     try {
       return await widget.spotifyService.getPlaylists();
@@ -64,19 +59,27 @@ class _PlaylistTracksViewState extends State<PlaylistTracksView> {
     }
   }
 
-  Future<void> _deleteSelectedTracks(dynamic widget) async {
-    for (String trackId in widget._selectedTracks) {
-      await widget.spotifyService.removeTrackFromPlaylist(
-          widget.playlistId, trackId);
+  Future<void> _deleteSelectedTracks(PlaylistTracksView widget) async {
+    try {
+      for (String trackId in widget._selectedTracks) {
+        final trackUri = 'spotify:track:$trackId';
+        await widget.spotifyService.deleteTrackFromPlaylist(
+            widget.playlistId,
+            trackUri
+        );
+      }
+      await _loadTracks();
+      setState(() {
+        widget._selectedTracks.clear();
+        widget._isEditing = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('선택한 곡이 삭제되었습니다.')),
+      );
+    } catch (e) {
+      print('곡 삭제 오류: $e');
+      rethrow;
     }
-    await _loadTracks();
-    setState(() {
-      widget._selectedTracks.clear();
-      widget._isEditing = false;
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('선택한 곡이 삭제되었습니다.')),
-    );
   }
 
   void _showPlaylistOptions(dynamic track, String option) async {
@@ -93,10 +96,7 @@ class _PlaylistTracksViewState extends State<PlaylistTracksView> {
             borderRadius: BorderRadius.circular(16.0),
             child: ConstrainedBox(
               constraints: BoxConstraints(
-                maxHeight: MediaQuery
-                    .of(context)
-                    .size
-                    .height * 0.55,
+                maxHeight: MediaQuery.of(context).size.height * 0.55,
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -127,8 +127,8 @@ class _PlaylistTracksViewState extends State<PlaylistTracksView> {
                       itemBuilder: (context, index) {
                         final playlist = playlists[index];
                         return ListTile(
-                          leading: Icon(
-                              Icons.playlist_play, color: Colors.blueAccent),
+                          leading: Icon(Icons.playlist_play,
+                              color: Colors.blueAccent),
                           title: Text(
                             playlist['name'] ?? '알 수 없는 플레이리스트',
                             style: TextStyle(
@@ -153,12 +153,10 @@ class _PlaylistTracksViewState extends State<PlaylistTracksView> {
     );
     if (selectedPlaylist != null) {
       try {
-        String trackUri;
         if (track != null) {
           String trackUri = track['uri'] ?? 'spotify:track:${track['id']}';
-          await widget.spotifyService.addTrackToPlaylist(selectedPlaylist['id'],
-              [trackUri]
-          );
+          await widget.spotifyService
+              .addTrackToPlaylist(selectedPlaylist['id'], [trackUri]);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('곡이 플레이리스트에 추가되었습니다.')),
           );
@@ -184,324 +182,327 @@ class _PlaylistTracksViewState extends State<PlaylistTracksView> {
     }
   }
 
-    void _showAddDialog() {
-      showModalBottomSheet(
-        context: context,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        builder: (BuildContext context) {
-          return Container(
-            padding: EdgeInsets.all(20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  '플레이리스트에 추가',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () => _showPlaylistOptions(null, '카테고리'),
-                  child: Text('감정 카테고리'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
+  void _showAddDialog() {
+    showModalBottomSheet(
+      context: context,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (BuildContext context) {
+        return Container(
+          padding: EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                '플레이리스트에 추가',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () => _showPlaylistOptions(null, '카테고리'),
+                child: Text('감정 카테고리'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
                   ),
                 ),
-                SizedBox(height: 10),
-                ElevatedButton(
-                  onPressed: () => _showPlaylistOptions(null, '내 플레이리스트'),
-                  child: Text('내 플레이리스트'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
+              ),
+              SizedBox(height: 10),
+              ElevatedButton(
+                onPressed: () => _showPlaylistOptions(null, '내 플레이리스트'),
+                child: Text('내 플레이리스트'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
                   ),
                 ),
-              ],
-            ),
-          );
-        },
-      );
-    }
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
-    @override
-    Widget build(BuildContext context) {
-      return Scaffold(
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: Text(widget.playlistName),
         backgroundColor: Colors.white,
-        appBar: AppBar(
-          title: Text(widget.playlistName),
-          backgroundColor: Colors.white,
-          elevation: 0,
-          foregroundColor: Colors.black,
-          actions: [
-            TextButton(
-              onPressed: () {
-                setState(() {
-                  widget._isEditing = !widget._isEditing;
-                  widget._selectedTracks.clear();
-                });
-              },
-              child: Text(widget._isEditing ? '완료' : '편집'),
-            ),
-          ],
-        ),
-        body: Stack(
-          children: [
-            _isLoading
-                ? Center(child: CircularProgressIndicator())
-                : Column(
-              children: [
-                Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('전체 (${_tracks.length}곡)'),
-                      if (widget._isEditing)
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              if (widget._selectedTracks.length ==
-                                  _tracks.length) {
-                                widget._selectedTracks.clear();
-                              } else {
-                                widget._selectedTracks = _tracks.map((
-                                    t) => t['track']['id'] as String).toSet();
-                              }
-                            });
-                          },
-                          child: Text(
-                            widget._selectedTracks.length == _tracks.length ?
-                            '전체선택해제' : '전체 선택',
-                            style: TextStyle(color: Colors.blueAccent),),
-                        ),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: _tracks.length,
-                    itemBuilder: (context, index) {
-                      final track = _tracks[index]['track'];
-                      final trackId = track['id'] as String;
-                      return Column(
+        elevation: 0,
+        foregroundColor: Colors.black,
+        actions: [
+          TextButton(
+            onPressed: () {
+              setState(() {
+                widget._isEditing = !widget._isEditing;
+                widget._selectedTracks.clear();
+              });
+            },
+            child: Text(widget._isEditing ? '완료' : '편집'),
+          ),
+        ],
+      ),
+      body: Stack(
+        children: [
+          _isLoading
+              ? Center(child: CircularProgressIndicator())
+              : Column(
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 8.0, horizontal: 16.0),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.grey[100],
-                                borderRadius: BorderRadius.circular(20),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withOpacity(0.3),
-                                    spreadRadius: 1,
-                                    blurRadius: 5,
-                                    offset: Offset(0, 3),
-                                  ),
-                                ],
-                              ),
-
-                              child: Row(
-                                children: [
-                                  if (widget._isEditing)
-                                    Padding(
-                                      padding: EdgeInsets.only(left: 10),
-                                      child: Checkbox(
-                                        value: widget._selectedTracks.contains(
-                                            trackId),
-                                        onChanged: (bool? value) {
-                                          setState(() {
-                                            if (value == true) {
-                                              widget._selectedTracks.add(
-                                                  trackId);
-                                            } else {
-                                              widget._selectedTracks.remove(
-                                                  trackId);
-                                            }
-                                          });
-                                        },
-                                      ),
-                                    ),
-                                  Expanded(
-                                    child: ListTile(
-                                      contentPadding: EdgeInsets.symmetric(
-                                          horizontal: 20, vertical: 10),
-                                      leading: _buildAlbumCover(track),
-                                      title: Text(
-                                        track['name'],
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      subtitle: Text(
-                                          track['artists'][0]['name']),
-                                      trailing: IconButton(
-                                        icon: Icon(Icons.playlist_add),
-                                        onPressed: widget._isEditing
-                                            ? null
-                                            : () {
-                                          setState(() {
-                                            _showButtons[trackId] =
-                                            !(_showButtons[trackId] ?? false);
-                                          });
-                                        },
-                                      ),
-                                      onTap: widget._isEditing
-                                          ? () {
-                                        setState(() {
-                                          if (widget._selectedTracks.contains(
-                                              trackId)) {
-                                            widget._selectedTracks.remove(
-                                                trackId);
-                                          } else {
-                                            widget._selectedTracks.add(trackId);
-                                          }
-                                        });
-                                      }
-                                          : () =>
-                                          widget.spotifyService.playTrack(
-                                              track['uri']),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          if (_showButtons[trackId] ?? false)
-                            Container(
-                              margin: EdgeInsets.only(bottom: 8.0),
-                              padding: EdgeInsets.symmetric(horizontal: 30),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment
-                                    .spaceEvenly,
-                                children: [
-                                  ElevatedButton(
-                                    child: Text('감정 카테고리',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.blue[600],
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(15),
-                                      ),
-                                      elevation: 2,
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: 20, vertical: 12),
-                                    ),
-                                    onPressed: () =>
-                                        _showPlaylistOptions(track, '카테고리'),
-                                  ),
-                                  ElevatedButton(
-                                    child: Text('내 플레이리스트',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.blue[600],
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(15),
-                                      ),
-                                      elevation: 2,
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: 20, vertical: 12),
-                                    ),
-                                    onPressed: () =>
-                                        _showPlaylistOptions(track, '내 플레이리스트'),
-                                  ),
-                                ],
+                          Text('전체 (${_tracks.length}곡)'),
+                          if (widget._isEditing)
+                            GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  if (widget._selectedTracks.length ==
+                                      _tracks.length) {
+                                    widget._selectedTracks.clear();
+                                  } else {
+                                    widget._selectedTracks = _tracks
+                                        .map((t) => t['track']['id'] as String)
+                                        .toSet();
+                                  }
+                                });
+                              },
+                              child: Text(
+                                widget._selectedTracks.length == _tracks.length
+                                    ? '전체선택해제'
+                                    : '전체 선택',
+                                style: TextStyle(color: Colors.blueAccent),
                               ),
                             ),
                         ],
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-            if (widget._isEditing && widget._selectedTracks.isNotEmpty)
-              Positioned(
-                left: 20,
-                right: 20,
-                bottom: 20,
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () => _deleteSelectedTracks(widget),
-                        child: Text('삭제', style: TextStyle(color: Colors
-                            .white)),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                        ),
                       ),
                     ),
-                    SizedBox(width: 10),
                     Expanded(
-                      child: ElevatedButton(
-                        onPressed: () => _showAddDialog(),
-                        child: Text('추가', style: TextStyle(color: Colors
-                            .white)),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                        ),
+                      child: ListView.builder(
+                        itemCount: _tracks.length,
+                        itemBuilder: (context, index) {
+                          final track = _tracks[index]['track'];
+                          final trackId = track['id'] as String;
+                          return Column(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 8.0, horizontal: 16.0),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[100],
+                                    borderRadius: BorderRadius.circular(20),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.grey.withOpacity(0.3),
+                                        spreadRadius: 1,
+                                        blurRadius: 5,
+                                        offset: Offset(0, 3),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      if (widget._isEditing)
+                                        Padding(
+                                          padding: EdgeInsets.only(left: 10),
+                                          child: Checkbox(
+                                            value: widget._selectedTracks
+                                                .contains(trackId),
+                                            onChanged: (bool? value) {
+                                              setState(() {
+                                                if (value == true) {
+                                                  widget._selectedTracks
+                                                      .add(trackId);
+                                                } else {
+                                                  widget._selectedTracks
+                                                      .remove(trackId);
+                                                }
+                                              });
+                                            },
+                                          ),
+                                        ),
+                                      Expanded(
+                                        child: ListTile(
+                                          contentPadding: EdgeInsets.symmetric(
+                                              horizontal: 20, vertical: 10),
+                                          leading: _buildAlbumCover(track),
+                                          title: Text(
+                                            track['name'],
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                          subtitle:
+                                              Text(track['artists'][0]['name']),
+                                          trailing: IconButton(
+                                            icon: Icon(Icons.playlist_add),
+                                            onPressed: widget._isEditing
+                                                ? null
+                                                : () {
+                                                    setState(() {
+                                                      _showButtons[trackId] =
+                                                          !(_showButtons[
+                                                                  trackId] ??
+                                                              false);
+                                                    });
+                                                  },
+                                          ),
+                                          onTap: widget._isEditing
+                                              ? () {
+                                                  setState(() {
+                                                    if (widget._selectedTracks
+                                                        .contains(trackId)) {
+                                                      widget._selectedTracks
+                                                          .remove(trackId);
+                                                    } else {
+                                                      widget._selectedTracks
+                                                          .add(trackId);
+                                                    }
+                                                  });
+                                                }
+                                              : () => widget.spotifyService
+                                                  .playTrack(track['uri']),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              if (_showButtons[trackId] ?? false)
+                                Container(
+                                  margin: EdgeInsets.only(bottom: 8.0),
+                                  padding: EdgeInsets.symmetric(horizontal: 30),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    children: [
+                                      ElevatedButton(
+                                        child: Text(
+                                          '감정 카테고리',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.blue[600],
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(15),
+                                          ),
+                                          elevation: 2,
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 20, vertical: 12),
+                                        ),
+                                        onPressed: () =>
+                                            _showPlaylistOptions(track, '카테고리'),
+                                      ),
+                                      ElevatedButton(
+                                        child: Text(
+                                          '내 플레이리스트',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.blue[600],
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(15),
+                                          ),
+                                          elevation: 2,
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 20, vertical: 12),
+                                        ),
+                                        onPressed: () => _showPlaylistOptions(
+                                            track, '내 플레이리스트'),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                            ],
+                          );
+                        },
                       ),
                     ),
                   ],
                 ),
+          if (widget._isEditing && widget._selectedTracks.isNotEmpty)
+            Positioned(
+              left: 20,
+              right: 20,
+              bottom: 20,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () => _deleteSelectedTracks(widget),
+                      child: Text('삭제', style: TextStyle(color: Colors.white)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () => _showAddDialog(),
+                      child: Text('추가', style: TextStyle(color: Colors.white)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-          ],
-        ),
-      );
-    }
-
-
-    Widget _buildAlbumCover(dynamic track) {
-      final images = track['album']?['images'] as List?;
-      final imageUrl = images?.isNotEmpty == true ? images
-          ?.first['url'] as String? : null;
-      return Container(
-        width: 50,
-        height: 50,
-        decoration: BoxDecoration(
-          color: Colors.grey[300],
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: imageUrl != null
-            ? ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: Image.network(
-            imageUrl,
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) {
-              return Center(
-                  child: Icon(Icons.music_note, color: Colors.grey[600]));
-            },
-          ),
-        )
-            : Center(child: Icon(Icons.music_note, color: Colors.grey[600])),
-      );
-    }
+            ),
+        ],
+      ),
+    );
   }
 
-
-  Future<void> playTrack(String uri) async {
-    // Implement the logic to play a track
+  Widget _buildAlbumCover(dynamic track) {
+    final images = track['album']?['images'] as List?;
+    final imageUrl =
+        images?.isNotEmpty == true ? images?.first['url'] as String? : null;
+    return Container(
+      width: 50,
+      height: 50,
+      decoration: BoxDecoration(
+        color: Colors.grey[300],
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: imageUrl != null
+          ? ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.network(
+                imageUrl,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return Center(
+                      child: Icon(Icons.music_note, color: Colors.grey[600]));
+                },
+              ),
+            )
+          : Center(child: Icon(Icons.music_note, color: Colors.grey[600])),
+    );
   }
+}
 
+Future<void> playTrack(String uri) async {
+  // Implement the logic to play a track
+}
