@@ -250,6 +250,31 @@ class SpotifyService {
     }
   }
 
+  Future<void> removeTrackFromPlaylist(String playlistId, String trackUri) async {
+    await _refreshTokenIfNeeded();
+    final url = 'https://api.spotify.com/v1/playlists/$playlistId/tracks';
+
+    try {
+      final response = await http.delete(
+        Uri.parse(url),
+        headers: {
+          'Authorization': 'Bearer $_accessToken',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'tracks': [{'uri': trackUri}],
+        }),
+      );
+
+      if (response.statusCode != 200) {
+        throw Exception('곡 삭제 실패: ${response.body}');
+      }
+    } catch (e) {
+      print('곡 삭제 중 오류 발생: $e');
+      throw e;
+    }
+  }
+
   Future<void> deletePlaylist(String playlistId) async {
     final url = 'https://api.spotify.com/v1/playlists/$playlistId/followers';
     final headers = {
@@ -271,7 +296,7 @@ class SpotifyService {
     }
   }
 
-  Future<void> addTrackToPlaylist(String playlistId, String trackUri) async {
+  Future<void> addTrackToPlaylist(String playlistId, List<String> trackUris) async {
     await _refreshTokenIfNeeded();
     final url = 'https://api.spotify.com/v1/playlists/$playlistId/tracks';
 
@@ -283,7 +308,7 @@ class SpotifyService {
           'Content-Type': 'application/json',
         },
         body: jsonEncode({
-          'uris': [trackUri],
+          'uris': trackUris,
         }),
       );
 
@@ -325,3 +350,10 @@ class SpotifyService {
     return DateTime.now().isAfter(_tokenExpiryTime!);
   }
 }
+
+
+
+  Future<void> playTrack(String uri) async {
+    await SpotifySdk.play(spotifyUri: uri);
+  }
+

@@ -41,6 +41,7 @@ class _CategoryTagScreenState extends State<CategoryTagScreen> with SingleTicker
           spotifyService: widget.spotifyService,
           playlistId: playlistId,
           playlistName: playlistName,
+          isEmotionPlaylist: true,
         ),
       ),
     );
@@ -131,24 +132,73 @@ class _CategoryTagScreenState extends State<CategoryTagScreen> with SingleTicker
   }
 
   Widget _buildEmotionCategories() {
-    return GridView.builder(
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        childAspectRatio: 1.8,
-        crossAxisSpacing: 16,
-        mainAxisSpacing: 16,
-      ),
-      itemCount: _emotionCategories.length,
-      itemBuilder: (context, index) {
-        final emotion = _emotionCategories[index];
-        final playlist = _playlists.firstWhere(
-              (p) => p['name'] == emotion,
-          orElse: () => {'name': emotion, 'id': 'new_${emotion}_id'},
-        );
-        return _buildCategoryCard(playlist['name'], _getColorForEmotion(playlist['name']));
-      },
+    return Column(
+      children: [
+        Expanded(
+          child: _isLoading
+              ? Center(child: CircularProgressIndicator())
+              : GridView.builder(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              childAspectRatio: 1.8,
+              crossAxisSpacing: 16,
+              mainAxisSpacing: 16,
+            ),
+            itemCount: _emotionCategories.length,
+            itemBuilder: (context, index) {
+              final emotion = _emotionCategories[index];
+              final playlist = _playlists.firstWhere(
+                    (p) => p['name'] == emotion,
+                orElse: () => {'name': emotion, 'id': 'new_${emotion}_id', 'tracks': {'total': 0}},
+              );
+              return GestureDetector(
+                onTap: () => _showPlaylistTracks(playlist['id'], playlist['name']),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: _getColorForEmotion(emotion),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Playlist',
+                          style: TextStyle(
+                            color: Colors.grey[700],
+                            fontSize: 12,
+                          ),
+                        ),
+                        Text(
+                          emotion,
+                          style: const TextStyle(
+                            color: Colors.black87,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          '${playlist['tracks']['total']}곡',
+                          style: TextStyle(
+                            color: Colors.grey[700],
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
+
+
 
   Widget _buildMyPlaylist() {
     return Column(
@@ -235,47 +285,7 @@ class _CategoryTagScreenState extends State<CategoryTagScreen> with SingleTicker
     );
   }
 
-  Widget _buildCategoryCard(String title, Color color) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) =>
-              SongScreen(title: title, spotifyService: widget.spotifyService)),
-        );
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Playlist',
-                style: TextStyle(
-                  color: Colors.grey[700],
-                  fontSize: 12,
-                ),
-              ),
-              Text(
-                title,
-                style: const TextStyle(
-                  color: Colors.black87,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+
 
   void _showCreatePlaylistDialog() {
     TextEditingController _playlistNameController = TextEditingController();

@@ -5,7 +5,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:mood/views/search_view.dart';
 import 'package:spotify_sdk/spotify_sdk.dart';
-
 import '../services/spotify_service.dart';
 import '../views/playlist_detail_view.dart';
 
@@ -131,7 +130,7 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
                       onPressed: () {
                         Navigator.pop(context, _recentSearches);
                       },
-                          ),
+                    ),
                     Expanded(
                       child: Container(
                         decoration: BoxDecoration(
@@ -386,10 +385,10 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
                 children: [
                   ElevatedButton(
                     child: Text('감정 카테고리',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),),
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue[600],
                       shape: RoundedRectangleBorder(
@@ -403,10 +402,10 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
 
                   ElevatedButton(
                     child: Text('내 플레이리스트',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),),
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue[600],
                       shape: RoundedRectangleBorder(
@@ -504,6 +503,7 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('곡이 플레이리스트에 추가되었습니다.')),
         );
+
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('곡 추가에 실패했습니다: $e')),
@@ -542,62 +542,62 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
 
 
   List<Widget> _buildPlaylistList() {
-  return (_searchResults['playlists'] as List<dynamic>).map((playlist) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.grey[100],
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.3),
-              spreadRadius: 1,
-              blurRadius: 5,
-              offset: Offset(0, 3),
-            ),
-          ],
-        ),
-        child: ListTile(
-          contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          title: Text(
-            playlist?['name'] ?? '알 수 없는 플레이리스트',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-          ),
-          subtitle: Text('${playlist?['tracks']?['total'] ?? 0} 트랙'),
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              IconButton(
-                icon: Icon(Icons.play_arrow, color: Colors.black),
-                onPressed: () async {
-                  await SpotifySdk.play(spotifyUri: playlist['uri']);
-                  _updateCurrentTrack();
-                },
-              ),
-              IconButton(
-                icon: Icon(Icons.playlist_add, color: Colors.black),
-                onPressed: () {
-                },
+    return (_searchResults['playlists'] as List<dynamic>).map((playlist) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.grey[100],
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.3),
+                spreadRadius: 1,
+                blurRadius: 5,
+                offset: Offset(0, 3),
               ),
             ],
           ),
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    PlaylistDetailView(
-                      spotifyService: widget.spotifyService,
-                      playlistId: playlist?['id'] ?? '',
-                      playlistName: playlist?['name'] ?? '알 수 없는 플레이리스트',
-                    ),
-              ),
-            );
-          },
+          child: ListTile(
+            contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            title: Text(
+              playlist?['name'] ?? '알 수 없는 플레이리스트',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+            subtitle: Text('${playlist?['tracks']?['total'] ?? 0} 트랙'),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: Icon(Icons.play_arrow, color: Colors.black),
+                  onPressed: () async {
+                    await SpotifySdk.play(spotifyUri: playlist['uri']);
+                    _updateCurrentTrack();
+                  },
+                ),
+                IconButton(
+                  icon: Icon(Icons.playlist_add, color: Colors.black),
+                  onPressed: () {
+                  },
+                ),
+              ],
+            ),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      PlaylistDetailView(
+                        spotifyService: widget.spotifyService,
+                        playlistId: playlist?['id'] ?? '',
+                        playlistName: playlist?['name'] ?? '알 수 없는 플레이리스트',
+                      ),
+                ),
+              );
+            },
+          ),
         ),
-      ),
-    );
-  }).toList();
-}
+      );
+    }).toList();
+  }
 }
