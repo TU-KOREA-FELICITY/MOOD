@@ -7,13 +7,15 @@ import 'SongScreen.dart';
 
 class CategoryTagScreen extends StatefulWidget {
   final SpotifyService spotifyService;
+
   const CategoryTagScreen({super.key, required this.spotifyService});
 
   @override
   _CategoryTagScreenState createState() => _CategoryTagScreenState();
 }
 
-class _CategoryTagScreenState extends State<CategoryTagScreen> with SingleTickerProviderStateMixin {
+class _CategoryTagScreenState extends State<CategoryTagScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final TextEditingController _playlistNameController = TextEditingController();
   final List<String> _emotionCategories = ['행복', '슬픔', '분노', '놀람', '혐오', '공포', '중립', '경멸'];
@@ -34,7 +36,7 @@ class _CategoryTagScreenState extends State<CategoryTagScreen> with SingleTicker
   }
 
   void _showPlaylistTracks(String playlistId, String playlistName) async {
-    final result = await Navigator.push(
+    await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => PlaylistTracksView(
@@ -45,9 +47,7 @@ class _CategoryTagScreenState extends State<CategoryTagScreen> with SingleTicker
         ),
       ),
     );
-    if (result == true) {
-      _loadPlaylists();
-    }
+    await _loadPlaylists();
   }
 
   Future<void> _loadPlaylists() async {
@@ -59,6 +59,12 @@ class _CategoryTagScreenState extends State<CategoryTagScreen> with SingleTicker
         await widget.spotifyService.createPlaylist(emotion);
         playlists.add({'name': emotion, 'id': 'new_${emotion}_id'});
       }
+    }
+
+    for (var playlist in playlists) {
+      int trackCount =
+          await widget.spotifyService.updatePlaylistInfo(playlist['id']);
+      playlist['tracks'] = {'total': trackCount};
     }
 
     setState(() {
@@ -104,16 +110,16 @@ class _CategoryTagScreenState extends State<CategoryTagScreen> with SingleTicker
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-                  TabBar(
-                    labelColor: Colors.blueAccent[700],
-                    unselectedLabelColor: Colors.grey,
-                    indicatorColor: Colors.blueAccent,
-                      controller: _tabController,
+              TabBar(
+                labelColor: Colors.blueAccent[700],
+                unselectedLabelColor: Colors.grey,
+                indicatorColor: Colors.blueAccent,
+                controller: _tabController,
                 tabs: [
                   Tab(text: '감정 카테고리'),
                   Tab(text: '내 플레이리스트'),
                 ],
-                ),
+              ),
               const SizedBox(height: 16),
               Expanded(
                 child: TabBarView(
@@ -138,67 +144,70 @@ class _CategoryTagScreenState extends State<CategoryTagScreen> with SingleTicker
           child: _isLoading
               ? Center(child: CircularProgressIndicator())
               : GridView.builder(
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              childAspectRatio: 1.8,
-              crossAxisSpacing: 16,
-              mainAxisSpacing: 16,
-            ),
-            itemCount: _emotionCategories.length,
-            itemBuilder: (context, index) {
-              final emotion = _emotionCategories[index];
-              final playlist = _playlists.firstWhere(
-                    (p) => p['name'] == emotion,
-                orElse: () => {'name': emotion, 'id': 'new_${emotion}_id', 'tracks': {'total': 0}},
-              );
-              return GestureDetector(
-                onTap: () => _showPlaylistTracks(playlist['id'], playlist['name']),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: _getColorForEmotion(emotion),
-                    borderRadius: BorderRadius.circular(12),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    childAspectRatio: 1.8,
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 16,
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Playlist',
-                          style: TextStyle(
-                            color: Colors.grey[700],
-                            fontSize: 12,
+                  itemCount: _emotionCategories.length,
+                  itemBuilder: (context, index) {
+                    final emotion = _emotionCategories[index];
+                    final playlist = _playlists.firstWhere(
+                      (p) => p['name'] == emotion,
+                      orElse: () => {
+                        'name': emotion,
+                        'id': 'new_${emotion}_id',
+                        'tracks': {'total': 0}
+                      },
+                    );
+                    return GestureDetector(
+                      onTap: () =>
+                          _showPlaylistTracks(playlist['id'], playlist['name']),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: _getColorForEmotion(emotion),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Playlist',
+                                style: TextStyle(
+                                  color: Colors.grey[700],
+                                  fontSize: 12,
+                                ),
+                              ),
+                              Text(
+                                emotion,
+                                style: const TextStyle(
+                                  color: Colors.black87,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                '${playlist['tracks']['total']}곡',
+                                style: TextStyle(
+                                  color: Colors.grey[700],
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        Text(
-                          emotion,
-                          style: const TextStyle(
-                            color: Colors.black87,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          '${playlist['tracks']['total']}곡',
-                          style: TextStyle(
-                            color: Colors.grey[700],
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                      ),
+                    );
+                  },
                 ),
-              );
-            },
-          ),
         ),
       ],
     );
   }
-
-
 
   Widget _buildMyPlaylist() {
     return Column(
@@ -207,14 +216,12 @@ class _CategoryTagScreenState extends State<CategoryTagScreen> with SingleTicker
         ElevatedButton(
           onPressed: () => _showCreatePlaylistDialog(),
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.blueAccent[400],
-            foregroundColor: Colors.white,
-            minimumSize: Size(200, 45),
-            side: BorderSide(color: Colors.blue),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15)
-            )
-          ),
+              backgroundColor: Colors.blueAccent[400],
+              foregroundColor: Colors.white,
+              minimumSize: Size(200, 45),
+              side: BorderSide(color: Colors.blue),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15))),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -230,62 +237,71 @@ class _CategoryTagScreenState extends State<CategoryTagScreen> with SingleTicker
                     color: Colors.white,
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
-                    letterSpacing: 1.2
-                ),
+                    letterSpacing: 1.2),
               ),
             ],
           ),
         ),
-
         SizedBox(height: 16),
-
         Expanded(
-          child: _isLoading
-              ? Center(child: CircularProgressIndicator())
-              : ListView.builder(
-            itemCount: _playlists.where((playlist) => !_emotionCategories.contains(playlist['name'])).length,
-            itemBuilder: (context, index) {
-              final playlist = _playlists.where((playlist) => !_emotionCategories.contains(playlist['name'])).toList()[index];
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.grey[100],
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.3),
-                        spreadRadius: 1,
-                        blurRadius: 5,
-                        offset: Offset(0, 3),
-                      ),
-                    ],
-                  ),
-                  child: ListTile(
-                    contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                    title: Text(
-                      playlist['name'],
-                      style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold),
+            child: _isLoading
+                ? Center(child: CircularProgressIndicator())
+                : RefreshIndicator(
+                    color: Colors.blue,
+                    backgroundColor: Colors.white,
+                    strokeWidth: 3.0,
+                    onRefresh: _loadPlaylists,
+                    child: ListView.builder(
+                      itemCount: _playlists
+                          .where((playlist) =>
+                              !_emotionCategories.contains(playlist['name']))
+                          .length,
+                      itemBuilder: (context, index) {
+                        final playlist = _playlists
+                            .where((playlist) =>
+                                !_emotionCategories.contains(playlist['name']))
+                            .toList()[index];
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 8.0, horizontal: 8.0),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.grey[100],
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.withOpacity(0.3),
+                                  spreadRadius: 1,
+                                  blurRadius: 5,
+                                  offset: Offset(0, 3),
+                                ),
+                              ],
+                            ),
+                            child: ListTile(
+                              contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 10),
+                              title: Text(
+                                playlist['name'],
+                                style: TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.bold),
+                              ),
+                              subtitle: Text('${playlist['tracks']['total']}곡'),
+                              trailing: IconButton(
+                                icon: Icon(Icons.close),
+                                onPressed: () =>
+                                    _deletePlaylist(playlist['id']),
+                              ),
+                              onTap: () => _showPlaylistTracks(
+                                  playlist['id'], playlist['name']),
+                            ),
+                          ),
+                        );
+                      },
                     ),
-                    subtitle: Text('${playlist['tracks']['total']}곡'),
-                    trailing: IconButton(
-                      icon: Icon(Icons.close),
-                      onPressed: () => _deletePlaylist(playlist['id']),
-                    ),
-                    onTap: () => _showPlaylistTracks(playlist['id'], playlist['name']),
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
+                  )),
       ],
     );
   }
-
-
 
   void _showCreatePlaylistDialog() {
     TextEditingController _playlistNameController = TextEditingController();
@@ -301,20 +317,24 @@ class _CategoryTagScreenState extends State<CategoryTagScreen> with SingleTicker
           ),
           actions: <Widget>[
             TextButton(
-              child: Text('취소',
-                style: TextStyle(color: Colors.blueAccent),),
+              child: Text(
+                '취소',
+                style: TextStyle(color: Colors.blueAccent),
+              ),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: Text('생성',
-              style: TextStyle(color: Colors.blueAccent),),
+              child: Text(
+                '생성',
+                style: TextStyle(color: Colors.blueAccent),
+              ),
               onPressed: () async {
                 if (_playlistNameController.text.isNotEmpty) {
                   try {
-                    await widget.spotifyService.createPlaylist(
-                        _playlistNameController.text);
+                    await widget.spotifyService
+                        .createPlaylist(_playlistNameController.text);
                     Navigator.of(context).pop();
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('플레이리스트가 생성되었습니다.')),

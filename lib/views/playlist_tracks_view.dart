@@ -201,24 +201,24 @@ class _PlaylistTracksViewState extends State<PlaylistTracksView> {
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () => _showPlaylistOptions(null, '카테고리'),
-                child: Text('감정 카테고리'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
                   ),
                 ),
+                child: Text('감정 카테고리'),
               ),
               SizedBox(height: 10),
               ElevatedButton(
                 onPressed: () => _showPlaylistOptions(null, '내 플레이리스트'),
-                child: Text('내 플레이리스트'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
                   ),
                 ),
+                child: Text('내 플레이리스트'),
               ),
             ],
           ),
@@ -384,13 +384,6 @@ class _PlaylistTracksViewState extends State<PlaylistTracksView> {
                                         MainAxisAlignment.spaceEvenly,
                                     children: [
                                       ElevatedButton(
-                                        child: Text(
-                                          '감정 카테고리',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor: Colors.blue[600],
                                           shape: RoundedRectangleBorder(
@@ -403,15 +396,15 @@ class _PlaylistTracksViewState extends State<PlaylistTracksView> {
                                         ),
                                         onPressed: () =>
                                             _showPlaylistOptions(track, '카테고리'),
-                                      ),
-                                      ElevatedButton(
                                         child: Text(
-                                          '내 플레이리스트',
+                                          '감정 카테고리',
                                           style: TextStyle(
                                             color: Colors.white,
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
+                                      ),
+                                      ElevatedButton(
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor: Colors.blue[600],
                                           shape: RoundedRectangleBorder(
@@ -424,6 +417,13 @@ class _PlaylistTracksViewState extends State<PlaylistTracksView> {
                                         ),
                                         onPressed: () => _showPlaylistOptions(
                                             track, '내 플레이리스트'),
+                                        child: Text(
+                                          '내 플레이리스트',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -445,26 +445,26 @@ class _PlaylistTracksViewState extends State<PlaylistTracksView> {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () => _deleteSelectedTracks(widget),
-                      child: Text('삭제', style: TextStyle(color: Colors.white)),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
                         ),
                       ),
+                      child: Text('삭제', style: TextStyle(color: Colors.white)),
                     ),
                   ),
                   SizedBox(width: 10),
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () => _showAddDialog(),
-                      child: Text('추가', style: TextStyle(color: Colors.white)),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
                         ),
                       ),
+                      child: Text('추가', style: TextStyle(color: Colors.white)),
                     ),
                   ),
                 ],
@@ -501,8 +501,4 @@ class _PlaylistTracksViewState extends State<PlaylistTracksView> {
           : Center(child: Icon(Icons.music_note, color: Colors.grey[600])),
     );
   }
-}
-
-Future<void> playTrack(String uri) async {
-  // Implement the logic to play a track
 }

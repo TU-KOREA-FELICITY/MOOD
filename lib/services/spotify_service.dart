@@ -261,7 +261,7 @@ class SpotifyService {
     }
   }
 
-  Future<void> addTrackToPlaylist(
+  Future<int> addTrackToPlaylist(
       String playlistId, List<String> trackUris) async {
     await _refreshTokenIfNeeded();
     final url = 'https://api.spotify.com/v1/playlists/$playlistId/tracks';
@@ -279,6 +279,7 @@ class SpotifyService {
       );
       if (response.statusCode == 201) {
         print('곡이 성공적으로 추가되었습니다.');
+        return await updatePlaylistInfo(playlistId);
       } else {
         throw Exception('곡 추가 실패: ${response.body}');
       }
@@ -288,7 +289,7 @@ class SpotifyService {
     }
   }
 
-  Future<void> deleteTrackFromPlaylist(
+  Future<int> deleteTrackFromPlaylist(
       String playlistId, String trackUri) async {
     await _refreshTokenIfNeeded();
     final url = 'https://api.spotify.com/v1/playlists/$playlistId/tracks';
@@ -309,6 +310,7 @@ class SpotifyService {
 
       if (response.statusCode == 200) {
         print('곡이 성공적으로 삭제되었습니다.');
+        return await updatePlaylistInfo(playlistId);
       } else {
         throw Exception('곡 삭제 실패: ${response.body}');
       }
