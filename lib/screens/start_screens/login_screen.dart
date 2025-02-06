@@ -83,7 +83,7 @@ class _LoginScreenState extends State<LoginScreen> {
   void _checkAuthStatus() async {
     try {
       final response =
-          await http.get(Uri.parse('http://10.0.2.2:3000/check_auth'));
+      await http.get(Uri.parse('http://10.0.2.2:3000/check_auth'));
       final result = json.decode(response.body);
       if (result['authenticated'] == true) {
         setState(() {
@@ -160,33 +160,33 @@ class _LoginScreenState extends State<LoginScreen> {
                           shape: BoxShape.circle,
                           color: Color(0xFFF2F2F1),
                           border:
-                              Border.all(color: Color(0xFF2265F0), width: 6),
+                          Border.all(color: Color(0xFF2265F0), width: 6),
                         ),
                         child: ClipOval(
                           child: imageBytes != null
                               ? Image.memory(
-                                  imageBytes!,
-                                  fit: BoxFit.cover,
-                                  gaplessPlayback: true,
-                                )
+                            imageBytes!,
+                            fit: BoxFit.cover,
+                            gaplessPlayback: true,
+                          )
                               : Stack(
-                                  alignment: Alignment.center,
-                                  children: [
-                                    SizedBox(
-                                      width: 260,
-                                      height: 260,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 10,
-                                        color: Color(0xFF2265F0),
-                                      ),
-                                    ),
-                                    Icon(
-                                      Icons.person,
-                                      size: 170,
-                                      color: Colors.black,
-                                    ),
-                                  ],
+                            alignment: Alignment.center,
+                            children: [
+                              SizedBox(
+                                width: 260,
+                                height: 260,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 10,
+                                  color: Color(0xFF2265F0),
                                 ),
+                              ),
+                              Icon(
+                                Icons.person,
+                                size: 170,
+                                color: Colors.black,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),

@@ -39,6 +39,21 @@ function runPythonScript(scriptName, args = []) {
   });
 }
 
+function startWebcam () {
+  const scriptPath = path.join(__dirname, '..', 'CAM', 'webcam.py');
+  webcamProcess = spawn('python', [scriptPath]);
+  webcamProcess.stdout.on('data', (data) => {
+    console.log('webcam.py 실행');
+  })
+}
+
+function stopWebcam () {
+  if (webcamProcess) {
+    webcamProcess.kill();
+    console.log('webcam.py 종료');
+  }
+}
+
 function startEstimator() {
   if (!estimatorProcess) {
     const scriptPath = path.join(__dirname, '..', 'CAM', 'estimator.py');
@@ -82,13 +97,21 @@ app.post('/register', async (req, res) => {
   if (!username) {
     return res.status(400).json({ error: "사용자 이름이 필요합니다." });
   }
-
   try {
-    const result = await runPythonScript('aws-face-reg.py', [username]);
-    console.log('얼굴 등록 결과:\n', result);
-    res.json({ message: "얼굴 등록 프로세스 완료", result });
+    startWebcam();
+    // 5초 후 webcam.py 종료 및 aws-face-reg.py 실행
+    setTimeout(async () => {
+      try {
+        stopWebcam ();
+        const result = await runPythonScript('aws-face-reg.py', [username]);
+        console.log('얼굴 등록 결과:\n', result);
+        res.json({ message: "얼굴 등록 프로세스 완료", result });
+      } catch (error) {
+        console.error('aws-face-reg.py 실행 중 오류:', error);
+        res.status(500).json({ error: error.message });
+      }
+    }, 5000);
   } catch (error) {
-    console.error('AWS face registration script error:', error.message);
     res.status(500).json({ error: error.message });
   }
 });
@@ -96,11 +119,20 @@ app.post('/register', async (req, res) => {
 app.post('/login', async (req, res) => {
   authResult = null;
   try {
-    const result = await runPythonScript('aws-face-auth.py');
-    console.log('얼굴 인증 결과:\n', result);
-    res.json({ message: "얼굴 인증 프로세스 완료", result });
+    startWebcam();
+    // 5초 후 webcam.py 종료 및 aws-face-reg.py 실행
+    setTimeout(async () => {
+      try {
+        stopWebcam ();
+        const result = await runPythonScript('aws-face-auth.py');
+        console.log('얼굴 인증 결과:\n', result);
+        res.json({ message: "얼굴 인증 프로세스 완료", result });
+      } catch (error) {
+        console.error('aws-face-reg.py 실행 중 오류:', error);
+        res.status(500).json({ error: error.message });
+      }
+    }, 5000);
   } catch (error) {
-    console.error('AWS face authentication script error:', error.message);
     res.status(500).json({ error: error.message });
   }
 });

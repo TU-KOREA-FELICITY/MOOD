@@ -34,8 +34,8 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/',
       routes: {
-        // '/': (context) => SplashScreen(),
-        '/': (context) => HomeScreen(),
+        '/': (context) => SplashScreen(),
+        // '/': (context) => HomeScreen(),
         '/login': (context) => LoginScreen(),
         '/welcome': (context) {
           final args = ModalRoute.of(context)?.settings.arguments;
