@@ -170,7 +170,7 @@ class ProfileScreen extends StatelessWidget {
                       ],
                     ),
                     onPressed: () {
-                      // 문의 로직
+                      // 臾몄쓽 濡쒖쭅
                     },
                   ),
                   TextButton(
@@ -184,7 +184,7 @@ class ProfileScreen extends StatelessWidget {
                       ],
                     ),
                     onPressed: () {
-                      // 버전 정보 로직
+                      // 踰꾩쟾 �뺣낫 濡쒖쭅
                     },
                   ),
                 ],
