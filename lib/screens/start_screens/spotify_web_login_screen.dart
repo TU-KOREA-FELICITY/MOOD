@@ -5,8 +5,13 @@ import 'signup_completion_screen.dart';
 class SpotifyAuthWebView extends StatefulWidget {
   final String authUrl;
   final String redirectUri;
+  final bool isForSignUp;
 
-  SpotifyAuthWebView({required this.authUrl, required this.redirectUri});
+  SpotifyAuthWebView({
+    required this.authUrl,
+    required this.redirectUri,
+    this.isForSignUp = true
+  });
 
   @override
   _SpotifyAuthWebViewState createState() => _SpotifyAuthWebViewState();
@@ -46,13 +51,16 @@ class _SpotifyAuthWebViewState extends State<SpotifyAuthWebView> {
         Duration(seconds: int.tryParse(params['expires_in'] ?? '3600') ?? 3600),
       ),
     };
-
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) => SignUpCompletionScreen(authData: authData),
-      ),
-    );
+    if (widget.isForSignUp) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => SignUpCompletionScreen(authData: authData),
+        ),
+      );
+    } else {
+      Navigator.pop(context, authData);
+    }
   }
 
   @override

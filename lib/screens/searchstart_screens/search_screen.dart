@@ -57,6 +57,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
         builder: (context) => SpotifyAuthWebView(
           authUrl: _spotifyService.getAuthUrl(),
           redirectUri: _spotifyService.redirectUri,
+          isForSignUp: false,
         ),
       ),
     );
