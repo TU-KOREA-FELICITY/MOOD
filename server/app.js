@@ -120,9 +120,9 @@ app.post('/auth_result', (req, res) => {
 app.post('/analyze_emotion', async (req, res) => {
   await stopEstimator();
   try {
-    const result = await runPythonScript('aws-emotion.py');
-    console.log('감정 분석 결과:\n', result);
-    res.json({ result });
+    await runPythonScript('aws-emotion.py');
+    console.log('감정 분석 결과:\n', emotionResult.result);
+    res.json({ result: emotionResult.result });
   } catch (error) {
     console.error('Emotion analysis script error:', error.message);
     res.status(500).json({ error: error.message });

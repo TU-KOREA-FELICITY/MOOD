@@ -22,6 +22,18 @@ class _HomeScreenState extends State<HomeScreen> {
   Uint8List? _imageData;
   String _warningMessage = '';
   String _emotionResult = '';
+  String _status = '';
+
+  final List<Map<String, dynamic>> emotions = [
+    {'name': 'ANGRY', 'color': Color(0xFFFFDBD6)},
+    {'name': 'HAPPY', 'color': Color(0xFFFEEFF2)},
+    {'name': 'SURPRISED', 'color': Color(0xFFFFFAD7)},
+    {'name': 'DISGUSTED', 'color': Color(0xFFFFFBF4)},
+    {'name': 'CALM', 'color': Color(0xFFE0F0E2)},
+    {'name': 'SAD', 'color': Color(0xFFE9F5FD)},
+    {'name': 'CONFUSED', 'color': Color(0xFFFBF4FB)},
+    {'name': 'FEAR', 'color': Color(0xFFEFEFEF)},
+  ];
 
   @override
   void initState() {
@@ -89,27 +101,28 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _runEmotionAnalysis() async {
     setState(() {
-      _emotionResult = '감정 분석 중...';
+      _status = '감정 분석 중...';
     });
     final url = Uri.parse('http://10.0.2.2:3000/analyze_emotion');
     try {
       final response = await http.post(url);
       if (response.statusCode == 200) {
-        final result = jsonDecode(response.body)['result'];
+        final result = json.decode(response.body);
         setState(() {
-          _emotionResult = result;
+          _emotionResult = result['result'] ?? '';
+          _status = '감정 분석 완료';
         });
       } else {
         print('aws-face-reg.py 실행 실패: ${response.statusCode}');
         print('서버 응답: ${response.body}');
         setState(() {
-          _emotionResult = '감정 분석 실패';
+          _status = '감정 분석 실패';
         });
       }
     } catch (e) {
       print('aws-face-reg.py 실행 중 오류 발생: $e');
       setState(() {
-        _emotionResult = '서버 연결 오류: $e';
+        _status = '서버 연결 오류: $e';
       });
     }
   }
@@ -119,6 +132,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _imageData = null;
       _warningMessage = '';
       _emotionResult = '';
+      _status = '';
       _startEstimator();
     });
   }
@@ -259,9 +273,62 @@ class _HomeScreenState extends State<HomeScreen> {
         if (_emotionResult.isNotEmpty)
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Text(
-              '감정 분석 결과: $_emotionResult',
-              style: TextStyle(fontSize: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '감정 분석 결과',
+                  style: TextStyle(fontSize: 23, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 10),
+                Column(
+                  children: _emotionResult
+                      .split('\n')
+                      .where((line) => line.contains(':'))
+                      .map((line) {
+                    final parts = line.split(': ');
+                    if (parts.length < 2) {
+                      return Container(); // 잘못된 데이터 처리
+                    }
+                    final emotion = parts[0].trim();
+                    final confidence = parts[1].trim();
+                    final color = emotions.firstWhere(
+                        (e) => e['name'] == emotion,
+                        orElse: () => {'color': Colors.white})['color'];
+                    return Padding(
+                      padding: EdgeInsets.symmetric(vertical: 7),
+                      child: Center(
+                        child: Container(
+                          width: MediaQuery.of(context).size.width * 0.9,
+                          padding: EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: color,
+                            borderRadius: BorderRadius.circular(8),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withAlpha(128),
+                                blurRadius: 5,
+                                spreadRadius: 1,
+                                offset: Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Text(
+                            '$emotion: $confidence',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(fontSize: 20),
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+                SizedBox(height: 10),
+                Text(
+                  '상태: $_status',
+                  style: TextStyle(fontSize: 16),
+                ),
+              ],
             ),
           ),
         ElevatedButton(

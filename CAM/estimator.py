@@ -5,6 +5,10 @@ import numpy as np
 import requests
 import base64
 import time
+import absl.logging
+
+# 로그 초기화
+absl.logging.set_verbosity(absl.logging.INFO)
 
 # Node.js 서버 URL
 server_url = 'http://localhost:3000/webcam_frame'

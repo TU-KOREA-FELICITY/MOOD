@@ -37,7 +37,8 @@ class _HomeRecognitionScreenState extends State<HomeRecognitionScreen> {
                     Expanded(
                       child: Text(
                         '실시간 얼굴 인식 중',
-                        style: TextStyle(fontSize: 23, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            fontSize: 23, fontWeight: FontWeight.bold),
                       ),
                     ),
                     Container(
@@ -79,32 +80,34 @@ class _HomeRecognitionScreenState extends State<HomeRecognitionScreen> {
                 ),
                 SizedBox(height: 10),
                 Column(
-                  children: emotions.map((emotion) => Padding(
-                    padding: EdgeInsets.symmetric(vertical: 7),
-                    child: Center(
-                      child: Container(
-                        width: MediaQuery.of(context).size.width * 0.9,
-                        padding: EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: emotion['color'],
-                          borderRadius: BorderRadius.circular(8),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withAlpha(128),
-                              blurRadius: 5,
-                              spreadRadius: 1,
-                              offset: Offset(0, 2),
+                  children: emotions
+                      .map((emotion) => Padding(
+                            padding: EdgeInsets.symmetric(vertical: 7),
+                            child: Center(
+                              child: Container(
+                                width: MediaQuery.of(context).size.width * 0.9,
+                                padding: EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: emotion['color'],
+                                  borderRadius: BorderRadius.circular(8),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey.withAlpha(128),
+                                      blurRadius: 5,
+                                      spreadRadius: 1,
+                                      offset: Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                child: Text(
+                                  emotion['name'],
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(fontSize: 20),
+                                ),
+                              ),
                             ),
-                          ],
-                        ),
-                        child: Text(
-                          emotion['name'],
-                          textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 20),
-                        ),
-                      ),
-                    ),
-                  )).toList(),
+                          ))
+                      .toList(),
                 ),
               ],
             ),
