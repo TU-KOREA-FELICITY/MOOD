@@ -114,13 +114,6 @@ class _HomeRecognitionScreenState extends State<HomeRecognitionScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: BottomNavigationWidget(
-        onTabChange: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-      ),
     );
   }
 }
