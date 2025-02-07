@@ -33,6 +33,7 @@ dependencies:
   spotify_sdk: ^3.0.2
   webview_flutter: ^4.10.0
   http: ^1.2.2
+  shared_preferences: ^2.0.15
   socket_io_client: ^2.0.0
 
   # The following adds the Cupertino Icons font to your application.

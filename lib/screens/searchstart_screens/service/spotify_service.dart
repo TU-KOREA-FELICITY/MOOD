@@ -6,7 +6,8 @@ class SpotifyService {
   final String clientId = 'b97a6ed3a4d24de0b0ee76f73e54df74';
   final String clientSecret = '3d31c7ba27094d239c015ce6a1b86477';
   final String redirectUri = 'http://localhost:8080/callback';
-  final String scopes = 'user-read-playback-state user-modify-playback-state playlist-read-private playlist-read-collaborative user-library-read playlist-modify-private playlist-modify-public';
+  final String scopes =
+      'user-read-playback-state user-modify-playback-state playlist-read-private playlist-read-collaborative user-library-read playlist-modify-private playlist-modify-public streaming';
 
   String _accessToken = '';
   String _refreshToken = '';
@@ -76,7 +77,8 @@ class SpotifyService {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         _accessToken = data['access_token'];
-        _tokenExpiryTime = DateTime.now().add(Duration(seconds: data['expires_in']));
+        _tokenExpiryTime =
+            DateTime.now().add(Duration(seconds: data['expires_in']));
       } else {
         print('토큰 갱신 실패: ${response.body}');
         _accessToken = '';
@@ -89,6 +91,11 @@ class SpotifyService {
       _refreshToken = '';
       _tokenExpiryTime = null;
     }
+  }
+
+  bool _isTokenExpired() {
+    if (_tokenExpiryTime == null) return true;
+    return DateTime.now().isAfter(_tokenExpiryTime!);
   }
 
   Future<bool> isLoggedIn() async {
@@ -138,6 +145,15 @@ class SpotifyService {
     }
   }
 
+  Future<void> playTrack(String spotifyUri) async {
+    try {
+      await SpotifySdk.play(spotifyUri: spotifyUri);
+    } catch (e) {
+      print('Failed to play track: $e');
+      throw e;
+    }
+  }
+
   Future<Map<String, dynamic>> getCurrentTrackInfo() async {
     try {
       var playerState = await SpotifySdk.getPlayerState();
@@ -181,7 +197,8 @@ class SpotifyService {
 
   Future<List<dynamic>> getPlaylistTracks(String playlistId) async {
     await _refreshTokenIfNeeded();
-    final url = Uri.parse('https://api.spotify.com/v1/playlists/$playlistId/tracks');
+    final url =
+        Uri.parse('https://api.spotify.com/v1/playlists/$playlistId/tracks');
     try {
       final response = await http.get(
         url,
@@ -200,11 +217,22 @@ class SpotifyService {
     }
   }
 
-  Future<void> playTrack(String spotifyUri) async {
+  Future<int> updatePlaylistInfo(String playlistId) async {
+    final url = 'https://api.spotify.com/v1/playlists/$playlistId';
     try {
-      await SpotifySdk.play(spotifyUri: spotifyUri);
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {'Authorization': 'Bearer $_accessToken'},
+      );
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final int totalTracks = data['tracks']['total'];
+        return totalTracks;
+      } else {
+        throw Exception('플레이리스트 정보 가져오기 실패: ${response.body}');
+      }
     } catch (e) {
-      print('Failed to play track: $e');
+      print('플레이리스트 정보 업데이트 중 오류 발생: $e');
       throw e;
     }
   }
@@ -268,7 +296,8 @@ class SpotifyService {
       if (response.statusCode == 200 || response.statusCode == 204) {
         print('플레이리스트가 성공적으로 삭제되었습니다.');
       } else {
-        throw Exception('플레이리스트 삭제 실패: ${response.statusCode}, ${response.body}');
+        throw Exception(
+            '플레이리스트 삭제 실패: ${response.statusCode}, ${response.body}');
       }
     } catch (e) {
       print('플레이리스트 삭제 중 오류 발생: $e');
@@ -276,7 +305,8 @@ class SpotifyService {
     }
   }
 
-  Future<void> addTrackToPlaylist(String playlistId, String trackUri) async {
+  Future<int> addTrackToPlaylist(
+      String playlistId, List<String> trackUris) async {
     await _refreshTokenIfNeeded();
     final url = 'https://api.spotify.com/v1/playlists/$playlistId/tracks';
 
@@ -288,11 +318,13 @@ class SpotifyService {
           'Content-Type': 'application/json',
         },
         body: jsonEncode({
-          'uris': [trackUri],
+          'uris': trackUris,
         }),
       );
-
-      if (response.statusCode != 201) {
+      if (response.statusCode == 201) {
+        print('곡이 성공적으로 추가되었습니다.');
+        return await updatePlaylistInfo(playlistId);
+      } else {
         throw Exception('곡 추가 실패: ${response.body}');
       }
     } catch (e) {
@@ -301,9 +333,41 @@ class SpotifyService {
     }
   }
 
+  Future<int> deleteTrackFromPlaylist(
+      String playlistId, String trackUri) async {
+    await _refreshTokenIfNeeded();
+    final url = 'https://api.spotify.com/v1/playlists/$playlistId/tracks';
+
+    try {
+      final response = await http.delete(
+        Uri.parse(url),
+        headers: {
+          'Authorization': 'Bearer $_accessToken',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'tracks': [
+            {'uri': trackUri}
+          ],
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        print('곡이 성공적으로 삭제되었습니다.');
+        return await updatePlaylistInfo(playlistId);
+      } else {
+        throw Exception('곡 삭제 실패: ${response.body}');
+      }
+    } catch (e) {
+      print('곡 삭제 중 오류 발생: $e');
+      throw e;
+    }
+  }
+
   Future<Map<String, List>> search(String query) async {
     await _refreshTokenIfNeeded();
-    final url = Uri.parse('https://api.spotify.com/v1/search?q=$query&type=track,playlist&limit=50');
+    final url = Uri.parse(
+        'https://api.spotify.com/v1/search?q=$query&type=track,playlist&limit=50');
     try {
       final response = await http.get(
         url,
@@ -323,10 +387,5 @@ class SpotifyService {
       print('검색 중 오류 발생: $e');
       return {'tracks': [], 'playlists': []};
     }
-  }
-
-  bool _isTokenExpired() {
-    if (_tokenExpiryTime == null) return true;
-    return DateTime.now().isAfter(_tokenExpiryTime!);
   }
 }

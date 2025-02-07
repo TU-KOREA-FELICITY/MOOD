@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mood/screens/start_screens/spotify_web_login_screen.dart';
 import '../homestart_screens/home_screen.dart';
-import '../searchstart_screens/spotify_service.dart';
+import '../searchstart_screens/service/spotify_service.dart';
 
 class SpotifyLoginScreen extends StatelessWidget {
   final SpotifyService _spotifyService = SpotifyService();
