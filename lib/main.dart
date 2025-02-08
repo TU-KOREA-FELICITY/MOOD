@@ -35,7 +35,8 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/',
       routes: {
-        '/': (context) => BottomNavigationWidget(),
+        '/': (context) => SplashScreen(),
+        // '/': (context) => BottomNavigationWidget(),
         '/login': (context) => LoginScreen(),
         '/welcome': (context) {
           final args = ModalRoute.of(context)?.settings.arguments;
