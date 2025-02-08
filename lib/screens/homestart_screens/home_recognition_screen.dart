@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../bottom_navigation_widget.dart';
 
 class HomeRecognitionScreen extends StatefulWidget {
   @override
@@ -113,13 +112,6 @@ class _HomeRecognitionScreenState extends State<HomeRecognitionScreen> {
             ),
           ),
         ),
-      ),
-      bottomNavigationBar: BottomNavigationWidget(
-        onTabChange: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
       ),
     );
   }

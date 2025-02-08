@@ -3,9 +3,8 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:socket_io_client/socket_io_client.dart' as IO;
-import 'package:mood/screens/bottom_navigation_widget.dart';
-import 'package:mood/screens/homestart_screens/home_recognition_screen.dart';
 import '../searchstart_screens/service/spotify_service.dart';
+import 'home_recognition_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -149,13 +148,6 @@ class _HomeScreenState extends State<HomeScreen> {
         child: SingleChildScrollView(
           child: _getBody(),
         ),
-      ),
-      bottomNavigationBar: BottomNavigationWidget(
-        onTabChange: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
       ),
     );
   }
