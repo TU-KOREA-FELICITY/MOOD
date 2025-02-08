@@ -67,9 +67,11 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
       playlist['tracks'] = {'total': trackCount};
     }
 
-    setState(() {
-      _playlists = playlists;
-    });
+    if (mounted) {
+      setState(() {
+        _playlists = playlists;
+      });
+    }
   }
 
   Color _getColorForEmotion(String emotion) {

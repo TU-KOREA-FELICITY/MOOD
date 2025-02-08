@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'dart:typed_data';
 import 'dart:convert';
+import '../homestart_screens/home_screen.dart';
 import 'welcome_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -152,6 +153,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   SizedBox(height: 40),
                   GestureDetector(
+                    // 임시 로그인 경로
+                    onTap: () {
+                      Navigator.of(context).pushReplacementNamed('/home');
+                    },
                     child: SizedBox(
                       width: 260,
                       height: 260,
