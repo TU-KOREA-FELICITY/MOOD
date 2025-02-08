@@ -1,3 +1,4 @@
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:spotify_sdk/spotify_sdk.dart';
 import 'dart:convert';
@@ -16,9 +17,17 @@ class SpotifyService {
   bool get isConnected => _accessToken.isNotEmpty && !_isTokenExpired();
 
   Future<void> initialize() async {
+    final secureStorage = FlutterSecureStorage();
+    _accessToken = await secureStorage.read(key: 'accessToken') ?? '';
+    _refreshToken = await secureStorage.read(key: 'refreshToken') ?? '';
+    String? expiryTimeString = await secureStorage.read(key: 'tokenExpiryTime');
+
     await _refreshTokenIfNeeded();
+
     if (isConnected) {
       await _initializeSpotifySDK();
+    } else {
+      print('Spotify 인증 필요');
     }
   }
 
@@ -28,23 +37,40 @@ class SpotifyService {
   }
 
   Future<void> setTokens(Map<String, dynamic> tokens) async {
+    final secureStorage = FlutterSecureStorage();
+
     _accessToken = tokens['accessToken'] ?? '';
     _refreshToken = tokens['refreshToken'] ?? '';
-    _tokenExpiryTime = tokens['expiryTime'];
+    _tokenExpiryTime = tokens['expiryTime'] ?? DateTime.now().add(Duration(hours: 1));
+
+    await secureStorage.write(key: 'accessToken', value: _accessToken);
+    await secureStorage.write(key: 'refreshToken', value: _refreshToken);
+    if (_tokenExpiryTime != null) {
+      await secureStorage.write(
+          key: 'tokenExpiryTime', value: _tokenExpiryTime!.toIso8601String());
+    }
 
     if (_accessToken.isNotEmpty) {
+      print('Access token 설정됨: $_accessToken');
       await _initializeSpotifySDK();
+    } else {
+      print('Access token 설정 실패');
     }
   }
 
   Future<void> _initializeSpotifySDK() async {
     try {
-      await SpotifySdk.connectToSpotifyRemote(
+      bool result = await SpotifySdk.connectToSpotifyRemote(
         clientId: clientId,
         redirectUrl: redirectUri,
       );
+      if (result) {
+        print('Spotify SDK 연결 성공');
+      } else {
+        print('Spotify SDK 연결 실패');
+      }
     } catch (e) {
-      print('Failed to initialize Spotify SDK: $e');
+      print('Spotify SDK 시작 실패: $e');
     }
   }
 
@@ -75,6 +101,7 @@ class SpotifyService {
       );
 
       if (response.statusCode == 200) {
+        print('새 토큰 받음: ${response.body}');
         final data = json.decode(response.body);
         _accessToken = data['access_token'];
         _tokenExpiryTime =
@@ -105,11 +132,15 @@ class SpotifyService {
   Future<void> logout() async {
     try {
       await SpotifySdk.disconnect();
+
       _accessToken = '';
       _refreshToken = '';
       _tokenExpiryTime = null;
+
+      final secureStorage = FlutterSecureStorage();
+      await secureStorage.deleteAll();
     } catch (e) {
-      print('Failed to disconnect: $e');
+      print('로그아웃 실패: $e');
     }
   }
 
@@ -124,7 +155,7 @@ class SpotifyService {
         return false;
       }
     } catch (e) {
-      print('Failed to toggle play/pause: $e');
+      print('재생/일시 중지 전환 실패: $e');
       return false;
     }
   }
@@ -154,6 +185,39 @@ class SpotifyService {
     }
   }
 
+  Future<String> getCurrentUserId() async {
+    await _refreshTokenIfNeeded();
+
+    final secureStorage = FlutterSecureStorage();
+    _accessToken = await secureStorage.read(key: 'accessToken') ?? '';
+    _refreshToken = await secureStorage.read(key: 'refreshToken') ?? '';
+    String? expiryTimeString = await secureStorage.read(key: 'tokenExpiryTime');
+
+    if (_accessToken.isEmpty) {
+      print('Access token이 비어 있음');
+      throw Exception('Access token이 없습니다.');
+    }
+
+    final url = Uri.parse('https://api.spotify.com/v1/me');
+    try {
+      final response = await http.get(
+        url,
+        headers: {'Authorization': 'Bearer $_accessToken'},
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return data['id'];
+      } else {
+        print('사용자 ID 가져오기 실패: ${response.body}');
+        throw Exception('사용자 ID 가져오기 실패');
+      }
+    } catch (e) {
+      print('getCurrentUserId 중 오류 발생: $e');
+      throw e;
+    }
+  }
+
   Future<Map<String, dynamic>> getCurrentTrackInfo() async {
     try {
       var playerState = await SpotifySdk.getPlayerState();
@@ -162,20 +226,28 @@ class SpotifyService {
           'name': playerState.track!.name,
           'artist': playerState.track!.artist.name,
           'isPlaying': !playerState.isPaused,
+          'albumCoverUrl': playerState.track!.imageUri.raw,
         };
       }
     } catch (e) {
-      print('Failed to get current track info: $e');
+      print('현재 트랙 가져오기 실패: $e');
     }
     return {
       'name': 'No track playing',
       'artist': 'Unknown artist',
       'isPlaying': false,
+      'albumCoverUrl': null,
     };
   }
 
   Future<List<dynamic>> getPlaylists() async {
     await _refreshTokenIfNeeded();
+
+    final secureStorage = FlutterSecureStorage();
+    _accessToken = await secureStorage.read(key: 'accessToken') ?? '';
+    _refreshToken = await secureStorage.read(key: 'refreshToken') ?? '';
+    String? expiryTimeString = await secureStorage.read(key: 'tokenExpiryTime');
+
     final url = Uri.parse('https://api.spotify.com/v1/me/playlists');
     try {
       final response = await http.get(
@@ -186,11 +258,11 @@ class SpotifyService {
         final data = json.decode(response.body);
         return data['items'];
       } else {
-        print('Failed to fetch playlists: ${response.statusCode}');
+        print('플레이리스트 가져오기 실패: ${response.statusCode}');
         return [];
       }
     } catch (e) {
-      print('Error fetching playlists: $e');
+      print('플레이리스트 가져오기 에러: $e');
       return [];
     }
   }
@@ -198,7 +270,7 @@ class SpotifyService {
   Future<List<dynamic>> getPlaylistTracks(String playlistId) async {
     await _refreshTokenIfNeeded();
     final url =
-        Uri.parse('https://api.spotify.com/v1/playlists/$playlistId/tracks');
+    Uri.parse('https://api.spotify.com/v1/playlists/$playlistId/tracks');
     try {
       final response = await http.get(
         url,
@@ -208,11 +280,11 @@ class SpotifyService {
         final data = json.decode(response.body);
         return data['items'];
       } else {
-        print('Failed to fetch playlist tracks: ${response.statusCode}');
+        print('플레이리스트 트랙 가져오기 실패: ${response.statusCode}');
         return [];
       }
     } catch (e) {
-      print('Error fetching playlist tracks: $e');
+      print('플레이리스트 트랙 가져오기 에러: $e');
       return [];
     }
   }
@@ -234,21 +306,6 @@ class SpotifyService {
     } catch (e) {
       print('플레이리스트 정보 업데이트 중 오류 발생: $e');
       throw e;
-    }
-  }
-
-  Future<String> getCurrentUserId() async {
-    await _refreshTokenIfNeeded();
-    final url = Uri.parse('https://api.spotify.com/v1/me');
-    final response = await http.get(
-      url,
-      headers: {'Authorization': 'Bearer $_accessToken'},
-    );
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      return data['id'];
-    } else {
-      throw Exception('사용자 ID 가져오기 실패: ${response.body}');
     }
   }
 
