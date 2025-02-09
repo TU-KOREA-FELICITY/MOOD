@@ -39,7 +39,7 @@ function runPythonScript(scriptName, args = []) {
   });
 }
 
-function startWebcam () {
+function startWebcam() {
   const scriptPath = path.join(__dirname, '..', 'CAM', 'webcam.py');
   webcamProcess = spawn('python', [scriptPath]);
   webcamProcess.stdout.on('data', (data) => {
@@ -47,7 +47,7 @@ function startWebcam () {
   })
 }
 
-function stopWebcam () {
+function stopWebcam() {
   if (webcamProcess) {
     webcamProcess.kill();
     console.log('webcam.py 종료');
@@ -102,7 +102,7 @@ app.post('/register', async (req, res) => {
     // 5초 후 webcam.py 종료 및 aws-face-reg.py 실행
     setTimeout(async () => {
       try {
-        stopWebcam ();
+        stopWebcam();
         const result = await runPythonScript('aws-face-reg.py', [username]);
         console.log('얼굴 등록 결과:\n', result);
         res.json({ message: "얼굴 등록 프로세스 완료", result });
@@ -123,7 +123,7 @@ app.post('/login', async (req, res) => {
     // 5초 후 webcam.py 종료 및 aws-face-reg.py 실행
     setTimeout(async () => {
       try {
-        stopWebcam ();
+        stopWebcam();
         const result = await runPythonScript('aws-face-auth.py');
         console.log('얼굴 인증 결과:\n', result);
         res.json({ message: "얼굴 인증 프로세스 완료", result });

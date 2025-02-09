@@ -14,6 +14,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   String _status = '';
   String? userId;
+  late bool _authNotComplete = true;
   IO.Socket? socket;
   Uint8List? imageBytes;
 
@@ -31,6 +32,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   void dispose() {
+    _authNotComplete = false;
     socket?.dispose();
     super.dispose();
   }
@@ -86,6 +88,7 @@ class _LoginScreenState extends State<LoginScreen> {
       final response =
       await http.get(Uri.parse('http://10.0.2.2:3000/check_auth'));
       final result = json.decode(response.body);
+      if (!mounted) return;
       if (result['authenticated'] == true) {
         setState(() {
           _status = '인증 성공! 사용자 ID: ${result['user_id']}';
@@ -99,12 +102,21 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         );
       } else {
-        Future.delayed(Duration(seconds: 2), _checkAuthStatus);
+        if (mounted) {
+          Future.delayed(Duration(seconds: 2), _checkAuthStatus);
+          setState(() {
+            _status = '인증 실패! 사용자 ID: null';
+            userId = null;
+            _authNotComplete = false;
+          });
+        }
       }
     } catch (e) {
-      setState(() {
-        _status = '인증 상태 확인 오류: $e';
-      });
+      if (mounted) {
+        setState(() {
+          _status = '인증 상태 확인 오류: $e';
+        });
+      }
     }
   }
 
@@ -236,6 +248,36 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
           ),
+          if (!_authNotComplete)
+            Container(
+              width: MediaQuery.of(context).size.width * 0.7,
+              child: ElevatedButton(
+                onPressed: () {
+                  _login();
+                },
+                style: ButtonStyle(
+                  backgroundColor:
+                  WidgetStateProperty.all(Color(0xFF0126FA)),
+                  foregroundColor:
+                  WidgetStateProperty.all(Colors.white),
+                  padding: WidgetStateProperty.all(
+                      EdgeInsets.symmetric(vertical: 12)),
+                  shape: WidgetStateProperty.all(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                  ),
+                ),
+                child: Text(
+                  '다시 시도하기',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          SizedBox(height: 20),
         ],
       ),
     );
