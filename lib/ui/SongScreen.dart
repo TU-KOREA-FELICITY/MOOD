@@ -105,7 +105,8 @@ class _SongScreenState extends State<SongScreen> {
               context,
               MaterialPageRoute(
                 builder: (context) =>
-                    SearchView(spotifyService: widget.spotifyService),
+                    SearchView(
+                      spotifyService: widget.spotifyService),
               ),
             );
           },

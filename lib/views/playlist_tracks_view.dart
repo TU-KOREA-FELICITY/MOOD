@@ -9,6 +9,7 @@ class PlaylistTracksView extends StatefulWidget {
   final String playlistId;
   final String playlistName;
   final bool isEmotionPlaylist;
+  final Function(String, int) onPlaylistUpdated;
   bool _isEditing = false;
   Set<String> _selectedTracks = {};
 
@@ -18,6 +19,8 @@ class PlaylistTracksView extends StatefulWidget {
     required this.playlistId,
     required this.playlistName,
     required this.isEmotionPlaylist,
+    required this.onPlaylistUpdated,
+
   });
 
   @override
@@ -27,7 +30,6 @@ class PlaylistTracksView extends StatefulWidget {
 class _PlaylistTracksViewState extends State<PlaylistTracksView> {
   List<dynamic> _tracks = [];
   bool _isLoading = false;
-  Map<String, bool> _showButtons = {};
 
   @override
   void initState() {
@@ -73,6 +75,7 @@ class _PlaylistTracksViewState extends State<PlaylistTracksView> {
         widget._selectedTracks.clear();
         widget._isEditing = false;
       });
+      widget.onPlaylistUpdated(widget.playlistId, _tracks.length);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('선택한 곡이 삭제되었습니다.')),
       );
@@ -172,6 +175,8 @@ class _PlaylistTracksViewState extends State<PlaylistTracksView> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('선택한 곡들이 플레이리스트에 추가되었습니다.')),
           );
+          await _loadTracks();
+          widget.onPlaylistUpdated(widget.playlistId, _tracks.length);
           return; // 여러 곡 추가 후 함수 종료
         }
       } catch (e) {
@@ -341,19 +346,6 @@ class _PlaylistTracksViewState extends State<PlaylistTracksView> {
                                           ),
                                           subtitle:
                                               Text(track['artists'][0]['name']),
-                                          trailing: IconButton(
-                                            icon: Icon(Icons.playlist_add),
-                                            onPressed: widget._isEditing
-                                                ? null
-                                                : () {
-                                                    setState(() {
-                                                      _showButtons[trackId] =
-                                                          !(_showButtons[
-                                                                  trackId] ??
-                                                              false);
-                                                    });
-                                                  },
-                                          ),
                                           onTap: widget._isEditing
                                               ? () {
                                                   setState(() {
@@ -375,59 +367,6 @@ class _PlaylistTracksViewState extends State<PlaylistTracksView> {
                                   ),
                                 ),
                               ),
-                              if (_showButtons[trackId] ?? false)
-                                Container(
-                                  margin: EdgeInsets.only(bottom: 8.0),
-                                  padding: EdgeInsets.symmetric(horizontal: 30),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
-                                    children: [
-                                      ElevatedButton(
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.blue[600],
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(15),
-                                          ),
-                                          elevation: 2,
-                                          padding: EdgeInsets.symmetric(
-                                              horizontal: 20, vertical: 12),
-                                        ),
-                                        onPressed: () =>
-                                            _showPlaylistOptions(track, '카테고리'),
-                                        child: Text(
-                                          '감정 카테고리',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                      ElevatedButton(
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.blue[600],
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(15),
-                                          ),
-                                          elevation: 2,
-                                          padding: EdgeInsets.symmetric(
-                                              horizontal: 20, vertical: 12),
-                                        ),
-                                        onPressed: () => _showPlaylistOptions(
-                                            track, '내 플레이리스트'),
-                                        child: Text(
-                                          '내 플레이리스트',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
                             ],
                           );
                         },

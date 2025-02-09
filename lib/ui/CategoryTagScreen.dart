@@ -1,9 +1,9 @@
 //카테고리 태그 -> SongScreen
+//블루 0xFF265F0
 
 import 'package:flutter/material.dart';
 import '../services/spotify_service.dart';
 import '../views/playlist_tracks_view.dart';
-import 'SongScreen.dart';
 
 class CategoryTagScreen extends StatefulWidget {
   final SpotifyService spotifyService;
@@ -35,6 +35,15 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
     super.dispose();
   }
 
+  void _updatePlaylistTrackCount(String playlistId, int newCount) {
+    setState(() {
+      final index = _playlists.indexWhere((playlist) => playlist['id'] == playlistId);
+      if (index != -1) {
+        _playlists[index]['tracks']['total'] = newCount;
+      }
+    });
+  }
+
   void _showPlaylistTracks(String playlistId, String playlistName) async {
     await Navigator.push(
       context,
@@ -44,6 +53,7 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
           playlistId: playlistId,
           playlistName: playlistName,
           isEmotionPlaylist: true,
+          onPlaylistUpdated: _updatePlaylistTrackCount,
         ),
       ),
     );
@@ -111,9 +121,9 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               TabBar(
-                labelColor: Colors.blueAccent[700],
+                labelColor: Color(0xFF2265F0),
                 unselectedLabelColor: Colors.grey,
-                indicatorColor: Colors.blueAccent,
+                indicatorColor: Color(0xFF2265F0),
                 controller: _tabController,
                 tabs: [
                   Tab(text: '감정 카테고리'),
@@ -216,7 +226,7 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
         ElevatedButton(
           onPressed: () => _showCreatePlaylistDialog(),
           style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blueAccent[400],
+              backgroundColor: Color(0xFF2265F0),
               foregroundColor: Colors.white,
               minimumSize: Size(200, 45),
               side: BorderSide(color: Colors.blue),

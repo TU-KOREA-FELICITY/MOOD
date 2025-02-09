@@ -15,7 +15,6 @@ class PlaylistScreen extends StatefulWidget {
   final List<String> recentSearches;
 
 
-
   const PlaylistScreen({
     Key? key,
     required this.spotifyService,

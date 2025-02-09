@@ -9,7 +9,9 @@ import 'spotify_home_page.dart';
 class SearchView extends StatefulWidget {
   final SpotifyService spotifyService;
 
-  SearchView({required this.spotifyService});
+  SearchView({
+    required this.spotifyService,
+  });
 
   @override
   _SearchViewState createState() => _SearchViewState();

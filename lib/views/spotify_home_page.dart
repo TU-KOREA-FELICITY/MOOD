@@ -14,7 +14,6 @@ class SpotifyHomePage extends StatefulWidget {
 class _SpotifyHomePageState extends State<SpotifyHomePage> with SingleTickerProviderStateMixin {
   final SpotifyService _spotifyService = SpotifyService();
   final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
-
   bool _isConnected = false;
   bool _isInitialized = false;
 
