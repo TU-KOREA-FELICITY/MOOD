@@ -25,6 +25,7 @@ class PlaylistTracksView extends StatefulWidget {
 }
 
 class _PlaylistTracksViewState extends State<PlaylistTracksView> {
+  final List<String> _emotionCategories = ['행복', '슬픔', '분노', '놀람', '혐오', '공포', '중립', '경멸'];
   List<dynamic> _tracks = [];
   bool _isLoading = false;
   Map<String, bool> _showButtons = {};
@@ -52,7 +53,8 @@ class _PlaylistTracksViewState extends State<PlaylistTracksView> {
 
   Future<List<dynamic>> _getPlaylists() async {
     try {
-      return await widget.spotifyService.getPlaylists();
+      final playlists = await widget.spotifyService.getPlaylists();
+      return List<Map<String, dynamic>>.from(playlists);
     } catch (e) {
       print('플레이리스트 가져오기 오류: $e');
       return [];
@@ -82,8 +84,18 @@ class _PlaylistTracksViewState extends State<PlaylistTracksView> {
     }
   }
 
+  List<Map<String, dynamic>> filterPlaylists(List<Map<String, dynamic>> playlists, bool isEmotionCategory) {
+    return playlists.where((playlist) {
+      String name = playlist['name'].toLowerCase();
+      bool isEmotionPlaylist = _emotionCategories.any((category) => name.contains(category.toLowerCase()));
+      return isEmotionCategory ? isEmotionPlaylist : !isEmotionPlaylist;
+    }).toList();
+  }
+
   void _showPlaylistOptions(dynamic track, String option) async {
     final playlists = await _getPlaylists();
+    final List<Map<String, dynamic>> typedPlaylists = List<Map<String, dynamic>>.from(playlists);
+    final filteredPlaylists = filterPlaylists(typedPlaylists, option == '카테고리');
     final selectedPlaylist = await showDialog<Map<String, dynamic>>(
       context: context,
       builder: (BuildContext context) {
@@ -123,9 +135,9 @@ class _PlaylistTracksViewState extends State<PlaylistTracksView> {
                   ),
                   Flexible(
                     child: ListView.builder(
-                      itemCount: playlists.length,
+                      itemCount: filteredPlaylists.length,
                       itemBuilder: (context, index) {
-                        final playlist = playlists[index];
+                        final playlist = filteredPlaylists[index];
                         return ListTile(
                           leading: Icon(Icons.playlist_play,
                               color: Colors.blueAccent),
