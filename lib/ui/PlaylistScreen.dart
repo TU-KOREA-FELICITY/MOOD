@@ -3,7 +3,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:mood/views/search_view.dart';
 import 'package:spotify_sdk/spotify_sdk.dart';
 import '../services/spotify_service.dart';
 import '../views/playlist_detail_view.dart';
@@ -36,6 +35,9 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
   late List<String> _recentSearches;
   final FocusNode _focusNode = FocusNode();
   Map<String, bool> _showButtons = {};
+  bool _selectionMode = false;
+  List<dynamic> _selectedTracks = [];
+
 
   @override
   void initState() {
@@ -267,13 +269,39 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
       children: [
         Padding(
           padding: EdgeInsets.all(16.0),
-          child: Text(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
             '검색 결과',
             style: TextStyle(
               fontSize: 18.0,
               fontWeight: FontWeight.bold,
               color: Colors.black,
             ),
+            ),
+            Row(
+              children: [
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      _selectionMode = true;
+                    });
+                    },
+                  child: Text('선택'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      _selectionMode = false;
+                      _selectedTracks.clear();
+                    });
+                    },
+                  child: Text('해제'),
+                ),
+              ],
+            ),
+          ],
           ),
         ),
         SizedBox(height: 8.0),
@@ -285,6 +313,16 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
             ),
           ),
         ),
+        if (_selectedTracks.isNotEmpty)
+          Padding(
+            padding: EdgeInsets.all(16.0),
+            child: ElevatedButton(
+              onPressed: () {
+                _showAddDialog();
+              },
+              child: Text('선택한 곡 추가'),
+            ),
+          ),
       ],
     );
   }
@@ -346,7 +384,25 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
               ),
               child: ListTile(
                 contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                leading: _buildAlbumCover(track),
+                leading: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (_selectionMode)
+                      Checkbox(
+                      value: _selectedTracks.contains(track),
+                        onChanged: (bool? value) {
+                        setState(() {
+                          if (value == true) {
+                            _selectedTracks.add(track);
+                          } else {
+                            _selectedTracks.remove(track);
+                          }
+                        });
+                        },
+                      ),
+                    _buildAlbumCover(track),
+                  ],
+                ),
                 title: Text(
                   track['name'] ?? '알 수 없는 트랙',
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
@@ -360,14 +416,6 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
                       onPressed: () async {
                         await SpotifySdk.play(spotifyUri: track['uri']);
                         _updateCurrentTrack();
-                      },
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.playlist_add, color: Colors.black),
-                      onPressed: () {
-                        setState(() {
-                          _showButtons[trackId] = !(_showButtons[trackId] ?? false);
-                        });
                       },
                     ),
                   ],
@@ -398,7 +446,6 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
                     ),
                     onPressed: () => _showPlaylistOptions(track, '카테고리'),
                   ),
-
                   ElevatedButton(
                     child: Text('내 플레이리스트',
                       style: TextStyle(
@@ -424,7 +471,7 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
   }
 
 
-  void _showPlaylistOptions(dynamic track, String option) async {
+  void _showPlaylistOptions(List<dynamic> track, String option) async {
     final playlists = await _getPlaylists();
     final selectedPlaylist = await showDialog<Map<String, dynamic>>(
       context: context,
@@ -492,17 +539,17 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
         );
       },
     );
-
     if (selectedPlaylist != null) {
       try {
-        await widget.spotifyService.addTrackToPlaylist(
-          selectedPlaylist['id'],
-          track['uri'],
-        );
+        List<String> trackUris = track.map<String>((track) => track['uri']).toList();
+        await widget.spotifyService.addTrackToPlaylist(selectedPlaylist['id'], trackUris);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('곡이 플레이리스트에 추가되었습니다.')),
+          SnackBar(content: Text('선택한 곡이 플레이리스트에 추가되었습니다.')),
         );
-
+        setState(() {
+          _selectedTracks.clear();
+          _selectionMode = false;
+        });
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('곡 추가에 실패했습니다: $e')),
@@ -516,7 +563,6 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
   Widget _buildAlbumCover(dynamic track) {
     final images = track['album']?['images'] as List?;
     final imageUrl = images?.isNotEmpty == true ? images?.first['url'] as String? : null;
-
     return Container(
       width: 50,
       height: 50,
@@ -598,5 +644,50 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
         ),
       );
     }).toList();
+  }
+
+  void _showAddDialog() {
+    showModalBottomSheet(
+      context: context,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (BuildContext context) {
+        return Container(
+          padding: EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                '플레이리스트에 추가',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () => _showPlaylistOptions(_selectedTracks, '카테고리'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+                child: Text('감정 카테고리'),
+              ),
+              SizedBox(height: 10),
+              ElevatedButton(
+                onPressed: () => _showPlaylistOptions(_selectedTracks, '내 플레이리스트'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+                child: Text('내 플레이리스트'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }

@@ -20,6 +20,8 @@ class _MiniplayerState extends State<Miniplayer>
   double _sliderValue = 0.0;
   double _duration = 1.0;
   Timer? _updateTimer;
+  String? _albumImageUrl;
+
 
   @override
   void initState() {
@@ -30,7 +32,9 @@ class _MiniplayerState extends State<Miniplayer>
 
   void _startPeriodicUpdate() {
     _updateTimer = Timer.periodic(Duration(seconds: 1), (timer) {
+     if (mounted){
       _updateCurrentTrack();
+      }
     });
   }
 
@@ -77,16 +81,40 @@ class _MiniplayerState extends State<Miniplayer>
       if (playerState != null && playerState.track != null) {
         setState(() {
           _currentTrack = playerState.track!.name;
-          _artistName = playerState.track!.artist.name!;
-          _isPlaying =
-          playerState.isPaused != null ? !playerState.isPaused : false;
+          _artistName = playerState.track!.artist.name ?? 'Unknown artist';
+          _isPlaying = playerState.isPaused != null ? !playerState.isPaused : false;
           _duration = playerState.track!.duration.toDouble();
           _sliderValue = playerState.playbackPosition / _duration;
+          _albumImageUrl = playerState.track!.imageUri.raw;
         });
       }
     } catch (e) {
       print('Failed to get player state: $e');
     }
+  }
+
+
+  Widget _buildAlbumCover() {
+    return Container(
+      width: 50,
+      height: 50,
+      decoration: BoxDecoration(
+        color: Colors.grey[300],
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: _albumImageUrl != null
+          ? ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: Image.network(
+          _albumImageUrl!,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            return Center(child: Icon(Icons.music_note, color: Colors.grey[600]));
+          },
+        ),
+      )
+          : Center(child: Icon(Icons.music_note, color: Colors.grey[600])),
+    );
   }
 
   Widget build(BuildContext context) {
@@ -103,7 +131,8 @@ class _MiniplayerState extends State<Miniplayer>
           children: [
             Row(
               children: [
-                // 곡 정보
+                _buildAlbumCover(),
+                SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
