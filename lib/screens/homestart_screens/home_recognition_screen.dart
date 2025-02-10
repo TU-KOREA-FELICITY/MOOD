@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fl_chart/fl_chart.dart';
 
 class HomeRecognitionScreen extends StatefulWidget {
   @override
@@ -70,7 +71,35 @@ class _HomeRecognitionScreenState extends State<HomeRecognitionScreen> {
                       ),
                     ],
                   ),
-                  child: Center(child: Text('차트 그래프')),
+                  child: LineChart(
+                    LineChartData(
+                      gridData: FlGridData(show: false),
+                      titlesData: FlTitlesData(show: false),
+                      borderData: FlBorderData(show: false),
+                      minX: 0,
+                      maxX: 6,
+                      minY: 0,
+                      maxY: 6,
+                      lineBarsData: [
+                        LineChartBarData(
+                          spots: [
+                            FlSpot(0, 3),
+                            FlSpot(1, 1),
+                            FlSpot(2, 4),
+                            FlSpot(3, 2),
+                            FlSpot(4, 5),
+                            FlSpot(5, 1),
+                          ],
+                          isCurved: true,
+                          color: Colors.blue,
+                          barWidth: 3,
+                          isStrokeCapRound: true,
+                          dotData: FlDotData(show: false),
+                          belowBarData: BarAreaData(show: false),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
                 SizedBox(height: 30),
                 Text(
