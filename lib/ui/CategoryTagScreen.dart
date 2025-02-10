@@ -44,6 +44,7 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
     });
   }
 
+  //플레이리스트 내 트랙
   void _showPlaylistTracks(String playlistId, String playlistName) async {
     await Navigator.push(
       context,

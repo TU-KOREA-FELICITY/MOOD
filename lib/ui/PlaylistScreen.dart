@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:spotify_sdk/spotify_sdk.dart';
 import '../services/spotify_service.dart';
 import '../views/playlist_detail_view.dart';
+import '../views/search_view.dart';
 
 class PlaylistScreen extends StatefulWidget {
   final SpotifyService spotifyService;
@@ -130,6 +131,14 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
                       icon: Icon(Icons.arrow_back, color: Colors.black),
                       onPressed: () {
                         Navigator.pop(context, _recentSearches);
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                SearchView(
+                                    spotifyService: widget.spotifyService),
+                          ),
+                        );
                       },
                     ),
                     Expanded(
