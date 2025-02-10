@@ -162,60 +162,6 @@ class SpotifyService {
     }
   }
 
-  Future<bool> togglePlayPause() async {
-    try {
-      var playerState = await SpotifySdk.getPlayerState();
-      if (playerState != null && playerState.isPaused) {
-        await SpotifySdk.resume();
-        return true;
-      } else {
-        await SpotifySdk.pause();
-        return false;
-      }
-    } catch (e) {
-      print('재생/일시 중지 전환 실패: $e');
-      return false;
-    }
-  }
-
-  Future<void> playNextTrack() async {
-    try {
-      await SpotifySdk.skipNext();
-    } catch (e) {
-      print('다음 트랙 재생 실패: $e');
-    }
-  }
-
-  Future<void> playPreviousTrack() async {
-    try {
-      await SpotifySdk.skipPrevious();
-    } catch (e) {
-      print('이전 트랙 재생 실패: $e');
-    }
-  }
-
-  Future<Map<String, dynamic>> getCurrentTrackInfo() async {
-    try {
-      var playerState = await SpotifySdk.getPlayerState();
-      if (playerState != null && playerState.track != null) {
-        return {
-          'name': playerState.track!.name,
-          'artist': playerState.track!.artist.name,
-          'isPlaying': !playerState.isPaused,
-          'albumCoverUrl': playerState.track!.imageUri.raw,
-        };
-      }
-    } catch (e) {
-      print('현재 트랙 가져오기 실패: $e');
-    }
-    return {
-      'name': 'No track playing',
-      'artist': 'Unknown artist',
-      'isPlaying': false,
-      'albumCoverUrl': null,
-    };
-  }
-
   Future<String> getCurrentUserId() async {
     await _refreshTokenIfNeeded();
     final url = Uri.parse('https://api.spotify.com/v1/me');

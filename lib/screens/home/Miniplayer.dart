@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import '../services/spotify_service.dart';
+import '../../services/spotify_service.dart';
 import 'package:spotify_sdk/spotify_sdk.dart';
 
 class Miniplayer extends StatefulWidget {

@@ -1,10 +1,12 @@
+// 검색 홈 (검색바, 미니플레이어, 탭 호출)
+
 import 'package:flutter/material.dart';
+import 'package:mood/screens/search/search_result_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../services/spotify_service.dart';
-import '../ui/CategoryTagScreen.dart';
-import '../ui/Miniplayer.dart';
-import '../ui/PlaylistScreen.dart';
-import 'spotify_home_page.dart';
+import '../../services/spotify_service.dart';
+import 'CategoryTagScreen.dart';
+import 'Miniplayer.dart';
+
 
 class SearchView extends StatefulWidget {
   final SpotifyService spotifyService;
@@ -86,7 +88,7 @@ class _SearchViewState extends State<SearchView> {
         context,
         MaterialPageRoute(
           builder: (context) =>
-              PlaylistScreen(
+              SearchResultView(
                 spotifyService: widget.spotifyService,
                 searchResults: _searchResults,
                 searchQuery: query,

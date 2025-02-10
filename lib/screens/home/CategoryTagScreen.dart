@@ -1,9 +1,9 @@
-//카테고리 태그 -> SongScreen
+// 검색 홈 (감정 카테고리 & 내 플레이리스트 탭)
 //블루 0xFF265F0
 
 import 'package:flutter/material.dart';
-import '../services/spotify_service.dart';
-import '../views/playlist_tracks_view.dart';
+import '../../services/spotify_service.dart';
+import 'playlist_tracks_view.dart';
 
 class CategoryTagScreen extends StatefulWidget {
   final SpotifyService spotifyService;
@@ -17,7 +17,6 @@ class CategoryTagScreen extends StatefulWidget {
 class _CategoryTagScreenState extends State<CategoryTagScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  final TextEditingController _playlistNameController = TextEditingController();
   final List<String> _emotionCategories = ['행복', '슬픔', '분노', '놀람', '혐오', '공포', '중립', '경멸'];
   List<dynamic> _playlists = [];
   final bool _isLoading = false;

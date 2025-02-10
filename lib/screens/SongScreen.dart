@@ -1,9 +1,9 @@
-// 감정 카테고리 내 트랙
+// 미사용 파일
 
 import 'package:flutter/material.dart';
 import 'package:mood/services/spotify_service.dart';
-import 'package:mood/views/search_view.dart';
-import '../views/playlist_tracks_view.dart';
+
+import 'home/search_view.dart';
 
 class SongScreen extends StatefulWidget {
   final String title;

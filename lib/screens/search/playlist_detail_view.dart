@@ -1,7 +1,7 @@
 // 검색 -> 플레이리스트 탭 -> 플레이리스트 내 트랙
 
 import 'package:flutter/material.dart';
-import '../services/spotify_service.dart';
+import '../../services/spotify_service.dart';
 
 class PlaylistDetailView extends StatelessWidget {
   final SpotifyService spotifyService;

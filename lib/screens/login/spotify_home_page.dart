@@ -1,10 +1,13 @@
+// 앱 로그인 화면
+
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'dart:async';
 
-import '../services/spotify_service.dart';
-import '../widgets/spotify_auth_webview.dart';
-import 'search_view.dart';
+import '../../services/spotify_service.dart';
+
+import '../home/search_view.dart';
+import 'spotify_auth_webview.dart';
 
 class SpotifyHomePage extends StatefulWidget {
   @override
