@@ -1,13 +1,22 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const session = require('express-session');
 const { spawn } = require('child_process');
 const path = require('path');
+const pool = require('./database');
 
 const app = express();
 
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(cors({ origin: '*' }));
+
+app.use(session({
+  secret: 'your_secret_key',
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: false } // secure: true in production with HTTPS
+}));
 
 let authResult = null;
 let registrationResult = null;
@@ -39,7 +48,7 @@ function runPythonScript(scriptName, args = []) {
   });
 }
 
-function startWebcam() {
+function startWebcam () {
   const scriptPath = path.join(__dirname, '..', 'CAM', 'webcam.py');
   webcamProcess = spawn('python', [scriptPath]);
   webcamProcess.stdout.on('data', (data) => {
@@ -47,7 +56,7 @@ function startWebcam() {
   })
 }
 
-function stopWebcam() {
+function stopWebcam () {
   if (webcamProcess) {
     webcamProcess.kill();
     console.log('webcam.py 종료');
@@ -93,9 +102,9 @@ app.post('/start_estimator', (req, res) => {
 });
 
 app.post('/register', async (req, res) => {
-  const { username } = req.body;
-  if (!username) {
-    return res.status(400).json({ error: "사용자 이름이 필요합니다." });
+  const { username, user_aws_id, car_type, fav_genre, fav_artist } = req.body;
+  if (!username || !user_aws_id || !car_type) {
+    return res.status(400).json({ error: "필수 입력 항목이 누락되었습니다." });
   }
   try {
     startWebcam();
@@ -105,6 +114,7 @@ app.post('/register', async (req, res) => {
         stopWebcam();
         const result = await runPythonScript('aws-face-reg.py', [username]);
         console.log('얼굴 등록 결과:\n', result);
+        await pool.query('INSERT INTO user (user_aws_id, user_name, car_type, fav_genre, fav_artist) VALUES (?, ?, ?, ?, ?)', [user_aws_id, username, car_type, fav_genre, fav_artist]);
         res.json({ message: "얼굴 등록 프로세스 완료", result });
       } catch (error) {
         console.error('aws-face-reg.py 실행 중 오류:', error);
@@ -117,18 +127,30 @@ app.post('/register', async (req, res) => {
 });
 
 app.post('/login', async (req, res) => {
+  const { user_aws_id } = req.body;
   authResult = null;
   try {
     startWebcam();
-    // 5초 후 webcam.py 종료 및 aws-face-reg.py 실행
+    // 5초 후 webcam.py 종료 및 aws-face-auth.py 실행
     setTimeout(async () => {
       try {
         stopWebcam();
-        const result = await runPythonScript('aws-face-auth.py');
+        const result = await runPythonScript('aws-face-auth.py', [user_aws_id]);
         console.log('얼굴 인증 결과:\n', result);
-        res.json({ message: "얼굴 인증 프로세스 완료", result });
+        const parsedResult = JSON.parse(result);
+        if (parsedResult.authenticated) {
+          const [rows] = await pool.query('SELECT * FROM user WHERE user_aws_id = ?', [user_aws_id]);
+          if (rows.length > 0) {
+            req.session.userId = rows[0].user_id;
+            res.json({ authenticated: true, user_id: rows[0].user_id });
+          } else {
+            res.status(401).json({ authenticated: false });
+          }
+        } else {
+          res.status(401).json({ authenticated: false });
+        }
       } catch (error) {
-        console.error('aws-face-reg.py 실행 중 오류:', error);
+        console.error('aws-face-auth.py 실행 중 오류:', error);
         res.status(500).json({ error: error.message });
       }
     }, 5000);
@@ -178,7 +200,11 @@ app.get('/check_registration', (req, res) => {
 });
 
 app.get('/check_auth', (req, res) => {
-  res.json(authResult || { authenticated: false, user_id: null });
+  if (req.session.userId) {
+    res.json({ authenticated: true, user_id: req.session.userId });
+  } else {
+    res.json({ authenticated: false, user_id: null });
+  }
 });
 
 app.post('/webcam_frame', (req, res) => {
