@@ -96,7 +96,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
           if (loginResult['success']) {
             setState(() {
-              _status = '인증 성공! 사용자 이름: ${loginResult['user_name']}';
+              _status = '인증에 성공했습니다. 사용자 이름: ${loginResult['user_name']}';
             });
             Navigator.pushReplacement(
               context,
@@ -120,6 +120,10 @@ class _LoginScreenState extends State<LoginScreen> {
       } else {
         if (mounted) {
           Future.delayed(Duration(seconds: 2), _checkAuthStatus);
+          setState(() {
+            _status = '인증에 실패했습니다.\n다시 시도해주세요.';
+            _authNotComplete = false;
+          });
         }
       }
     } catch (e) {
@@ -300,6 +304,10 @@ class _LoginScreenState extends State<LoginScreen> {
               width: MediaQuery.of(context).size.width * 0.7,
               child: ElevatedButton(
                 onPressed: () {
+                  setState(() {
+                    _status = '얼굴 인증 중...';
+                    _authNotComplete = true;
+                  });
                   _login();
                 },
                 style: ButtonStyle(
