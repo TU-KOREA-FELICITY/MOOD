@@ -385,4 +385,52 @@ class SpotifyService {
       return {'tracks': [], 'playlists': []};
     }
   }
+
+  Future<void> updatePlaylistDetails({
+    required String playlistId,
+    String? name,
+    String? description,
+    bool? public,
+    bool? collaborative,
+  }) async {
+    await _refreshTokenIfNeeded();
+
+    final url = 'https://api.spotify.com/v1/playlists/$playlistId';
+
+    // 업데이트할 필드만 포함하는 맵을 생성합니다.
+    final Map<String, dynamic> body = {};
+    if (name != null) {
+      body['name'] = name;
+    }
+    if (description != null) {
+      body['description'] = description;
+    }
+    if (public != null) {
+      body['public'] = public;
+    }
+    if (collaborative != null) {
+      body['collaborative'] = collaborative;
+    }
+
+    try {
+      final response = await http.put(
+        Uri.parse(url),
+        headers: {
+          'Authorization': 'Bearer $_accessToken',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(body),
+      );
+
+      if (response.statusCode == 200) {
+        print('플레이리스트 정보가 성공적으로 업데이트되었습니다.');
+      } else {
+        throw Exception(
+            '플레이리스트 정보 업데이트 실패: ${response.statusCode}, ${response.body}');
+      }
+    } catch (e) {
+      print('플레이리스트 정보 업데이트 중 오류 발생: $e');
+      throw e;
+    }
+  }
 }

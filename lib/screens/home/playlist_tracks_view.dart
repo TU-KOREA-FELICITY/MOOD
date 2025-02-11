@@ -6,7 +6,7 @@ import '../../services/spotify_service.dart';
 class PlaylistTracksView extends StatefulWidget {
   final SpotifyService spotifyService;
   final String playlistId;
-  final String playlistName;
+  String playlistName;
   final bool isEmotionPlaylist;
   final Function(String, int) onPlaylistUpdated;
   bool _isEditing = false;
@@ -311,6 +311,7 @@ class _PlaylistTracksViewState extends State<PlaylistTracksView> {
     );
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -332,7 +333,7 @@ class _PlaylistTracksViewState extends State<PlaylistTracksView> {
                 widget._selectedTracks.clear();
               });
             },
-            child: Text(widget._isEditing ? '완료' : '편집'),
+            child: Text(widget._isEditing ? '완료' : '선택'),
           ),
         ],
       ),

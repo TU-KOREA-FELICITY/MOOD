@@ -110,6 +110,65 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
     }
   }
 
+  void _showEditPlaylistNameDialog(String playlistId, String currentName) {
+    TextEditingController _playlistNameController =
+    TextEditingController(text: currentName);
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          title: Text('플레이리스트 이름 수정'),
+          content: TextField(
+            controller: _playlistNameController,
+            decoration: InputDecoration(hintText: "새 플레이리스트 이름"),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text(
+                '취소',
+                style: TextStyle(color: Colors.blueAccent),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text(
+                '수정',
+                style: TextStyle(color: Colors.blueAccent),
+              ),
+              onPressed: () async {
+                if (_playlistNameController.text.isNotEmpty) {
+                  try {
+                    String newName = _playlistNameController.text;
+                    await widget.spotifyService.updatePlaylistDetails(
+                        playlistId: playlistId, name: newName);
+                    setState(() {
+                      final index = _playlists.indexWhere(
+                              (playlist) => playlist['id'] == playlistId);
+                      if (index != -1) {
+                        _playlists[index]['name'] = newName;
+                      }
+                    });
+                    Navigator.of(context).pop();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('플레이리스트 이름이 수정되었습니다.')),
+                    );
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('플레이리스트 이름 수정 실패: $e')),
+                    );
+                  }
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -296,10 +355,18 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
                                     fontSize: 18, fontWeight: FontWeight.bold),
                               ),
                               subtitle: Text('${playlist['tracks']['total']}곡'),
-                              trailing: IconButton(
+                              trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(icon: Icon(Icons.edit),
+                              onPressed: () => _showEditPlaylistNameDialog(playlist['id'], playlist['name']),
+                            ),
+                              IconButton(
                                 icon: Icon(Icons.close),
                                 onPressed: () =>
                                     _deletePlaylist(playlist['id']),
+                              ),
+                              ],
                               ),
                               onTap: () => _showPlaylistTracks(
                                   playlist['id'], playlist['name']),
