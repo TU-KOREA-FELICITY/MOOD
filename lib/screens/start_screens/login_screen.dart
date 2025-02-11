@@ -86,37 +86,84 @@ class _LoginScreenState extends State<LoginScreen> {
   void _checkAuthStatus() async {
     try {
       final response =
-          await http.get(Uri.parse('http://10.0.2.2:3000/check_auth'));
+      await http.get(Uri.parse('http://10.0.2.2:3000/check_auth'));
       final result = json.decode(response.body);
+
       if (!mounted) return;
-      if (result['authenticated'] == true) {
-        setState(() {
-          _status = '인증 성공! 사용자 ID: ${result['user_id']}';
-          userId = result['user_id'];
-        });
-        // 인증 성공 시 WelcomeScreen으로 이동
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => WelcomeScreen(userId: result['user_id']),
-          ),
-        );
+      if (result != null && result['authenticated'] == true) {
+        try {
+          final loginResult = await _loginComplete(result['user_id']);
+
+          if (loginResult['success']) {
+            setState(() {
+              _status = '인증 성공! 사용자 이름: ${loginResult['user_name']}';
+            });
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    WelcomeScreen(userInfo: loginResult['user']),
+              ),
+            );
+          } else {
+            setState(() {
+              _status = '인증 실패! ${loginResult['message']}';
+              _authNotComplete = false;
+            });
+          }
+        } catch (e) {
+          setState(() {
+            _status = '로그인 완료 중 오류: $e';
+            _authNotComplete = false;
+          });
+        }
       } else {
         if (mounted) {
           Future.delayed(Duration(seconds: 2), _checkAuthStatus);
-          setState(() {
-            _status = '인증 실패! 사용자 ID: null';
-            userId = null;
-            _authNotComplete = false;
-          });
         }
       }
     } catch (e) {
       if (mounted) {
         setState(() {
           _status = '인증 상태 확인 오류: $e';
+          _authNotComplete = false;
         });
       }
+    }
+  }
+
+  Future<Map<String, dynamic>> _loginComplete(String userAwsId) async {
+    try {
+      final response = await http.post(
+        Uri.parse('http://10.0.2.2:3000/login_complete'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({'user_aws_id': userAwsId}),
+      );
+
+      if (response.statusCode == 200) {
+        final result = json.decode(response.body);
+        if (result['success']) {
+          return {
+            'success': true,
+            'user': result['user'],
+          };
+        } else {
+          return {
+            'success': false,
+            'message': result['message'] ?? '알 수 없는 오류가 발생했습니다.',
+          };
+        }
+      } else {
+        return {
+          'success': false,
+          'message': '서버 오류: ${response.statusCode}',
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'message': '로그인 완료 중 오류 발생: $e',
+      };
     }
   }
 
@@ -177,33 +224,33 @@ class _LoginScreenState extends State<LoginScreen> {
                           shape: BoxShape.circle,
                           color: Color(0xFFF2F2F1),
                           border:
-                              Border.all(color: Color(0xFF2265F0), width: 6),
+                          Border.all(color: Color(0xFF2265F0), width: 6),
                         ),
                         child: ClipOval(
                           child: imageBytes != null
                               ? Image.memory(
-                                  imageBytes!,
-                                  fit: BoxFit.cover,
-                                  gaplessPlayback: true,
-                                )
+                            imageBytes!,
+                            fit: BoxFit.cover,
+                            gaplessPlayback: true,
+                          )
                               : Stack(
-                                  alignment: Alignment.center,
-                                  children: [
-                                    SizedBox(
-                                      width: 260,
-                                      height: 260,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 10,
-                                        color: Color(0xFF2265F0),
-                                      ),
-                                    ),
-                                    Icon(
-                                      Icons.person,
-                                      size: 170,
-                                      color: Colors.black,
-                                    ),
-                                  ],
+                            alignment: Alignment.center,
+                            children: [
+                              SizedBox(
+                                width: 260,
+                                height: 260,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 10,
+                                  color: Color(0xFF2265F0),
                                 ),
+                              ),
+                              Icon(
+                                Icons.person,
+                                size: 170,
+                                color: Colors.black,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),

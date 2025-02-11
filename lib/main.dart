@@ -37,8 +37,9 @@ class MyApp extends StatelessWidget {
         // '/': (context) => BottomNavigationWidget(),
         '/login': (context) => LoginScreen(),
         '/welcome': (context) {
-          final args = ModalRoute.of(context)?.settings.arguments as String?;
-          return WelcomeScreen(userId: args ?? '');
+          final args = ModalRoute.of(context)?.settings.arguments
+          as Map<String, dynamic>?;
+          return WelcomeScreen(userInfo: args ?? {});
         },
         '/login_failed': (context) => LoginFailedScreen(),
         '/signup': (context) {
@@ -51,12 +52,12 @@ class MyApp extends StatelessWidget {
         },
         '/music_preference': (context) {
           final args = ModalRoute.of(context)?.settings.arguments
-              as Map<String, dynamic>?;
+          as Map<String, dynamic>?;
           return MusicPreferenceScreen(userInfo: args ?? {});
         },
         '/spotify_login': (context) {
           final args = ModalRoute.of(context)?.settings.arguments
-              as Map<String, dynamic>?;
+          as Map<String, dynamic>?;
           return SpotifyLoginScreen(userInfo: args ?? {});
         },
         '/home': (context) => BottomNavigationWidget(),

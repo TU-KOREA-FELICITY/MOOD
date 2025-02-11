@@ -148,36 +148,53 @@ app.post('/register_complete', async (req, res) => {
 });
 
 app.post('/login', async (req, res) => {
-  const { user_aws_id } = req.body;
-  authResult = null;
   try {
     startWebcam();
-    // 5초 후 webcam.py 종료 및 aws-face-auth.py 실행
-    setTimeout(async () => {
-      try {
-        stopWebcam();
-        const result = await runPythonScript('aws-face-auth.py', [user_aws_id]);
-        console.log('얼굴 인증 결과:\n', result);
-        const parsedResult = JSON.parse(result);
-        if (parsedResult.authenticated) {
-          const [rows] = await pool.query('SELECT * FROM user WHERE user_aws_id = ?', [user_aws_id]);
-          if (rows.length > 0) {
-            req.session.userId = rows[0].user_id;
-            res.json({ authenticated: true, user_id: rows[0].user_id });
-          } else {
-            res.status(401).json({ authenticated: false });
-          }
-        } else {
-          res.status(401).json({ authenticated: false });
+    const authResult = await new Promise((resolve, reject) => {
+      setTimeout(async () => {
+        try {
+          stopWebcam();
+          const result = await runPythonScript('aws-face-auth.py');
+          console.log('얼굴 인증 결과:\n', result);
+          resolve(result);
+        } catch (error) {
+          reject(error);
         }
-      } catch (error) {
-        console.error('aws-face-auth.py 실행 중 오류:', error);
-        res.status(500).json({ error: error.message });
-      }
-    }, 5000);
+      }, 5000);
+    });
+    res.json({ message: "얼굴 인증 프로세스 완료", result: authResult });
   } catch (error) {
     console.error('로그인 중 오류:', error);
     res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/login_complete', async (req, res) => {
+  const { user_aws_id } = req.body;
+
+  try {
+    const [dbResult] = await pool.query('SELECT * FROM user WHERE user_aws_id = ?', [user_aws_id]);
+
+    if (dbResult.length > 0) {
+      const user = dbResult[0];
+      req.session.user = user;
+      res.json({
+        success: true,
+        user: {
+          user_id: user.user_id,
+          user_aws_id: user.user_aws_id,
+          user_name: user.user_name,
+          car_type: user.car_type,
+          fav_genre: user.fav_genre,
+          fav_artist: user.fav_artist
+        }
+      });
+    } else {
+      res.status(401).json({ success: false, message: '사용자를 찾을 수 없습니다.' });
+    }
+  } catch (error) {
+    console.error('로그인 완료 중 오류:', error);
+    res.status(500).json({ success: false, message: '서버 오류가 발생했습니다.' });
   }
 });
 
@@ -222,11 +239,7 @@ app.get('/check_registration', (req, res) => {
 });
 
 app.get('/check_auth', (req, res) => {
-  if (req.session.userId) {
-    res.json({ authenticated: true, user_id: req.session.userId });
-  } else {
-    res.json({ authenticated: false, user_id: null });
-  }
+  res.json(authResult || { authenticated: false, user_id: null });
 });
 
 app.post('/webcam_frame', (req, res) => {
