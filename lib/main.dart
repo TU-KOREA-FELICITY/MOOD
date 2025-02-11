@@ -37,17 +37,28 @@ class MyApp extends StatelessWidget {
         // '/': (context) => BottomNavigationWidget(),
         '/login': (context) => LoginScreen(),
         '/welcome': (context) {
-          final args = ModalRoute.of(context)?.settings.arguments;
-          return WelcomeScreen(userId: args is String ? args : '');
+          final args = ModalRoute.of(context)?.settings.arguments as String?;
+          return WelcomeScreen(userId: args ?? '');
         },
         '/login_failed': (context) => LoginFailedScreen(),
         '/signup': (context) {
-          final args = ModalRoute.of(context)?.settings.arguments;
-          return SignupScreen(userId: args is String ? args : '');
+          final args = ModalRoute.of(context)?.settings.arguments as String?;
+          return SignupScreen(userId: args ?? '');
         },
-        '/face_recognition': (context) => FaceRecognitionScreen(),
-        '/music_preference': (context) => MusicPreferenceScreen(),
-        '/spotify_login': (context) => SpotifyLoginScreen(),
+        '/face_recognition': (context) {
+          final args = ModalRoute.of(context)?.settings.arguments as String?;
+          return FaceRecognitionScreen(userId: args ?? '');
+        },
+        '/music_preference': (context) {
+          final args = ModalRoute.of(context)?.settings.arguments
+              as Map<String, dynamic>?;
+          return MusicPreferenceScreen(userInfo: args ?? {});
+        },
+        '/spotify_login': (context) {
+          final args = ModalRoute.of(context)?.settings.arguments
+              as Map<String, dynamic>?;
+          return SpotifyLoginScreen(userInfo: args ?? {});
+        },
         '/home': (context) => BottomNavigationWidget(),
         '/profile': (context) => ProfileScreen(),
       },

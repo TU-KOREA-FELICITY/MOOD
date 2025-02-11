@@ -22,6 +22,7 @@ let authResult = null;
 let registrationResult = null;
 let emotionResult = null;
 let estimatorProcess = null;
+let webcamProcess = null;
 
 function runPythonScript(scriptName, args = []) {
   return new Promise((resolve, reject) => {
@@ -48,15 +49,15 @@ function runPythonScript(scriptName, args = []) {
   });
 }
 
-function startWebcam () {
+function startWebcam() {
   const scriptPath = path.join(__dirname, '..', 'CAM', 'webcam.py');
   webcamProcess = spawn('python', [scriptPath]);
   webcamProcess.stdout.on('data', (data) => {
     console.log('webcam.py 실행');
-  })
+  });
 }
 
-function stopWebcam () {
+function stopWebcam() {
   if (webcamProcess) {
     webcamProcess.kill();
     console.log('webcam.py 종료');
@@ -102,9 +103,9 @@ app.post('/start_estimator', (req, res) => {
 });
 
 app.post('/register', async (req, res) => {
-  const { username, user_aws_id, car_type, fav_genre, fav_artist } = req.body;
-  if (!username || !user_aws_id || !car_type) {
-    return res.status(400).json({ error: "필수 입력 항목이 누락되었습니다." });
+  const { username } = req.body;
+  if (!username) {
+    return res.status(400).json({ error: "사용자 이름이 필요합니다." });
   }
   try {
     startWebcam();
@@ -114,7 +115,6 @@ app.post('/register', async (req, res) => {
         stopWebcam();
         const result = await runPythonScript('aws-face-reg.py', [username]);
         console.log('얼굴 등록 결과:\n', result);
-        await pool.query('INSERT INTO user (user_aws_id, user_name, car_type, fav_genre, fav_artist) VALUES (?, ?, ?, ?, ?)', [user_aws_id, username, car_type, fav_genre, fav_artist]);
         res.json({ message: "얼굴 등록 프로세스 완료", result });
       } catch (error) {
         console.error('aws-face-reg.py 실행 중 오류:', error);
@@ -122,6 +122,27 @@ app.post('/register', async (req, res) => {
       }
     }, 5000);
   } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/register_complete', async (req, res) => {
+  const { user_aws_id, username, car_type, fav_genre, fav_artist } = req.body;
+  if (!user_aws_id || !username || !car_type) {
+    return res.status(400).json({ error: "필수 입력 항목이 누락되었습니다." });
+  }
+  try {
+    const [dbResult] = await pool.query(
+      'INSERT INTO user (user_aws_id, user_name, car_type, fav_genre, fav_artist) VALUES (?, ?, ?, ?, ?)',
+      [user_aws_id, username, car_type, fav_genre, fav_artist]
+    );
+    if (dbResult.affectedRows === 1) {
+      res.json({ message: "사용자 정보 저장 완료" });
+    } else {
+      res.status(500).json({ error: "데이터베이스에 사용자 정보를 저장할 수 없습니다." });
+    }
+  } catch (error) {
+    console.error('사용자 정보 저장 중 오류:', error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -155,6 +176,7 @@ app.post('/login', async (req, res) => {
       }
     }, 5000);
   } catch (error) {
+    console.error('로그인 중 오류:', error);
     res.status(500).json({ error: error.message });
   }
 });

@@ -6,8 +6,13 @@ class SpotifyAuthWebView extends StatefulWidget {
   final String authUrl;
   final String redirectUri;
   final bool isForSignUp;
+  final Map<String, dynamic> userInfo;
 
-  SpotifyAuthWebView({required this.authUrl, required this.redirectUri, this.isForSignUp = true});
+  SpotifyAuthWebView(
+      {required this.authUrl,
+      required this.redirectUri,
+      this.isForSignUp = true,
+      required this.userInfo});
 
   @override
   _SpotifyAuthWebViewState createState() => _SpotifyAuthWebViewState();
@@ -52,7 +57,10 @@ class _SpotifyAuthWebViewState extends State<SpotifyAuthWebView> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => SignUpCompletionScreen(authData: authData),
+          builder: (context) => SignUpCompletionScreen(
+            authData: authData,
+            userInfo: widget.userInfo,
+          ),
         ),
       );
     } else {

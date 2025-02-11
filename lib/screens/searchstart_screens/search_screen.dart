@@ -16,7 +16,8 @@ class SearchScreen extends StatefulWidget {
   _SearchScreenState createState() => _SearchScreenState();
 }
 
-class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderStateMixin {
+class _SearchScreenState extends State<SearchScreen>
+    with SingleTickerProviderStateMixin {
   late SpotifyService _spotifyService;
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
@@ -25,7 +26,6 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
   bool _showCancelIcon = false;
   List<String> recentSearches = [];
   Map<String, List> _searchResults = {'tracks': [], 'playlists': []};
-
 
   @override
   void initState() {
@@ -78,6 +78,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
           authUrl: _spotifyService.getAuthUrl(),
           redirectUri: _spotifyService.redirectUri,
           isForSignUp: false,
+          userInfo: {},
         ),
       ),
     );
@@ -118,7 +119,6 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
     await prefs.setStringList('recentSearches', recentSearches);
   }
 
-
   void _addToRecentSearches(String query) {
     setState(() {
       recentSearches.remove(query);
@@ -142,13 +142,12 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
       final updatedSearches = await Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) =>
-              SearchResultScreen(
-                spotifyService: widget.spotifyService,
-                searchResults: _searchResults,
-                searchQuery: query,
-                recentSearches: recentSearches,
-              ),
+          builder: (context) => SearchResultScreen(
+            spotifyService: widget.spotifyService,
+            searchResults: _searchResults,
+            searchQuery: query,
+            recentSearches: recentSearches,
+          ),
         ),
       );
       if (updatedSearches != null) {
@@ -175,13 +174,14 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
               child: _isSearching
                   ? _buildRecentSearches()
                   : Column(
-                children: [
-                  Miniplayer(spotifyService: widget.spotifyService),
-                  Expanded(
-                    child: CategoryTagScreen(spotifyService: widget.spotifyService),
-                  ),
-                ],
-              ),
+                      children: [
+                        Miniplayer(spotifyService: widget.spotifyService),
+                        Expanded(
+                          child: CategoryTagScreen(
+                              spotifyService: widget.spotifyService),
+                        ),
+                      ],
+                    ),
             ),
           ],
         ),
@@ -210,18 +210,18 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                   prefixIcon: Icon(Icons.search, color: Colors.black),
                   suffixIcon: _showCancelIcon
                       ? IconButton(
-                    icon: Icon(Icons.cancel, color: Colors.grey[600]),
-                    onPressed: () {
-                      _searchController.clear();
-                      setState(() {
-                        _showCancelIcon = false;
-                      });
-                    },
-                  )
+                          icon: Icon(Icons.cancel, color: Colors.grey[600]),
+                          onPressed: () {
+                            _searchController.clear();
+                            setState(() {
+                              _showCancelIcon = false;
+                            });
+                          },
+                        )
                       : null,
                   border: InputBorder.none,
                   contentPadding:
-                  EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 ),
                 onSubmitted: (value) {
                   if (value.isNotEmpty) {

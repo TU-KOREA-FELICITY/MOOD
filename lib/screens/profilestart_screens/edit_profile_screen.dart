@@ -37,15 +37,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 width: 100,
                 height: 100,
                 decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.grey[300]
-                ),
+                    shape: BoxShape.circle, color: Colors.grey[300]),
                 child: IconButton(
-                  icon: Icon(Icons.center_focus_weak, color: Colors.black54, size: 50),
+                  icon: Icon(Icons.center_focus_weak,
+                      color: Colors.black54, size: 50),
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => FaceRecognitionGuideScreen()),
+                      MaterialPageRoute(
+                          builder: (context) => FaceRecognitionGuideScreen(
+                                userId: '',
+                              )),
                     );
                   },
                 ),
@@ -58,69 +60,69 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               textAlign: TextAlign.center,
             ),
             SizedBox(height: 50),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 25.0),
-          child: Row(
-              children: [
-                Expanded(
-                  child: TextFormField(
-                    decoration: InputDecoration(
-                      labelText: '이름 수정하기',
-                      labelStyle: TextStyle(fontWeight: FontWeight.bold),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 25.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      decoration: InputDecoration(
+                        labelText: '이름 수정하기',
+                        labelStyle: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      onChanged: (value) {
+                        setState(() {
+                          _isNameValid = value.isNotEmpty;
+                        });
+                      },
+                      onSaved: (value) => _name = value!,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return '이름을 수정해주세요';
+                        }
+                        return null;
+                      },
                     ),
-                    onChanged: (value) {
-                      setState(() {
-                        _isNameValid = value.isNotEmpty;
-                      });
-                    },
-                    onSaved: (value) => _name = value!,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return '이름을 수정해주세요';
-                      }
-                      return null;
-                    },
                   ),
-                ),
-                Icon(
-                  Icons.check_circle,
-                  color: _isNameValid ? Color(0xFF014FFA) : Colors.grey,
-                ),
-              ],
+                  Icon(
+                    Icons.check_circle,
+                    color: _isNameValid ? Color(0xFF014FFA) : Colors.grey,
+                  ),
+                ],
+              ),
             ),
-        ),
             SizedBox(height: 20),
-        Padding(
-            padding: EdgeInsets.symmetric(horizontal: 25.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextFormField(
-                    decoration: InputDecoration(
-                      labelText: '차종 수정하기',
-                      labelStyle: TextStyle(fontWeight: FontWeight.bold),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 25.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      decoration: InputDecoration(
+                        labelText: '차종 수정하기',
+                        labelStyle: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      onChanged: (value) {
+                        setState(() {
+                          _isCarModelValid = value.isNotEmpty;
+                        });
+                      },
+                      onSaved: (value) => _carModel = value!,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return '차종을 수정해주세요';
+                        }
+                        return null;
+                      },
                     ),
-                    onChanged: (value) {
-                      setState(() {
-                        _isCarModelValid = value.isNotEmpty;
-                      });
-                    },
-                    onSaved: (value) => _carModel = value!,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return '차종을 수정해주세요';
-                      }
-                      return null;
-                    },
                   ),
-                ),
-                Icon(
-                  Icons.check_circle,
-                  color: _isCarModelValid ? Color(0xFF014FFA) : Colors.grey,
-                ),
-              ],
+                  Icon(
+                    Icons.check_circle,
+                    color: _isCarModelValid ? Color(0xFF014FFA) : Colors.grey,
+                  ),
+                ],
+              ),
             ),
-        ),
             SizedBox(height: 250),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 40.0), // 버튼의 좌우 여백 추가
@@ -132,7 +134,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       _formKey.currentState!.save();
                       // 정보 저장 로직
                       // 로그인 화면으로 돌아가기
-                      Navigator.of(context).pushNamedAndRemoveUntil('/login', (Route<dynamic> route) => false);
+                      Navigator.of(context).pushNamedAndRemoveUntil(
+                          '/login', (Route<dynamic> route) => false);
                     }
                   },
                   child: Text(
@@ -153,7 +156,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 ),
               ),
             ),
-
           ],
         ),
       ),

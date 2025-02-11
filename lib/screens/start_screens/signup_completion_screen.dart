@@ -1,10 +1,66 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class SignUpCompletionScreen extends StatelessWidget {
   final Map<String, Object?> authData;
-  final String userName = 'IN SUN';
+  final Map<String, dynamic> userInfo;
 
-  const SignUpCompletionScreen({Key? key, required this.authData}) : super(key: key);
+  const SignUpCompletionScreen(
+      {Key? key, required this.authData, required this.userInfo})
+      : super(key: key);
+
+  Future<void> _completeSignUp(BuildContext context) async {
+    try {
+      final response = await http.post(
+        Uri.parse('http://10.0.2.2:3000/register_complete'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'user_aws_id': userInfo['userId'],
+          'username': userInfo['name'],
+          'car_type': userInfo['carModel'],
+          'fav_genre': userInfo['selectedGenres']?.join(', ') ?? '',
+          'fav_artist': userInfo['selectedArtists']?.join(', ') ?? '',
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        Navigator.pushNamed(context, '/home');
+      } else {
+        // Handle error
+        print('Failed to complete sign up: ${response.statusCode}');
+        print('Response body: ${response.body}');
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text('Error'),
+            content: Text('Failed to complete sign up. Please try again.'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('OK'),
+              ),
+            ],
+          ),
+        );
+      }
+    } catch (e) {
+      print('Error: $e');
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Error'),
+          content: Text('An unexpected error occurred. Please try again.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('OK'),
+            ),
+          ],
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +103,7 @@ class SignUpCompletionScreen extends StatelessWidget {
               ),
               const SizedBox(height: 40),
               Text(
-                '$userName님의 회원가입이\n성공적으로 완료되었습니다.',
+                '${userInfo['name']}님의 회원가입이\n성공적으로 완료되었습니다.',
                 textAlign: TextAlign.center,
                 style: const TextStyle(fontSize: 16),
               ),
@@ -55,11 +111,10 @@ class SignUpCompletionScreen extends StatelessWidget {
               Container(
                 width: MediaQuery.of(context).size.width * 0.7,
                 child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/home');
-                  },
+                  onPressed: () => _completeSignUp(context),
                   style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.white, backgroundColor: Color(0xFF0126FA),
+                    foregroundColor: Colors.white,
+                    backgroundColor: Color(0xFF0126FA),
                     padding: EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),

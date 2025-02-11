@@ -72,7 +72,8 @@ class _SignupScreenState extends State<SignupScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => FaceRecognitionGuideScreen()),
+                          builder: (context) => FaceRecognitionGuideScreen(
+                              userId: widget.userId)),
                     );
                   },
                 ),
@@ -149,15 +150,23 @@ class _SignupScreenState extends State<SignupScreen> {
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
                     _formKey.currentState!.save();
-                    Navigator.pushNamed(context, '/music_preference');
+                    Navigator.pushNamed(
+                      context,
+                      '/music_preference',
+                      arguments: {
+                        'userId': widget.userId,
+                        'name': _name,
+                        'carModel': _carModel,
+                      },
+                    );
                   }
                 },
                 style: ButtonStyle(
-                  backgroundColor: WidgetStateProperty.all(Color(0xFF0126FA)),
-                  foregroundColor: WidgetStateProperty.all(Colors.white),
-                  padding: WidgetStateProperty.all(
+                  backgroundColor: MaterialStateProperty.all(Color(0xFF0126FA)),
+                  foregroundColor: MaterialStateProperty.all(Colors.white),
+                  padding: MaterialStateProperty.all(
                       EdgeInsets.symmetric(vertical: 12)),
-                  shape: WidgetStateProperty.all(
+                  shape: MaterialStateProperty.all(
                     RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                     ),

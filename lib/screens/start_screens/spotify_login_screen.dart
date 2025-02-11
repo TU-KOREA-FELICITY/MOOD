@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:mood/screens/start_screens/spotify_web_login_screen.dart';
+import 'spotify_web_login_screen.dart';
 import '../homestart_screens/home_screen.dart';
 import '../searchstart_screens/service/spotify_service.dart';
 
 class SpotifyLoginScreen extends StatelessWidget {
+  final Map<String, dynamic> userInfo;
   final SpotifyService _spotifyService = SpotifyService();
+
+  SpotifyLoginScreen({required this.userInfo});
 
   @override
   Widget build(BuildContext context) {
@@ -48,10 +51,11 @@ class SpotifyLoginScreen extends StatelessWidget {
                   ),
                 ),
                 style: ButtonStyle(
-                  backgroundColor: WidgetStateProperty.all(Color(0xFF0126FA)),
-                  foregroundColor: WidgetStateProperty.all(Colors.white),
-                  padding: WidgetStateProperty.all(EdgeInsets.symmetric(vertical: 12)),
-                  shape: WidgetStateProperty.all(
+                  backgroundColor: MaterialStateProperty.all(Color(0xFF0126FA)),
+                  foregroundColor: MaterialStateProperty.all(Colors.white),
+                  padding: MaterialStateProperty.all(
+                      EdgeInsets.symmetric(vertical: 12)),
+                  shape: MaterialStateProperty.all(
                     RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                     ),
@@ -68,10 +72,12 @@ class SpotifyLoginScreen extends StatelessWidget {
   void _navigateToSpotifyLogin(BuildContext context) async {
     final result = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => SpotifyAuthWebView(
-        authUrl: _spotifyService.getAuthUrl(),
-        redirectUri: _spotifyService.redirectUri,
-      )),
+      MaterialPageRoute(
+          builder: (context) => SpotifyAuthWebView(
+                authUrl: _spotifyService.getAuthUrl(),
+                redirectUri: _spotifyService.redirectUri,
+                userInfo: userInfo,
+              )),
     );
 
     if (result != null && result is Map<String, dynamic>) {
