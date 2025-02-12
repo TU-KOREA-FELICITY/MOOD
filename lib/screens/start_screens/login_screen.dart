@@ -86,7 +86,7 @@ class _LoginScreenState extends State<LoginScreen> {
   void _checkAuthStatus() async {
     try {
       final response =
-      await http.get(Uri.parse('http://10.0.2.2:3000/check_auth'));
+          await http.get(Uri.parse('http://10.0.2.2:3000/check_auth'));
       final result = json.decode(response.body);
 
       if (!mounted) return;
@@ -171,6 +171,34 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  Future<void> _saveUserInfoAndNavigate() async {
+    try {
+      final response = await http.post(
+        Uri.parse('http://10.0.2.2:3000/register_complete'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'user_aws_id': 'sun',
+          'username': '장인선',
+          'car_type': 'bmw',
+          'fav_genre': '국내 발라드',
+          'fav_artist': '아이유',
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        Navigator.of(context).pushReplacementNamed('/home');
+      } else {
+        setState(() {
+          _status = '사용자 정보 삽입 오류: ${response.statusCode}';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _status = '사용자 정보 삽입 오류: $e';
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -217,9 +245,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   SizedBox(height: 40),
                   GestureDetector(
                     // 임시 로그인 경로
-                    onTap: () {
-                      Navigator.of(context).pushReplacementNamed('/home');
-                    },
+                    onTap: _saveUserInfoAndNavigate,
                     child: SizedBox(
                       width: 260,
                       height: 260,
@@ -228,33 +254,33 @@ class _LoginScreenState extends State<LoginScreen> {
                           shape: BoxShape.circle,
                           color: Color(0xFFF2F2F1),
                           border:
-                          Border.all(color: Color(0xFF2265F0), width: 6),
+                              Border.all(color: Color(0xFF2265F0), width: 6),
                         ),
                         child: ClipOval(
                           child: imageBytes != null
                               ? Image.memory(
-                            imageBytes!,
-                            fit: BoxFit.cover,
-                            gaplessPlayback: true,
-                          )
+                                  imageBytes!,
+                                  fit: BoxFit.cover,
+                                  gaplessPlayback: true,
+                                )
                               : Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              SizedBox(
-                                width: 260,
-                                height: 260,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 10,
-                                  color: Color(0xFF2265F0),
+                                  alignment: Alignment.center,
+                                  children: [
+                                    SizedBox(
+                                      width: 260,
+                                      height: 260,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 10,
+                                        color: Color(0xFF2265F0),
+                                      ),
+                                    ),
+                                    Icon(
+                                      Icons.person,
+                                      size: 170,
+                                      color: Colors.black,
+                                    ),
+                                  ],
                                 ),
-                              ),
-                              Icon(
-                                Icons.person,
-                                size: 170,
-                                color: Colors.black,
-                              ),
-                            ],
-                          ),
                         ),
                       ),
                     ),
@@ -311,11 +337,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   _login();
                 },
                 style: ButtonStyle(
-                  backgroundColor: WidgetStateProperty.all(Color(0xFF0126FA)),
-                  foregroundColor: WidgetStateProperty.all(Colors.white),
-                  padding: WidgetStateProperty.all(
+                  backgroundColor: MaterialStateProperty.all(Color(0xFF0126FA)),
+                  foregroundColor: MaterialStateProperty.all(Colors.white),
+                  padding: MaterialStateProperty.all(
                       EdgeInsets.symmetric(vertical: 12)),
-                  shape: WidgetStateProperty.all(
+                  shape: MaterialStateProperty.all(
                     RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                     ),
