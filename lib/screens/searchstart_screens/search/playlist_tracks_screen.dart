@@ -1,14 +1,14 @@
-// 검색페이지 (내 플레이리스트)
+// 검색 홈 (내 플레이리스트 탭에서 플레이리스트 클릭 시)
 
 import 'package:flutter/material.dart';
 import '../service/spotify_service.dart';
-import 'package:spotify_sdk/spotify_sdk.dart';
 
 class PlaylistTracksScreen extends StatefulWidget {
   final SpotifyService spotifyService;
   final String playlistId;
-  final String playlistName;
+  String playlistName;
   final bool isEmotionPlaylist;
+  final Function(String, int) onPlaylistUpdated;
   bool _isEditing = false;
   Set<String> _selectedTracks = {};
 
@@ -18,6 +18,7 @@ class PlaylistTracksScreen extends StatefulWidget {
     required this.playlistId,
     required this.playlistName,
     required this.isEmotionPlaylist,
+    required this.onPlaylistUpdated,
   });
 
   @override
@@ -25,9 +26,9 @@ class PlaylistTracksScreen extends StatefulWidget {
 }
 
 class _PlaylistTracksScreenState extends State<PlaylistTracksScreen> {
+  final List<String> _emotionCategories = ['행복', '슬픔', '분노', '놀람', '혐오', '공포', '중립', '경멸'];
   List<dynamic> _tracks = [];
-  bool _isLoading = false;
-  Map<String, bool> _showButtons = {};
+  bool _isLoading = true;
 
   @override
   void initState() {
@@ -52,7 +53,8 @@ class _PlaylistTracksScreenState extends State<PlaylistTracksScreen> {
 
   Future<List<dynamic>> _getPlaylists() async {
     try {
-      return await widget.spotifyService.getPlaylists();
+      final playlists = await widget.spotifyService.getPlaylists();
+      return List<Map<String, dynamic>>.from(playlists);
     } catch (e) {
       print('플레이리스트 가져오기 오류: $e');
       return [];
@@ -63,16 +65,15 @@ class _PlaylistTracksScreenState extends State<PlaylistTracksScreen> {
     try {
       for (String trackId in widget._selectedTracks) {
         final trackUri = 'spotify:track:$trackId';
-        await widget.spotifyService.deleteTrackFromPlaylist(
-            widget.playlistId,
-            trackUri
-        );
+        await widget.spotifyService
+            .deleteTrackFromPlaylist(widget.playlistId, trackUri);
       }
       await _loadTracks();
       setState(() {
         widget._selectedTracks.clear();
         widget._isEditing = false;
       });
+      widget.onPlaylistUpdated(widget.playlistId, _tracks.length);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('선택한 곡이 삭제되었습니다.')),
       );
@@ -82,8 +83,89 @@ class _PlaylistTracksScreenState extends State<PlaylistTracksScreen> {
     }
   }
 
+  List<Map<String, dynamic>> filterPlaylists(
+      List<Map<String, dynamic>> playlists, bool isEmotionCategory) {
+    return playlists.where((playlist) {
+      String name = playlist['name'].toLowerCase();
+      bool isEmotionPlaylist = _emotionCategories
+          .any((category) => name.contains(category.toLowerCase()));
+      return isEmotionCategory ? isEmotionPlaylist : !isEmotionPlaylist;
+    }).toList();
+  }
+
+  //정렬 A~하 순서대로 //
+  void _sortTracks(String sortOption) {
+    setState(() {
+      if (sortOption == 'ABC') {
+        _tracks.sort((a, b) => a['track']['name']
+            .toString()
+            .toLowerCase()
+            .compareTo(b['track']['name'].toString().toLowerCase()));
+      } else if (sortOption == '아티스트') {
+        _tracks.sort((a, b) {
+          int artistComparison = a['track']['artists'][0]['name']
+              .toString()
+              .toLowerCase()
+              .compareTo(
+              b['track']['artists'][0]['name'].toString().toLowerCase());
+          if (artistComparison == 0) {
+            return a['track']['name']
+                .toString()
+                .toLowerCase()
+                .compareTo(b['track']['name'].toString().toLowerCase());
+          }
+          return artistComparison;
+        });
+      }
+    });
+  }
+
+  void _showSortDialog() {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          padding: EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Text(
+                '정렬 방식을 선택하세요',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      _sortTracks('ABC');
+                      Navigator.of(context).pop();
+                    },
+                    child: Text('가나다 순'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      _sortTracks('아티스트');
+                      Navigator.of(context).pop();
+                    },
+                    child: Text('아티스트 순'),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   void _showPlaylistOptions(dynamic track, String option) async {
     final playlists = await _getPlaylists();
+    final List<Map<String, dynamic>> typedPlaylists =
+    List<Map<String, dynamic>>.from(playlists);
+    final filteredPlaylists =
+    filterPlaylists(typedPlaylists, option == '감정 카테고리');
     final selectedPlaylist = await showDialog<Map<String, dynamic>>(
       context: context,
       builder: (BuildContext context) {
@@ -123,9 +205,9 @@ class _PlaylistTracksScreenState extends State<PlaylistTracksScreen> {
                   ),
                   Flexible(
                     child: ListView.builder(
-                      itemCount: playlists.length,
+                      itemCount: filteredPlaylists.length,
                       itemBuilder: (context, index) {
-                        final playlist = playlists[index];
+                        final playlist = filteredPlaylists[index];
                         return ListTile(
                           leading: Icon(Icons.playlist_play,
                               color: Colors.blueAccent),
@@ -172,6 +254,8 @@ class _PlaylistTracksScreenState extends State<PlaylistTracksScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('선택한 곡들이 플레이리스트에 추가되었습니다.')),
           );
+          await _loadTracks();
+          widget.onPlaylistUpdated(widget.playlistId, _tracks.length);
           return; // 여러 곡 추가 후 함수 종료
         }
       } catch (e) {
@@ -200,7 +284,7 @@ class _PlaylistTracksScreenState extends State<PlaylistTracksScreen> {
               ),
               SizedBox(height: 20),
               ElevatedButton(
-                onPressed: () => _showPlaylistOptions(null, '카테고리'),
+                onPressed: () => _showPlaylistOptions(null, '감정 카테고리'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
                   shape: RoundedRectangleBorder(
@@ -227,6 +311,7 @@ class _PlaylistTracksScreenState extends State<PlaylistTracksScreen> {
     );
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -237,6 +322,10 @@ class _PlaylistTracksScreenState extends State<PlaylistTracksScreen> {
         elevation: 0,
         foregroundColor: Colors.black,
         actions: [
+          IconButton(
+            icon: Icon(Icons.sort),
+            onPressed: _showSortDialog,
+          ),
           TextButton(
             onPressed: () {
               setState(() {
@@ -244,7 +333,7 @@ class _PlaylistTracksScreenState extends State<PlaylistTracksScreen> {
                 widget._selectedTracks.clear();
               });
             },
-            child: Text(widget._isEditing ? '완료' : '편집'),
+            child: Text(widget._isEditing ? '완료' : '선택'),
           ),
         ],
       ),
@@ -312,7 +401,7 @@ class _PlaylistTracksScreenState extends State<PlaylistTracksScreen> {
                               children: [
                                 if (widget._isEditing)
                                   Padding(
-                                    padding: EdgeInsets.only(left: 10),
+                                    padding: EdgeInsets.only(left: 5),
                                     child: Checkbox(
                                       value: widget._selectedTracks
                                           .contains(trackId),
@@ -341,19 +430,6 @@ class _PlaylistTracksScreenState extends State<PlaylistTracksScreen> {
                                     ),
                                     subtitle:
                                     Text(track['artists'][0]['name']),
-                                    trailing: IconButton(
-                                      icon: Icon(Icons.playlist_add),
-                                      onPressed: widget._isEditing
-                                          ? null
-                                          : () {
-                                        setState(() {
-                                          _showButtons[trackId] =
-                                          !(_showButtons[
-                                          trackId] ??
-                                              false);
-                                        });
-                                      },
-                                    ),
                                     onTap: widget._isEditing
                                         ? () {
                                       setState(() {
@@ -375,59 +451,6 @@ class _PlaylistTracksScreenState extends State<PlaylistTracksScreen> {
                             ),
                           ),
                         ),
-                        if (_showButtons[trackId] ?? false)
-                          Container(
-                            margin: EdgeInsets.only(bottom: 8.0),
-                            padding: EdgeInsets.symmetric(horizontal: 30),
-                            child: Row(
-                              mainAxisAlignment:
-                              MainAxisAlignment.spaceEvenly,
-                              children: [
-                                ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.blue[600],
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius:
-                                      BorderRadius.circular(15),
-                                    ),
-                                    elevation: 2,
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: 20, vertical: 12),
-                                  ),
-                                  onPressed: () =>
-                                      _showPlaylistOptions(track, '카테고리'),
-                                  child: Text(
-                                    '감정 카테고리',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                                ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.blue[600],
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius:
-                                      BorderRadius.circular(15),
-                                    ),
-                                    elevation: 2,
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: 20, vertical: 12),
-                                  ),
-                                  onPressed: () => _showPlaylistOptions(
-                                      track, '내 플레이리스트'),
-                                  child: Text(
-                                    '내 플레이리스트',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
                       ],
                     );
                   },

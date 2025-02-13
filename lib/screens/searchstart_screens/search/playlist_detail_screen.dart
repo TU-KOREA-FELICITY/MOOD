@@ -38,8 +38,7 @@ class PlaylistDetailScreen extends StatelessWidget {
               itemBuilder: (context, index) {
                 final track = tracks[index]['track'];
                 return Padding(
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 8.0, horizontal: 16.0),
+                  padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
                   child: Container(
                     decoration: BoxDecoration(
                         color: Colors.grey[100],
@@ -51,19 +50,17 @@ class PlaylistDetailScreen extends StatelessWidget {
                             blurRadius: 5,
                             offset: Offset(0, 3),
                           ),
-                        ]),
+                        ]
+                    ),
                     child: ListTile(
-                      contentPadding:
-                          EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                       leading: _buildAlbumCover(track),
                       title: Text(track['name']),
                       subtitle: Text(track['artists'][0]['name']),
                       onTap: () {
                         spotifyService.playTrack(track['uri']);
                       },
-                    ),
-                  ),
-                );
+                    ),),);
               },
             );
           }
@@ -75,8 +72,7 @@ class PlaylistDetailScreen extends StatelessWidget {
 
   Widget _buildAlbumCover(dynamic track) {
     final images = track['album']?['images'] as List?;
-    final imageUrl =
-        images?.isNotEmpty == true ? images?.first['url'] as String? : null;
+    final imageUrl = images?.isNotEmpty == true ? images?.first['url'] as String? : null;
 
     return Container(
       width: 50,
@@ -87,17 +83,17 @@ class PlaylistDetailScreen extends StatelessWidget {
       ),
       child: imageUrl != null
           ? ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.network(
-                imageUrl,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Center(
-                      child: Icon(Icons.music_note, color: Colors.grey[600]));
-                },
-              ),
-            )
+        borderRadius: BorderRadius.circular(8),
+        child: Image.network(
+          imageUrl,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            return Center(child: Icon(Icons.music_note, color: Colors.grey[600]));
+          },
+        ),
+      )
           : Center(child: Icon(Icons.music_note, color: Colors.grey[600])),
     );
   }
+
 }

@@ -4,6 +4,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:spotify_sdk/spotify_sdk.dart';
+
+import '../search_screen.dart';
 import '../service/spotify_service.dart';
 import 'playlist_detail_screen.dart';
 
@@ -12,8 +14,6 @@ class SearchResultScreen extends StatefulWidget {
   final Map<String, List> searchResults;
   final String searchQuery;
   final List<String> recentSearches;
-
-
 
   const SearchResultScreen({
     Key? key,
@@ -36,6 +36,9 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
   late List<String> _recentSearches;
   final FocusNode _focusNode = FocusNode();
   Map<String, bool> _showButtons = {};
+  bool _selectionMode = false;
+  List<dynamic> _selectedTracks = [];
+  final List<String> _emotionCategories = ['행복', '슬픔', '분노', '놀람', '혐오', '공포', '중립', '경멸'];
 
   @override
   void initState() {
@@ -102,13 +105,23 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
 
   Future<List<dynamic>> _getPlaylists() async {
     try {
-      return await widget.spotifyService.getPlaylists();
+      final playlists = await widget.spotifyService.getPlaylists();
+      return List<Map<String, dynamic>>.from(playlists);
     } catch (e) {
       print('플레이리스트 가져오기 오류: $e');
       return [];
     }
   }
 
+  List<Map<String, dynamic>> filterPlaylists(
+      List<Map<String, dynamic>> playlists, bool isEmotionCategory) {
+    return playlists.where((playlist) {
+      String name = playlist['name'].toLowerCase();
+      bool isEmotionPlaylist = _emotionCategories
+          .any((category) => name.contains(category.toLowerCase()));
+      return isEmotionCategory ? isEmotionPlaylist : !isEmotionPlaylist;
+    }).toList();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -128,6 +141,13 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
                       icon: Icon(Icons.arrow_back, color: Colors.black),
                       onPressed: () {
                         Navigator.pop(context, _recentSearches);
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => SearchScreen(
+                                spotifyService: widget.spotifyService),
+                          ),
+                        );
                       },
                     ),
                     Expanded(
@@ -145,7 +165,8 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
                             hintStyle: TextStyle(color: Colors.black),
                             suffixIcon: _showCancelIcon
                                 ? IconButton(
-                              icon: Icon(Icons.cancel, color: Colors.grey[600]),
+                              icon: Icon(Icons.cancel,
+                                  color: Colors.grey[600]),
                               onPressed: () {
                                 _searchController.clear();
                                 setState(() {
@@ -180,7 +201,9 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
                         unselectedLabelColor: Colors.grey,
                         indicatorColor: Colors.blueAccent,
                         tabs: [
-                          Tab(text: '트랙',),
+                          Tab(
+                            text: '트랙',
+                          ),
                           Tab(text: '플레이리스트'),
                         ],
                       ),
@@ -254,7 +277,6 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
     );
   }
 
-
   Widget _buildTracksTab() {
     final tracks = _searchResults['tracks'] ?? [];
     if (tracks.isEmpty) {
@@ -267,13 +289,39 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
       children: [
         Padding(
           padding: EdgeInsets.all(16.0),
-          child: Text(
-            '검색 결과',
-            style: TextStyle(
-              fontSize: 18.0,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                '검색 결과',
+                style: TextStyle(
+                  fontSize: 18.0,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
+              Row(
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      setState(() {
+                        _selectionMode = true;
+                      });
+                    },
+                    child: Text('선택'),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      setState(() {
+                        _selectionMode = false;
+                        _selectedTracks.clear();
+                      });
+                    },
+                    child: Text('해제'),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
         SizedBox(height: 8.0),
@@ -285,6 +333,16 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
             ),
           ),
         ),
+        if (_selectedTracks.isNotEmpty)
+          Padding(
+            padding: EdgeInsets.all(16.0),
+            child: ElevatedButton(
+              onPressed: () {
+                _showAddDialog();
+              },
+              child: Text('선택한 곡 추가'),
+            ),
+          ),
       ],
     );
   }
@@ -313,7 +371,8 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
         SizedBox(height: 7.0),
         Expanded(
           child: Padding(
-            padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
+            padding:
+            EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
             child: ListView(
               children: _buildPlaylistList(),
             ),
@@ -322,7 +381,6 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
       ],
     );
   }
-
 
   List<Widget> _buildTrackList() {
     return (_searchResults['tracks'] as List<dynamic>).map((track) {
@@ -345,8 +403,27 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
                 ],
               ),
               child: ListTile(
-                contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                leading: _buildAlbumCover(track),
+                contentPadding:
+                EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                leading: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (_selectionMode)
+                      Checkbox(
+                        value: _selectedTracks.contains(track),
+                        onChanged: (bool? value) {
+                          setState(() {
+                            if (value == true) {
+                              _selectedTracks.add(track);
+                            } else {
+                              _selectedTracks.remove(track);
+                            }
+                          });
+                        },
+                      ),
+                    _buildAlbumCover(track),
+                  ],
+                ),
                 title: Text(
                   track['name'] ?? '알 수 없는 트랙',
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
@@ -362,14 +439,6 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
                         _updateCurrentTrack();
                       },
                     ),
-                    IconButton(
-                      icon: Icon(Icons.playlist_add, color: Colors.black),
-                      onPressed: () {
-                        setState(() {
-                          _showButtons[trackId] = !(_showButtons[trackId] ?? false);
-                        });
-                      },
-                    ),
                   ],
                 ),
               ),
@@ -378,42 +447,47 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
           if (_showButtons[trackId] ?? false)
             Container(
               margin: EdgeInsets.only(bottom: 8.0),
-              padding: EdgeInsets.only(right: 30,left: 30),
+              padding: EdgeInsets.only(right: 30, left: 30),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   ElevatedButton(
-                    child: Text('감정 카테고리',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue[600],
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15),
                       ),
                       elevation: 2,
-                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      padding:
+                      EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                     ),
-                    onPressed: () => _showPlaylistOptions(track, '카테고리'),
-                  ),
-
-                  ElevatedButton(
-                    child: Text('내 플레이리스트',
+                    onPressed: () => _showPlaylistOptions(track, '감정 카테고리'),
+                    child: Text(
+                      '감정 카테고리',
                       style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
-                      ),),
+                      ),
+                    ),
+                  ),
+                  ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue[600],
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15),
                       ),
                       elevation: 2,
-                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      padding:
+                      EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                     ),
                     onPressed: () => _showPlaylistOptions(track, '내 플레이리스트'),
+                    child: Text(
+                      '내 플레이리스트',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -423,9 +497,12 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
     }).toList();
   }
 
-
-  void _showPlaylistOptions(dynamic track, String option) async {
+  void _showPlaylistOptions(List<dynamic> track, String option) async {
     final playlists = await _getPlaylists();
+    final List<Map<String, dynamic>> typedPlaylists =
+    List<Map<String, dynamic>>.from(playlists);
+    final filteredPlaylists =
+    filterPlaylists(typedPlaylists, option == '감정 카테고리');
     final selectedPlaylist = await showDialog<Map<String, dynamic>>(
       context: context,
       builder: (BuildContext context) {
@@ -465,11 +542,12 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
                   ),
                   Flexible(
                     child: ListView.builder(
-                      itemCount: playlists.length,
+                      itemCount: filteredPlaylists.length,
                       itemBuilder: (context, index) {
-                        final playlist = playlists[index];
+                        final playlist = filteredPlaylists[index];
                         return ListTile(
-                          leading: Icon(Icons.playlist_play, color: Colors.blueAccent),
+                          leading: Icon(Icons.playlist_play,
+                              color: Colors.blueAccent),
                           title: Text(
                             playlist['name'] ?? '알 수 없는 플레이리스트',
                             style: TextStyle(
@@ -492,17 +570,19 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
         );
       },
     );
-
     if (selectedPlaylist != null) {
       try {
-        await widget.spotifyService.addTrackToPlaylist(
-          selectedPlaylist['id'],
-          track['uri'],
-        );
+        List<String> trackUris =
+        track.map<String>((track) => track['uri']).toList();
+        await widget.spotifyService
+            .addTrackToPlaylist(selectedPlaylist['id'], trackUris);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('곡이 플레이리스트에 추가되었습니다.')),
+          SnackBar(content: Text('선택한 곡이 플레이리스트에 추가되었습니다.')),
         );
-
+        setState(() {
+          _selectedTracks.clear();
+          _selectionMode = false;
+        });
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('곡 추가에 실패했습니다: $e')),
@@ -511,12 +591,10 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
     }
   }
 
-
-
   Widget _buildAlbumCover(dynamic track) {
     final images = track['album']?['images'] as List?;
-    final imageUrl = images?.isNotEmpty == true ? images?.first['url'] as String? : null;
-
+    final imageUrl =
+    images?.isNotEmpty == true ? images?.first['url'] as String? : null;
     return Container(
       width: 50,
       height: 50,
@@ -531,14 +609,14 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
           imageUrl,
           fit: BoxFit.cover,
           errorBuilder: (context, error, stackTrace) {
-            return Center(child: Icon(Icons.music_note, color: Colors.grey[600]));
+            return Center(
+                child: Icon(Icons.music_note, color: Colors.grey[600]));
           },
         ),
       )
           : Center(child: Icon(Icons.music_note, color: Colors.grey[600])),
     );
   }
-
 
   List<Widget> _buildPlaylistList() {
     return (_searchResults['playlists'] as List<dynamic>).map((playlist) {
@@ -576,8 +654,7 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
                 ),
                 IconButton(
                   icon: Icon(Icons.playlist_add, color: Colors.black),
-                  onPressed: () {
-                  },
+                  onPressed: () {},
                 ),
               ],
             ),
@@ -585,12 +662,11 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) =>
-                      PlaylistDetailScreen(
-                        spotifyService: widget.spotifyService,
-                        playlistId: playlist?['id'] ?? '',
-                        playlistName: playlist?['name'] ?? '알 수 없는 플레이리스트',
-                      ),
+                  builder: (context) => PlaylistDetailScreen(
+                    spotifyService: widget.spotifyService,
+                    playlistId: playlist?['id'] ?? '',
+                    playlistName: playlist?['name'] ?? '알 수 없는 플레이리스트',
+                  ),
                 ),
               );
             },
@@ -598,5 +674,52 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
         ),
       );
     }).toList();
+  }
+
+  void _showAddDialog() {
+    showModalBottomSheet(
+      context: context,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (BuildContext context) {
+        return Container(
+          padding: EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                '플레이리스트에 추가',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () =>
+                    _showPlaylistOptions(_selectedTracks, '감정 카테고리'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+                child: Text('감정 카테고리'),
+              ),
+              SizedBox(height: 10),
+              ElevatedButton(
+                onPressed: () =>
+                    _showPlaylistOptions(_selectedTracks, '내 플레이리스트'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+                child: Text('내 플레이리스트'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }

@@ -144,38 +144,6 @@ class SpotifyService {
     }
   }
 
-  Future<bool> togglePlayPause() async {
-    try {
-      var playerState = await SpotifySdk.getPlayerState();
-      if (playerState != null && playerState.isPaused) {
-        await SpotifySdk.resume();
-        return true;
-      } else {
-        await SpotifySdk.pause();
-        return false;
-      }
-    } catch (e) {
-      print('재생/일시 중지 전환 실패: $e');
-      return false;
-    }
-  }
-
-  Future<void> playNextTrack() async {
-    try {
-      await SpotifySdk.skipNext();
-    } catch (e) {
-      print('Failed to play next track: $e');
-    }
-  }
-
-  Future<void> playPreviousTrack() async {
-    try {
-      await SpotifySdk.skipPrevious();
-    } catch (e) {
-      print('Failed to play previous track: $e');
-    }
-  }
-
   Future<void> playTrack(String spotifyUri) async {
     try {
       await SpotifySdk.play(spotifyUri: spotifyUri);
@@ -240,33 +208,6 @@ class SpotifyService {
     };
   }
 
-  Future<List<dynamic>> getPlaylists() async {
-    await _refreshTokenIfNeeded();
-
-    final secureStorage = FlutterSecureStorage();
-    _accessToken = await secureStorage.read(key: 'accessToken') ?? '';
-    _refreshToken = await secureStorage.read(key: 'refreshToken') ?? '';
-    String? expiryTimeString = await secureStorage.read(key: 'tokenExpiryTime');
-
-    final url = Uri.parse('https://api.spotify.com/v1/me/playlists');
-    try {
-      final response = await http.get(
-        url,
-        headers: {'Authorization': 'Bearer $_accessToken'},
-      );
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        return data['items'];
-      } else {
-        print('플레이리스트 가져오기 실패: ${response.statusCode}');
-        return [];
-      }
-    } catch (e) {
-      print('플레이리스트 가져오기 에러: $e');
-      return [];
-    }
-  }
-
   Future<List<dynamic>> getPlaylistTracks(String playlistId) async {
     await _refreshTokenIfNeeded();
     final url =
@@ -286,79 +227,6 @@ class SpotifyService {
     } catch (e) {
       print('플레이리스트 트랙 가져오기 에러: $e');
       return [];
-    }
-  }
-
-  Future<int> updatePlaylistInfo(String playlistId) async {
-    final url = 'https://api.spotify.com/v1/playlists/$playlistId';
-    try {
-      final response = await http.get(
-        Uri.parse(url),
-        headers: {'Authorization': 'Bearer $_accessToken'},
-      );
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        final int totalTracks = data['tracks']['total'];
-        return totalTracks;
-      } else {
-        throw Exception('플레이리스트 정보 가져오기 실패: ${response.body}');
-      }
-    } catch (e) {
-      print('플레이리스트 정보 업데이트 중 오류 발생: $e');
-      throw e;
-    }
-  }
-
-  Future<String> createPlaylist(String name, {String description = ''}) async {
-    await _refreshTokenIfNeeded();
-    final userId = await getCurrentUserId();
-    final url = 'https://api.spotify.com/v1/users/$userId/playlists';
-
-    try {
-      final response = await http.post(
-        Uri.parse(url),
-        headers: {
-          'Authorization': 'Bearer $_accessToken',
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode({
-          'name': name,
-          'description': description,
-          'public': false,
-        }),
-      );
-
-      if (response.statusCode == 201) {
-        final data = json.decode(response.body);
-        return data['id'];
-      } else {
-        throw Exception('플레이리스트 생성 실패: ${response.body}');
-      }
-    } catch (e) {
-      print('플레이리스트 생성 중 오류 발생: $e');
-      throw e;
-    }
-  }
-
-  Future<void> deletePlaylist(String playlistId) async {
-    final url = 'https://api.spotify.com/v1/playlists/$playlistId/followers';
-    final headers = {
-      'Authorization': 'Bearer $_accessToken',
-      'Content-Type': 'application/json',
-    };
-
-    try {
-      final response = await http.delete(Uri.parse(url), headers: headers);
-
-      if (response.statusCode == 200 || response.statusCode == 204) {
-        print('플레이리스트가 성공적으로 삭제되었습니다.');
-      } else {
-        throw Exception(
-            '플레이리스트 삭제 실패: ${response.statusCode}, ${response.body}');
-      }
-    } catch (e) {
-      print('플레이리스트 삭제 중 오류 발생: $e');
-      throw e;
     }
   }
 
@@ -417,6 +285,154 @@ class SpotifyService {
       }
     } catch (e) {
       print('곡 삭제 중 오류 발생: $e');
+      throw e;
+    }
+  }
+
+  Future<List<dynamic>> getPlaylists() async {
+    await _refreshTokenIfNeeded();
+
+    final secureStorage = FlutterSecureStorage();
+    _accessToken = await secureStorage.read(key: 'accessToken') ?? '';
+    _refreshToken = await secureStorage.read(key: 'refreshToken') ?? '';
+    String? expiryTimeString = await secureStorage.read(key: 'tokenExpiryTime');
+
+    final url = Uri.parse('https://api.spotify.com/v1/me/playlists');
+    try {
+      final response = await http.get(
+        url,
+        headers: {'Authorization': 'Bearer $_accessToken'},
+      );
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return data['items'];
+      } else {
+        print('플레이리스트 가져오기 실패: ${response.statusCode}');
+        return [];
+      }
+    } catch (e) {
+      print('플레이리스트 가져오기 에러: $e');
+      return [];
+    }
+  }
+
+  Future<String> createPlaylist(String name, {String description = ''}) async {
+    await _refreshTokenIfNeeded();
+    final userId = await getCurrentUserId();
+    final url = 'https://api.spotify.com/v1/users/$userId/playlists';
+
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          'Authorization': 'Bearer $_accessToken',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'name': name,
+          'description': description,
+          'public': false,
+        }),
+      );
+
+      if (response.statusCode == 201) {
+        final data = json.decode(response.body);
+        return data['id'];
+      } else {
+        throw Exception('플레이리스트 생성 실패: ${response.body}');
+      }
+    } catch (e) {
+      print('플레이리스트 생성 중 오류 발생: $e');
+      throw e;
+    }
+  }
+
+  Future<int> updatePlaylistInfo(String playlistId) async {
+    final url = 'https://api.spotify.com/v1/playlists/$playlistId';
+    try {
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {'Authorization': 'Bearer $_accessToken'},
+      );
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final int totalTracks = data['tracks']['total'];
+        return totalTracks;
+      } else {
+        throw Exception('플레이리스트 정보 가져오기 실패: ${response.body}');
+      }
+    } catch (e) {
+      print('플레이리스트 정보 업데이트 중 오류 발생: $e');
+      throw e;
+    }
+  }
+
+  Future<void> updatePlaylistDetails({
+    required String playlistId,
+    String? name,
+    String? description,
+    bool? public,
+    bool? collaborative,
+  }) async {
+    await _refreshTokenIfNeeded();
+
+    final url = 'https://api.spotify.com/v1/playlists/$playlistId';
+
+    // 업데이트할 필드만 포함하는 맵을 생성합니다.
+    final Map<String, dynamic> body = {};
+    if (name != null) {
+      body['name'] = name;
+    }
+    if (description != null) {
+      body['description'] = description;
+    }
+    if (public != null) {
+      body['public'] = public;
+    }
+    if (collaborative != null) {
+      body['collaborative'] = collaborative;
+    }
+
+    try {
+      final response = await http.put(
+        Uri.parse(url),
+        headers: {
+          'Authorization': 'Bearer $_accessToken',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(body),
+      );
+
+      if (response.statusCode == 200) {
+        print('플레이리스트 정보가 성공적으로 업데이트되었습니다.');
+      } else {
+        throw Exception(
+            '플레이리스트 정보 업데이트 실패: ${response.statusCode}, ${response.body}');
+      }
+    } catch (e) {
+      print('플레이리스트 정보 업데이트 중 오류 발생: $e');
+      throw e;
+    }
+  }
+
+  Future<void> deletePlaylist(String playlistId) async {
+    final url = 'https://api.spotify.com/v1/playlists/$playlistId/followers';
+    final headers = {
+      'Authorization': 'Bearer $_accessToken',
+      'Content-Type': 'application/json',
+    };
+
+    try {
+      final response = await http.delete(Uri.parse(url), headers: headers);
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        print('플레이리스트가 성공적으로 삭제되었습니다.');
+      } else {
+        throw Exception(
+            '플레이리스트 삭제 실패: ${response.statusCode}, ${response.body}');
+      }
+    } catch (e) {
+      print('플레이리스트 삭제 중 오류 발생: $e');
       throw e;
     }
   }
