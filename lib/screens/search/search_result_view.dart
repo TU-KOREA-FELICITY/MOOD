@@ -38,7 +38,7 @@ class _SearchResultViewState extends State<SearchResultView> {
   Map<String, bool> _showButtons = {};
   bool _selectionMode = false;
   List<dynamic> _selectedTracks = [];
-  final List<String> _emotionCategories = ['행복', '슬픔', '분노', '놀람', '혐오', '공포', '중립', '경멸'];
+  final List<String> _emotionCategories = ['행복', '슬픔', '분노', '놀람', '혐오', '공포', '평온', '혼란'];
 
   @override
   void initState() {

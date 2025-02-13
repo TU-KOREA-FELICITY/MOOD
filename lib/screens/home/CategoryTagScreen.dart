@@ -17,7 +17,7 @@ class CategoryTagScreen extends StatefulWidget {
 class _CategoryTagScreenState extends State<CategoryTagScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  final List<String> _emotionCategories = ['행복', '슬픔', '분노', '놀람', '혐오', '공포', '중립', '경멸'];
+  final List<String> _emotionCategories = ['행복', '슬픔', '분노', '놀람', '혐오', '공포', '평온', '혼란'];
   List<dynamic> _playlists = [];
   final bool _isLoading = false;
 
@@ -91,8 +91,8 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
       case '놀람': return Colors.purple[300]!;
       case '혐오': return Colors.green[300]!;
       case '공포': return Colors.black54;
-      case '중립': return Colors.grey[300]!;
-      case '경멸': return Colors.orange[300]!;
+      case '평온': return Colors.grey[300]!;
+      case '혼란': return Colors.orange[300]!;
       default: return Colors.grey[300]!;
     }
   }
