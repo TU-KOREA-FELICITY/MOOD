@@ -72,16 +72,50 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
     }
   }
 
+  Future<Map<String, dynamic>> _checkIdDuplicate(String userAwsId) async {
+    try {
+      final response = await http.post(
+        Uri.parse('http://10.0.2.2:3000/check_id_duplicate'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({'user_aws_id': userAwsId}),
+      );
+
+      if (response.statusCode == 200) {
+        final result = json.decode(response.body);
+        return {
+          'success': result['success'],
+          'message': result['message'],
+          'isDuplicate': result['isDuplicate'],
+          'user_aws_id': result['user_aws_id'],
+        };
+      } else {
+        return {
+          'success': false,
+          'message': '서버 오류: ${response.statusCode}',
+          'isDuplicate': null,
+          'user_aws_id': userAwsId,
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'ID 중복 확인 중 오류 발생: $e',
+        'isDuplicate': null,
+        'user_aws_id': userAwsId,
+      };
+    }
+  }
+
   void _promptForUserId() async {
     final TextEditingController controller = TextEditingController();
     final username = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('사용자 아이디 입력'),
+        title: Text('얼굴 ID를 만들어주세요'),
         content: TextField(
           controller: controller,
           autofocus: true,
-          decoration: InputDecoration(hintText: "사용자 아이디를 입력하세요"),
+          decoration: InputDecoration(hintText: "영문으로 입력"),
         ),
         actions: [
           TextButton(
@@ -92,18 +126,64 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
       ),
     );
 
-    if (username != null && username.isNotEmpty) {
+    if (username == null || username.isEmpty) {
+      setState(() {
+        _isLoading = false;
+      });
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _status = 'ID 중복 확인 중...';
+    });
+
+    final result = await _checkIdDuplicate(username);
+
+    if (result['success'] && !result['isDuplicate']) {
       setState(() {
         userId = username;
         _status = '얼굴 등록 중...';
         _isLoading = false;
       });
       _register(username);
-    } else {
+      return;
+    } else if (result['isDuplicate']) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('중복된 ID'),
+          content: Text('이미 사용 중인 ID입니다. 다른 ID를 입력해주세요.'),
+          actions: [
+            TextButton(
+              child: Text('확인'),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ],
+        ),
+      );
       setState(() {
-        _isLoading = false;
+        _regComplete = false;
       });
+    } else {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('오류'),
+          content: Text(result['message']),
+          actions: [
+            TextButton(
+              child: Text('확인'),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ],
+        ),
+      );
     }
+
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   void _register(String username) async {
@@ -258,6 +338,38 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
                               ),
                             ),
                           ),
+                        if (!_regComplete)
+                          Container(
+                            width: MediaQuery.of(context).size.width * 0.7,
+                            child: ElevatedButton(
+                              onPressed: () {
+                                setState(() {
+                                  _status = '얼굴 ID 등록 중...';
+                                  _regComplete = true;
+                                });
+                                _promptForUserId();
+                              },
+                              style: ButtonStyle(
+                                backgroundColor: WidgetStateProperty.all(Color(0xFF0126FA)),
+                                foregroundColor: WidgetStateProperty.all(Colors.white),
+                                padding: WidgetStateProperty.all(
+                                    EdgeInsets.symmetric(vertical: 12)),
+                                shape: WidgetStateProperty.all(
+                                  RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                ),
+                              ),
+                              child: Text(
+                                'ID 다시 만들기',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                        SizedBox(height: 20),
                       ],
                     ),
                   ),

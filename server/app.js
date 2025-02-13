@@ -147,6 +147,33 @@ app.post('/register_complete', async (req, res) => {
   }
 });
 
+app.post('/check_id_duplicate', async (req, res) => {
+  const { user_aws_id } = req.body;
+
+  try {
+    const [dbResult] = await pool.query('SELECT user_aws_id FROM user WHERE user_aws_id = ?', [user_aws_id]);
+
+    if (dbResult.length > 0) {
+      res.json({
+        success: false,
+        message: 'ID가 이미 존재합니다.',
+        isDuplicate: true,
+        user_aws_id: user_aws_id
+      });
+    } else {
+      res.json({
+        success: true,
+        message: '사용 가능한 ID입니다.',
+        isDuplicate: false,
+        user_aws_id: user_aws_id
+      });
+    }
+  } catch (error) {
+    console.error('ID 중복 확인 중 오류:', error);
+    res.status(500).json({ success: false, message: '서버 오류가 발생했습니다.' });
+  }
+});
+
 app.post('/login', async (req, res) => {
   try {
     startWebcam();
