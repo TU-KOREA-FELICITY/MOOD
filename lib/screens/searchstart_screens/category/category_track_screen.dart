@@ -8,8 +8,14 @@ import '../service/spotify_service.dart';
 class CategoryTrackScreen extends StatefulWidget {
   final String title;
   final SpotifyService spotifyService;
-  const CategoryTrackScreen(
-      {super.key, required this.title, required this.spotifyService});
+  final Map<String, dynamic> userInfo;
+
+  const CategoryTrackScreen({
+    super.key,
+    required this.title,
+    required this.spotifyService,
+    required this.userInfo,
+  });
 
   @override
   _CategoryTrackScreenState createState() => _CategoryTrackScreenState();
@@ -32,13 +38,13 @@ class _CategoryTrackScreenState extends State<CategoryTrackScreen> {
       _error = null;
     });
     try {
-      var fetchedTracks = await widget.spotifyService.getPlaylistTracks(
-          widget.title);
+      var fetchedTracks =
+          await widget.spotifyService.getPlaylistTracks(widget.title);
       setState(() {
         tracks = fetchedTracks;
         _isLoading = false;
       });
-    } catch(e) {
+    } catch (e) {
       setState(() {
         _error = '트랙을 불러오는 중 오류가 발생했습니다.';
         _isLoading = false;
@@ -104,17 +110,16 @@ class _CategoryTrackScreenState extends State<CategoryTrackScreen> {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                builder: (context) =>
-                    SearchScreen(spotifyService: widget.spotifyService),
+                builder: (context) => SearchScreen(
+                    spotifyService: widget.spotifyService,
+                    userInfo: widget.userInfo),
               ),
             );
           },
         ),
         title: Text(
           '${widget.title} 플레이리스트', // Concatenate the title with "플레이리스트"
-          style: TextStyle(
-              fontWeight: FontWeight.w500,
-              color: Colors.black),
+          style: TextStyle(fontWeight: FontWeight.w500, color: Colors.black),
         ),
         actions: [
           TextButton(
@@ -126,22 +131,21 @@ class _CategoryTrackScreenState extends State<CategoryTrackScreen> {
           ),
         ],
       ),
-
       body: _isLoading
           ? Center(child: CircularProgressIndicator())
           : _error != null
-          ? Center(child: Text(_error!))
-          : RefreshIndicator(
-        onRefresh: _fetchTracks,
-        child: tracks.isEmpty
-            ? Center(child: Text('플레이리스트가 비어있습니다.'))
-            : ListView.builder(
-          itemCount: tracks.length,
-          itemBuilder: (context, index) {
-            return _buildTrackItem(tracks[index]);
-          },
-        ),
-      ),
+              ? Center(child: Text(_error!))
+              : RefreshIndicator(
+                  onRefresh: _fetchTracks,
+                  child: tracks.isEmpty
+                      ? Center(child: Text('플레이리스트가 비어있습니다.'))
+                      : ListView.builder(
+                          itemCount: tracks.length,
+                          itemBuilder: (context, index) {
+                            return _buildTrackItem(tracks[index]);
+                          },
+                        ),
+                ),
     );
   }
 }

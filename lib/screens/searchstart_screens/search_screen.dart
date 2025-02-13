@@ -9,8 +9,9 @@ import 'category/category_tag_screen.dart';
 
 class SearchScreen extends StatefulWidget {
   final SpotifyService spotifyService;
+  final Map<String, dynamic> userInfo;
 
-  SearchScreen({required this.spotifyService});
+  SearchScreen({required this.spotifyService, required this.userInfo});
 
   @override
   _SearchScreenState createState() => _SearchScreenState();
@@ -147,6 +148,7 @@ class _SearchScreenState extends State<SearchScreen>
             searchResults: _searchResults,
             searchQuery: query,
             recentSearches: recentSearches,
+            userInfo: widget.userInfo
           ),
         ),
       );
@@ -178,7 +180,7 @@ class _SearchScreenState extends State<SearchScreen>
                         Miniplayer(spotifyService: widget.spotifyService),
                         Expanded(
                           child: CategoryTagScreen(
-                              spotifyService: widget.spotifyService),
+                              spotifyService: widget.spotifyService, userInfo: widget.userInfo),
                         ),
                       ],
                     ),

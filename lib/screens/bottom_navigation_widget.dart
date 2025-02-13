@@ -25,7 +25,7 @@ class _BottomNavigationWidgetState extends State<BottomNavigationWidget> {
     super.initState();
     _screens = [
       HomeScreen(),
-      SearchScreen(spotifyService: _spotifyService),
+      SearchScreen(spotifyService: _spotifyService, userInfo: widget.userInfo),
       ProfileScreen(userInfo: widget.userInfo),
     ];
   }

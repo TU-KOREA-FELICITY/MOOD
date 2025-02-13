@@ -7,8 +7,13 @@ import '../service/spotify_service.dart';
 
 class CategoryTagScreen extends StatefulWidget {
   final SpotifyService spotifyService;
+  final Map<String, dynamic> userInfo;
 
-  const CategoryTagScreen({super.key, required this.spotifyService});
+  const CategoryTagScreen({
+    super.key,
+    required this.spotifyService,
+    required this.userInfo,
+  });
 
   @override
   _CategoryTagScreenState createState() => _CategoryTagScreenState();
@@ -17,7 +22,16 @@ class CategoryTagScreen extends StatefulWidget {
 class _CategoryTagScreenState extends State<CategoryTagScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  final List<String> _emotionCategories = ['행복', '슬픔', '분노', '놀람', '혐오', '공포', '중립', '경멸'];
+  final List<String> _emotionCategories = [
+    '행복',
+    '슬픔',
+    '분노',
+    '놀람',
+    '혐오',
+    '공포',
+    '평온',
+    '혼란'
+  ];
   List<dynamic> _playlists = [];
   final bool _isLoading = false;
 
@@ -36,7 +50,8 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
 
   void _updatePlaylistTrackCount(String playlistId, int newCount) {
     setState(() {
-      final index = _playlists.indexWhere((playlist) => playlist['id'] == playlistId);
+      final index =
+          _playlists.indexWhere((playlist) => playlist['id'] == playlistId);
       if (index != -1) {
         _playlists[index]['tracks']['total'] = newCount;
       }
@@ -64,17 +79,20 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
     List playlists = await widget.spotifyService.getPlaylists();
 
     for (String emotion in _emotionCategories) {
-      bool playlistExists = playlists.any((playlist) => playlist['name'] == emotion);
+      bool playlistExists =
+          playlists.any((playlist) => playlist['name'] == emotion);
 
       if (!playlistExists) {
         // 해당 감정의 플레이리스트가 없으면 새로 생성
-        String newPlaylistId = await widget.spotifyService.createPlaylist(emotion);
+        String newPlaylistId =
+            await widget.spotifyService.createPlaylist(emotion);
         playlists.add({'name': emotion, 'id': newPlaylistId});
       }
     }
 
     for (var playlist in playlists) {
-      int trackCount = await widget.spotifyService.updatePlaylistInfo(playlist['id']);
+      int trackCount =
+          await widget.spotifyService.updatePlaylistInfo(playlist['id']);
       playlist['tracks'] = {'total': trackCount};
     }
 
@@ -85,15 +103,24 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
 
   Color _getColorForEmotion(String emotion) {
     switch (emotion) {
-      case '행복': return Colors.yellow[300]!;
-      case '슬픔': return Colors.blue[300]!;
-      case '분노': return Colors.red[300]!;
-      case '놀람': return Colors.purple[300]!;
-      case '혐오': return Colors.green[300]!;
-      case '공포': return Colors.black54;
-      case '중립': return Colors.grey[300]!;
-      case '경멸': return Colors.orange[300]!;
-      default: return Colors.grey[300]!;
+      case '행복':
+        return Colors.yellow[300]!;
+      case '슬픔':
+        return Colors.blue[300]!;
+      case '분노':
+        return Colors.red[300]!;
+      case '놀람':
+        return Colors.purple[300]!;
+      case '혐오':
+        return Colors.green[300]!;
+      case '공포':
+        return Colors.black54;
+      case '평온':
+        return Colors.grey[300]!;
+      case '혼란':
+        return Colors.orange[300]!;
+      default:
+        return Colors.grey[300]!;
     }
   }
 
@@ -113,7 +140,7 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
 
   void _showEditPlaylistNameDialog(String playlistId, String currentName) {
     TextEditingController _playlistNameController =
-    TextEditingController(text: currentName);
+        TextEditingController(text: currentName);
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -147,7 +174,7 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
                         playlistId: playlistId, name: newName);
                     setState(() {
                       final index = _playlists.indexWhere(
-                              (playlist) => playlist['id'] == playlistId);
+                          (playlist) => playlist['id'] == playlistId);
                       if (index != -1) {
                         _playlists[index]['name'] = newName;
                       }
@@ -214,66 +241,66 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
           child: _isLoading
               ? Center(child: CircularProgressIndicator())
               : GridView.builder(
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              childAspectRatio: 1.8,
-              crossAxisSpacing: 16,
-              mainAxisSpacing: 16,
-            ),
-            itemCount: _emotionCategories.length,
-            itemBuilder: (context, index) {
-              final emotion = _emotionCategories[index];
-              final playlist = _playlists.firstWhere(
-                    (p) => p['name'] == emotion,
-                orElse: () => {
-                  'name': emotion,
-                  'id': 'new_${emotion}_id',
-                  'tracks': {'total': 0}
-                },
-              );
-              return GestureDetector(
-                onTap: () =>
-                    _showPlaylistTracks(playlist['id'], playlist['name']),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: _getColorForEmotion(emotion),
-                    borderRadius: BorderRadius.circular(12),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    childAspectRatio: 1.8,
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 16,
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Playlist',
-                          style: TextStyle(
-                            color: Colors.grey[700],
-                            fontSize: 12,
+                  itemCount: _emotionCategories.length,
+                  itemBuilder: (context, index) {
+                    final emotion = _emotionCategories[index];
+                    final playlist = _playlists.firstWhere(
+                      (p) => p['name'] == emotion,
+                      orElse: () => {
+                        'name': emotion,
+                        'id': 'new_${emotion}_id',
+                        'tracks': {'total': 0}
+                      },
+                    );
+                    return GestureDetector(
+                      onTap: () =>
+                          _showPlaylistTracks(playlist['id'], playlist['name']),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: _getColorForEmotion(emotion),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Playlist',
+                                style: TextStyle(
+                                  color: Colors.grey[700],
+                                  fontSize: 12,
+                                ),
+                              ),
+                              Text(
+                                emotion,
+                                style: const TextStyle(
+                                  color: Colors.black87,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                '${playlist['tracks']['total']}곡',
+                                style: TextStyle(
+                                  color: Colors.grey[700],
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        Text(
-                          emotion,
-                          style: const TextStyle(
-                            color: Colors.black87,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          '${playlist['tracks']['total']}곡',
-                          style: TextStyle(
-                            color: Colors.grey[700],
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                      ),
+                    );
+                  },
                 ),
-              );
-            },
-          ),
         ),
       ],
     );
@@ -317,66 +344,69 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
             child: _isLoading
                 ? Center(child: CircularProgressIndicator())
                 : RefreshIndicator(
-              color: Colors.blue,
-              backgroundColor: Colors.white,
-              strokeWidth: 3.0,
-              onRefresh: _loadPlaylists,
-              child: ListView.builder(
-                itemCount: _playlists
-                    .where((playlist) =>
-                !_emotionCategories.contains(playlist['name']))
-                    .length,
-                itemBuilder: (context, index) {
-                  final playlist = _playlists
-                      .where((playlist) =>
-                  !_emotionCategories.contains(playlist['name']))
-                      .toList()[index];
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 8.0, horizontal: 8.0),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.grey[100],
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.3),
-                            spreadRadius: 1,
-                            blurRadius: 5,
-                            offset: Offset(0, 3),
+                    color: Colors.blue,
+                    backgroundColor: Colors.white,
+                    strokeWidth: 3.0,
+                    onRefresh: _loadPlaylists,
+                    child: ListView.builder(
+                      itemCount: _playlists
+                          .where((playlist) =>
+                              !_emotionCategories.contains(playlist['name']))
+                          .length,
+                      itemBuilder: (context, index) {
+                        final playlist = _playlists
+                            .where((playlist) =>
+                                !_emotionCategories.contains(playlist['name']))
+                            .toList()[index];
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 8.0, horizontal: 8.0),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.grey[100],
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.withOpacity(0.3),
+                                  spreadRadius: 1,
+                                  blurRadius: 5,
+                                  offset: Offset(0, 3),
+                                ),
+                              ],
+                            ),
+                            child: ListTile(
+                              contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 10),
+                              title: Text(
+                                playlist['name'],
+                                style: TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.bold),
+                              ),
+                              subtitle: Text('${playlist['tracks']['total']}곡'),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    icon: Icon(Icons.edit),
+                                    onPressed: () =>
+                                        _showEditPlaylistNameDialog(
+                                            playlist['id'], playlist['name']),
+                                  ),
+                                  IconButton(
+                                    icon: Icon(Icons.close),
+                                    onPressed: () =>
+                                        _deletePlaylist(playlist['id']),
+                                  ),
+                                ],
+                              ),
+                              onTap: () => _showPlaylistTracks(
+                                  playlist['id'], playlist['name']),
+                            ),
                           ),
-                        ],
-                      ),
-                      child: ListTile(
-                        contentPadding: EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 10),
-                        title: Text(
-                          playlist['name'],
-                          style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold),
-                        ),
-                        subtitle: Text('${playlist['tracks']['total']}곡'),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(icon: Icon(Icons.edit),
-                              onPressed: () => _showEditPlaylistNameDialog(playlist['id'], playlist['name']),
-                            ),
-                            IconButton(
-                              icon: Icon(Icons.close),
-                              onPressed: () =>
-                                  _deletePlaylist(playlist['id']),
-                            ),
-                          ],
-                        ),
-                        onTap: () => _showPlaylistTracks(
-                            playlist['id'], playlist['name']),
-                      ),
+                        );
+                      },
                     ),
-                  );
-                },
-              ),
-            )),
+                  )),
       ],
     );
   }

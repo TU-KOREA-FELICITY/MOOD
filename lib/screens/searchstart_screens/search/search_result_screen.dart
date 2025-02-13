@@ -14,6 +14,7 @@ class SearchResultScreen extends StatefulWidget {
   final Map<String, List> searchResults;
   final String searchQuery;
   final List<String> recentSearches;
+  final Map<String, dynamic> userInfo;
 
   const SearchResultScreen({
     Key? key,
@@ -21,6 +22,7 @@ class SearchResultScreen extends StatefulWidget {
     required this.searchResults,
     required this.searchQuery,
     required this.recentSearches,
+    required this.userInfo,
   }) : super(key: key);
 
   @override
@@ -38,7 +40,16 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
   Map<String, bool> _showButtons = {};
   bool _selectionMode = false;
   List<dynamic> _selectedTracks = [];
-  final List<String> _emotionCategories = ['행복', '슬픔', '분노', '놀람', '혐오', '공포', '중립', '경멸'];
+  final List<String> _emotionCategories = [
+    '행복',
+    '슬픔',
+    '분노',
+    '놀람',
+    '혐오',
+    '공포',
+    '평온',
+    '혼란'
+  ];
 
   @override
   void initState() {
@@ -145,7 +156,8 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
                           context,
                           MaterialPageRoute(
                             builder: (context) => SearchScreen(
-                                spotifyService: widget.spotifyService),
+                                spotifyService: widget.spotifyService,
+                                userInfo: widget.userInfo),
                           ),
                         );
                       },
@@ -165,15 +177,15 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
                             hintStyle: TextStyle(color: Colors.black),
                             suffixIcon: _showCancelIcon
                                 ? IconButton(
-                              icon: Icon(Icons.cancel,
-                                  color: Colors.grey[600]),
-                              onPressed: () {
-                                _searchController.clear();
-                                setState(() {
-                                  _showCancelIcon = false;
-                                });
-                              },
-                            )
+                                    icon: Icon(Icons.cancel,
+                                        color: Colors.grey[600]),
+                                    onPressed: () {
+                                      _searchController.clear();
+                                      setState(() {
+                                        _showCancelIcon = false;
+                                      });
+                                    },
+                                  )
                                 : null,
                             border: InputBorder.none,
                             contentPadding: EdgeInsets.symmetric(
@@ -285,66 +297,66 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
     return _isLoading
         ? Center(child: CircularProgressIndicator())
         : Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: EdgeInsets.all(16.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                '검색 결과',
-                style: TextStyle(
-                  fontSize: 18.0,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
+              Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      '검색 결과',
+                      style: TextStyle(
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                    Row(
+                      children: [
+                        TextButton(
+                          onPressed: () {
+                            setState(() {
+                              _selectionMode = true;
+                            });
+                          },
+                          child: Text('선택'),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            setState(() {
+                              _selectionMode = false;
+                              _selectedTracks.clear();
+                            });
+                          },
+                          child: Text('해제'),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
-              Row(
-                children: [
-                  TextButton(
-                    onPressed: () {
-                      setState(() {
-                        _selectionMode = true;
-                      });
-                    },
-                    child: Text('선택'),
+              SizedBox(height: 8.0),
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 18.0),
+                  child: ListView(
+                    children: _buildTrackList(),
                   ),
-                  TextButton(
-                    onPressed: () {
-                      setState(() {
-                        _selectionMode = false;
-                        _selectedTracks.clear();
-                      });
-                    },
-                    child: Text('해제'),
-                  ),
-                ],
+                ),
               ),
+              if (_selectedTracks.isNotEmpty)
+                Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      _showAddDialog();
+                    },
+                    child: Text('선택한 곡 추가'),
+                  ),
+                ),
             ],
-          ),
-        ),
-        SizedBox(height: 8.0),
-        Expanded(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 18.0),
-            child: ListView(
-              children: _buildTrackList(),
-            ),
-          ),
-        ),
-        if (_selectedTracks.isNotEmpty)
-          Padding(
-            padding: EdgeInsets.all(16.0),
-            child: ElevatedButton(
-              onPressed: () {
-                _showAddDialog();
-              },
-              child: Text('선택한 곡 추가'),
-            ),
-          ),
-      ],
-    );
+          );
   }
 
   Widget _buildPlaylistsTab() {
@@ -355,31 +367,31 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
     return _isLoading
         ? Center(child: CircularProgressIndicator())
         : Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: EdgeInsets.all(16.0),
-          child: Text(
-            '검색 결과',
-            style: TextStyle(
-              fontSize: 18.0,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
-          ),
-        ),
-        SizedBox(height: 7.0),
-        Expanded(
-          child: Padding(
-            padding:
-            EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
-            child: ListView(
-              children: _buildPlaylistList(),
-            ),
-          ),
-        ),
-      ],
-    );
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Text(
+                  '검색 결과',
+                  style: TextStyle(
+                    fontSize: 18.0,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+              SizedBox(height: 7.0),
+              Expanded(
+                child: Padding(
+                  padding:
+                      EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
+                  child: ListView(
+                    children: _buildPlaylistList(),
+                  ),
+                ),
+              ),
+            ],
+          );
   }
 
   List<Widget> _buildTrackList() {
@@ -404,7 +416,7 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
               ),
               child: ListTile(
                 contentPadding:
-                EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 leading: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -459,7 +471,7 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
                       ),
                       elevation: 2,
                       padding:
-                      EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                          EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                     ),
                     onPressed: () => _showPlaylistOptions(track, '감정 카테고리'),
                     child: Text(
@@ -478,7 +490,7 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
                       ),
                       elevation: 2,
                       padding:
-                      EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                          EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                     ),
                     onPressed: () => _showPlaylistOptions(track, '내 플레이리스트'),
                     child: Text(
@@ -500,9 +512,9 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
   void _showPlaylistOptions(List<dynamic> track, String option) async {
     final playlists = await _getPlaylists();
     final List<Map<String, dynamic>> typedPlaylists =
-    List<Map<String, dynamic>>.from(playlists);
+        List<Map<String, dynamic>>.from(playlists);
     final filteredPlaylists =
-    filterPlaylists(typedPlaylists, option == '감정 카테고리');
+        filterPlaylists(typedPlaylists, option == '감정 카테고리');
     final selectedPlaylist = await showDialog<Map<String, dynamic>>(
       context: context,
       builder: (BuildContext context) {
@@ -573,7 +585,7 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
     if (selectedPlaylist != null) {
       try {
         List<String> trackUris =
-        track.map<String>((track) => track['uri']).toList();
+            track.map<String>((track) => track['uri']).toList();
         await widget.spotifyService
             .addTrackToPlaylist(selectedPlaylist['id'], trackUris);
         ScaffoldMessenger.of(context).showSnackBar(
@@ -594,7 +606,7 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
   Widget _buildAlbumCover(dynamic track) {
     final images = track['album']?['images'] as List?;
     final imageUrl =
-    images?.isNotEmpty == true ? images?.first['url'] as String? : null;
+        images?.isNotEmpty == true ? images?.first['url'] as String? : null;
     return Container(
       width: 50,
       height: 50,
@@ -604,16 +616,16 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
       ),
       child: imageUrl != null
           ? ClipRRect(
-        borderRadius: BorderRadius.circular(8),
-        child: Image.network(
-          imageUrl,
-          fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) {
-            return Center(
-                child: Icon(Icons.music_note, color: Colors.grey[600]));
-          },
-        ),
-      )
+              borderRadius: BorderRadius.circular(8),
+              child: Image.network(
+                imageUrl,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return Center(
+                      child: Icon(Icons.music_note, color: Colors.grey[600]));
+                },
+              ),
+            )
           : Center(child: Icon(Icons.music_note, color: Colors.grey[600])),
     );
   }

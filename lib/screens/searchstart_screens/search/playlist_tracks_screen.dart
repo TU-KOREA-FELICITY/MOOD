@@ -26,7 +26,7 @@ class PlaylistTracksScreen extends StatefulWidget {
 }
 
 class _PlaylistTracksScreenState extends State<PlaylistTracksScreen> {
-  final List<String> _emotionCategories = ['행복', '슬픔', '분노', '놀람', '혐오', '공포', '중립', '경멸'];
+  final List<String> _emotionCategories = ['행복', '슬픔', '분노', '놀람', '혐오', '공포', '평온', '혼란'];
   List<dynamic> _tracks = [];
   bool _isLoading = true;
 
