@@ -1,17 +1,91 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import '../start_screens/face_recognition_guide_screen.dart';
 
 class EditProfileScreen extends StatefulWidget {
+  final Map userInfo;
+
+  EditProfileScreen({required this.userInfo});
+
   @override
   _EditProfileScreenState createState() => _EditProfileScreenState();
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
   final _formKey = GlobalKey<FormState>();
-  String _name = '';
-  String _carModel = '';
-  bool _isNameValid = false;
-  bool _isCarModelValid = false;
+  late String _name;
+  late String _carModel;
+  bool _isNameChanged = false;
+  bool _isCarModelChanged = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _name = widget.userInfo['username'] ?? '';
+    _carModel = widget.userInfo['carModel'] ?? '';
+  }
+
+  Future<void> _updateUserInfo(BuildContext context) async {
+    try {
+      Map<String, dynamic> updateData = {
+        'user_aws_id': widget.userInfo['user_aws_id'],
+      };
+
+      if (_isNameChanged) {
+        updateData['username'] = _name;
+      }
+
+      if (_isCarModelChanged) {
+        updateData['car_type'] = _carModel;
+      }
+
+      if (updateData.length == 1) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('변경된 정보가 없습니다.')),
+        );
+        return;
+      }
+
+      final response = await http.post(
+        Uri.parse('http://10.0.2.2:3000/user_info_update'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(updateData),
+      );
+
+      final responseData = json.decode(response.body);
+
+      if (response.statusCode == 200 && responseData['success']) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('사용자 정보가 성공적으로 업데이트되었습니다.')),
+        );
+        Navigator.pop(context);
+      } else {
+        String errorMessage =
+            responseData['message'] ?? '사용자 정보 업데이트에 실패했습니다. 다시 시도해주세요.';
+        _showErrorDialog(context, errorMessage);
+      }
+    } catch (e) {
+      print('Error: $e');
+      _showErrorDialog(context, '예기치 않은 오류가 발생했습니다. 다시 시도해주세요.');
+    }
+  }
+
+  void _showErrorDialog(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('오류'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('확인'),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +111,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 width: 100,
                 height: 100,
                 decoration: BoxDecoration(
-                    shape: BoxShape.circle, color: Colors.grey[300]),
+                  shape: BoxShape.circle,
+                  color: Colors.grey[300],
+                ),
                 child: IconButton(
                   icon: Icon(Icons.center_focus_weak,
                       color: Colors.black54, size: 50),
@@ -45,9 +121,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => FaceRecognitionGuideScreen(
-                                userId: '',
-                              )),
+                        builder: (context) => FaceRecognitionGuideScreen(
+                          userId: widget.userInfo['userId'] ?? '',
+                        ),
+                      ),
                     );
                   },
                 ),
@@ -62,80 +139,46 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             SizedBox(height: 50),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 25.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextFormField(
-                      decoration: InputDecoration(
-                        labelText: '이름 수정하기',
-                        labelStyle: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      onChanged: (value) {
-                        setState(() {
-                          _isNameValid = value.isNotEmpty;
-                        });
-                      },
-                      onSaved: (value) => _name = value!,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return '이름을 수정해주세요';
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-                  Icon(
-                    Icons.check_circle,
-                    color: _isNameValid ? Color(0xFF014FFA) : Colors.grey,
-                  ),
-                ],
+              child: TextFormField(
+                initialValue: _name,
+                decoration: InputDecoration(
+                  labelText: '이름 수정하기',
+                  labelStyle: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                onChanged: (value) {
+                  setState(() {
+                    _name = value;
+                    _isNameChanged = value != widget.userInfo['username'];
+                  });
+                },
               ),
             ),
             SizedBox(height: 20),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 25.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextFormField(
-                      decoration: InputDecoration(
-                        labelText: '차종 수정하기',
-                        labelStyle: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      onChanged: (value) {
-                        setState(() {
-                          _isCarModelValid = value.isNotEmpty;
-                        });
-                      },
-                      onSaved: (value) => _carModel = value!,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return '차종을 수정해주세요';
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-                  Icon(
-                    Icons.check_circle,
-                    color: _isCarModelValid ? Color(0xFF014FFA) : Colors.grey,
-                  ),
-                ],
+              child: TextFormField(
+                initialValue: _carModel,
+                decoration: InputDecoration(
+                  labelText: '차종 수정하기',
+                  labelStyle: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                onChanged: (value) {
+                  setState(() {
+                    _carModel = value;
+                    _isCarModelChanged = value != widget.userInfo['carModel'];
+                  });
+                },
               ),
             ),
             SizedBox(height: 250),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 40.0), // 버튼의 좌우 여백 추가
+              padding: EdgeInsets.symmetric(horizontal: 40.0),
               child: SizedBox(
-                width: double.infinity, // 버튼의 너비를 최대로 설정
+                width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
-                      _formKey.currentState!.save();
-                      // 정보 저장 로직
-                      // 로그인 화면으로 돌아가기
-                      Navigator.of(context).pushNamedAndRemoveUntil(
-                          '/login', (Route<dynamic> route) => false);
+                      _updateUserInfo(context);
                     }
                   },
                   child: Text(

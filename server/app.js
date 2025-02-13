@@ -225,6 +225,54 @@ app.post('/login_complete', async (req, res) => {
   }
 });
 
+app.post('/user_info_update', async (req, res) => {
+  const { user_aws_id, username, car_type } = req.body;
+
+  try {
+    const updateFields = [];
+    const values = [];
+
+    if (username !== undefined) {
+      updateFields.push('user_name = ?');
+      values.push(username);
+    }
+
+    if (car_type !== undefined) {
+      updateFields.push('car_type = ?');
+      values.push(car_type);
+    }
+
+    if (updateFields.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: '업데이트할 정보가 제공되지 않았습니다.'
+      });
+    }
+
+    const query = `UPDATE user SET ${updateFields.join(', ')} WHERE user_aws_id = ?`;
+    values.push(user_aws_id);
+
+    const [dbResult] = await pool.query(query, values);
+
+    if (dbResult.affectedRows > 0) {
+      res.json({
+        success: true,
+        message: '사용자 정보가 성공적으로 업데이트되었습니다.',
+        updatedUser: { user_aws_id, username, car_type }
+      });
+    } else {
+      res.status(404).json({
+        success: false,
+        message: '해당 얼굴 id를 가진 사용자를 찾을 수 없습니다.',
+        user_aws_id: user_aws_id
+      });
+    }
+  } catch (error) {
+    console.error('사용자 정보 업데이트 중 오류:', error);
+    res.status(500).json({ success: false, message: '서버 오류가 발생했습니다.' });
+  }
+});
+
 app.post('/registration_result', (req, res) => {
   registrationResult = req.body;
   console.log('얼굴 등록 결과:\n', registrationResult);

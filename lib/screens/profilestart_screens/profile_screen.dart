@@ -5,10 +5,13 @@ import 'package:mood/screens/profilestart_screens/warning_record_screen.dart';
 import 'delete_account_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
-  final String userName = "이름 : IN SUN";
+  final Map<String, dynamic> userInfo;
+
+  ProfileScreen({required this.userInfo});
 
   @override
   Widget build(BuildContext context) {
+    final String userName = "${userInfo['user_name'] ?? null}";
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(
@@ -73,7 +76,7 @@ class ProfileScreen extends StatelessWidget {
                     ),
                     onPressed: () {
                       Navigator.push(context, MaterialPageRoute(
-                          builder: (context) => EditProfileScreen()
+                          builder: (context) => EditProfileScreen(userInfo: userInfo)
                       ));
                     },
                   ),
