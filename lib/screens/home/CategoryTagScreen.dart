@@ -64,16 +64,17 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
     List playlists = await widget.spotifyService.getPlaylists();
 
     for (String emotion in _emotionCategories) {
-      if (!playlists.any((playlist) => playlist['name'] == emotion)) {
+      bool playlistExists = playlists.any((playlist) => playlist['name'] == emotion);
+
+      if (!playlistExists) {
         // 해당 감정의 플레이리스트가 없으면 새로 생성
-        await widget.spotifyService.createPlaylist(emotion);
-        playlists.add({'name': emotion, 'id': 'new_${emotion}_id'});
+        String newPlaylistId = await widget.spotifyService.createPlaylist(emotion);
+        playlists.add({'name': emotion, 'id': newPlaylistId});
       }
     }
 
     for (var playlist in playlists) {
-      int trackCount =
-          await widget.spotifyService.updatePlaylistInfo(playlist['id']);
+      int trackCount = await widget.spotifyService.updatePlaylistInfo(playlist['id']);
       playlist['tracks'] = {'total': trackCount};
     }
 
