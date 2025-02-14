@@ -71,14 +71,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _login() async {
     setState(() {
-      _status = '얼굴 인증 중...';
+      _status = '마스크 또는 선글라스를 벗고\n카메라를 응시해주세요.';
     });
     try {
       await http.post(Uri.parse('http://10.0.2.2:3000/login'));
       _checkAuthStatus();
     } catch (e) {
       setState(() {
-        _status = '인증 시작 오류: $e';
+        _status = '인증 시작 오류\n: $e';
       });
     }
   }
@@ -96,7 +96,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
           if (loginResult['success']) {
             setState(() {
-              _status = '인증에 성공했습니다. 사용자 이름: ${loginResult['user_name']}';
+              _status = '인증에 성공했습니다.\n사용자 이름: ${loginResult['user_name']}';
             });
             Navigator.pushReplacement(
               context,
@@ -113,7 +113,7 @@ class _LoginScreenState extends State<LoginScreen> {
           }
         } catch (e) {
           setState(() {
-            _status = '로그인 완료 중 오류: $e';
+            _status = '로그인 완료 중 오류\n: $e';
             _authNotComplete = false;
           });
         }
@@ -129,7 +129,7 @@ class _LoginScreenState extends State<LoginScreen> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _status = '인증 상태 확인 오류: $e';
+          _status = '인증 상태 확인 오류\n: $e';
           _authNotComplete = false;
         });
       }
@@ -160,13 +160,13 @@ class _LoginScreenState extends State<LoginScreen> {
       } else {
         return {
           'success': false,
-          'message': '서버 오류: ${response.statusCode}',
+          'message': '서버 오류\n: ${response.statusCode}',
         };
       }
     } catch (e) {
       return {
         'success': false,
-        'message': '로그인 완료 중 오류 발생: $e',
+        'message': '로그인 완료 중 오류 발생\n: $e',
       };
     }
   }
@@ -228,7 +228,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           shape: BoxShape.circle,
                           color: Color(0xFFF2F2F1),
                           border:
-                          Border.all(color: Color(0xFF2265F0), width: 6),
+                          Border.all(color: Color(0xFF0126FA), width: 6),
                         ),
                         child: ClipOval(
                           child: imageBytes != null
@@ -244,8 +244,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                 width: 260,
                                 height: 260,
                                 child: CircularProgressIndicator(
-                                  strokeWidth: 10,
-                                  color: Color(0xFF2265F0),
+                                  strokeWidth: 6,
+                                  color: Color(0xFF0126FA),
                                 ),
                               ),
                               Icon(
@@ -265,6 +265,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     children: [
                       Text(
                         _status,
+                        textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -300,12 +301,14 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
           if (!_authNotComplete)
-            Container(
+            Padding(
+              padding: EdgeInsets.only(bottom: 50.0),
+              child: Container(
               width: MediaQuery.of(context).size.width * 0.7,
               child: ElevatedButton(
                 onPressed: () {
                   setState(() {
-                    _status = '얼굴 인증 중...';
+                    _status = '다시 시도 중...';
                     _authNotComplete = true;
                   });
                   _login();
@@ -330,7 +333,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
             ),
-          SizedBox(height: 20),
+            ),
         ],
       ),
     );
