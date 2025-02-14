@@ -38,7 +38,7 @@ class MyApp extends StatelessWidget {
         '/login': (context) => LoginScreen(),
         '/welcome': (context) {
           final args = ModalRoute.of(context)?.settings.arguments
-          as Map<String, dynamic>?;
+              as Map<String, dynamic>?;
           return WelcomeScreen(userInfo: args ?? {});
         },
         '/login_failed': (context) => LoginFailedScreen(),
@@ -52,22 +52,22 @@ class MyApp extends StatelessWidget {
         },
         '/music_preference': (context) {
           final args = ModalRoute.of(context)?.settings.arguments
-          as Map<String, dynamic>?;
+              as Map<String, dynamic>?;
           return MusicPreferenceScreen(userInfo: args ?? {});
         },
         '/spotify_login': (context) {
           final args = ModalRoute.of(context)?.settings.arguments
-          as Map<String, dynamic>?;
+              as Map<String, dynamic>?;
           return SpotifyLoginScreen(userInfo: args ?? {});
         },
         '/home': (context) {
           final args = ModalRoute.of(context)?.settings.arguments
-          as Map<String, dynamic>?;
+              as Map<String, dynamic>?;
           return BottomNavigationWidget(userInfo: args ?? {});
         },
         '/profile': (context) {
           final args = ModalRoute.of(context)?.settings.arguments
-          as Map<String, dynamic>?;
+              as Map<String, dynamic>?;
           return ProfileScreen(userInfo: args ?? {});
         },
       },
