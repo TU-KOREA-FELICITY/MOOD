@@ -18,15 +18,36 @@ warning_url = 'http://localhost:3000/warning'
 mp_face_mesh = mp.solutions.face_mesh.FaceMesh(max_num_faces=1)
 mp_drawing = mp.solutions.drawing_utils
 
+# 경고 카운터 및 안전 상태 전송 플래그 추가
+warning_counters = {
+    "pitch": 0,
+    "roll": 0,
+    "left_eye_y": 0,
+    "right_eye_y": 0
+}
+safe_counters = {
+    "pitch": 0,
+    "roll": 0,
+    "left_eye_y": 0,
+    "right_eye_y": 0
+}
+safe_sent = {
+    "pitch": True,
+    "roll": True,
+    "left_eye_y": True,
+    "right_eye_y": True
+}
+
 def send_warning(level, axis, error):
     data = {'level': level, 'axis': axis, 'error': error}
     try:
         response = requests.post(warning_url, json=data)
-        print(response.text)
+        print("Response from server:", response.text)
     except requests.exceptions.RequestException as e:
         print(f"Failed to send warning: {e}")
 
 def process_warning(axis, error, levels, current_time):
+    global warning_counters, safe_sent
     level = None
     if levels[0] < error <= levels[1]:
         if status[axis]["start_time"] is None:
@@ -45,10 +66,25 @@ def process_warning(axis, error, levels, current_time):
             level = "위험"
     else:
         status[axis]["start_time"] = None
+        warning_counters[axis] = 0  # 오류가 해소되면 경고 카운터 초기화
+        level = "안전"  # 모든 오류가 기준 이하로 해소되면 안전 상태
 
     if level:
-        print(f"[{level}] {axis.capitalize()} 오류 {levels[0]}~{levels[1]}범위 초과")
-        send_warning(level, axis, error)
+        if level == "안전":
+            if safe_sent[axis] == True:
+                safe_counters[axis] += 1
+                if safe_counters[axis] >= 10:
+                    print(f"[{level}] {axis.capitalize()} 상태 전송")
+                    send_warning(level, axis, 0)  # error 값을 0으로 설정하여 전송
+                    safe_counters[axis] = 0  # 카운터 초기화
+                    safe_sent[axis] = False
+        else:
+            warning_counters[axis] += 1
+            if warning_counters[axis] >= 10:  # 경고가 10번 감지되면 서버에 전송
+                print(f"[{level}] {axis.capitalize()} 오류 {levels[0]}~{levels[2]}범위 초과")
+                send_warning(level, axis, error)
+                warning_counters[axis] = 0  # 서버에 전송 후 경고 카운터 초기화
+                safe_sent[axis] = True
 
 def calculate_eye_center_and_radius(eye_landmarks, image_width, image_height):
     x_list = [int(landmark.x * image_width) for landmark in eye_landmarks]
@@ -131,6 +167,9 @@ while True:
                 print(f"Initial Pitch: {initial_pitch:.2f}, Initial Roll: {initial_roll:.2f}")
                 print(f"Initial Left Eye Center: {initial_left_eye_center}, Initial Right Eye Center: {initial_right_eye_center}")
                 printed_initial_values = True
+
+            # 초기 좌표값 로그 출력
+            print(f"Initial Face Coordination in Image: {face_coordination_in_image.tolist()}")
 
         pitch_error = abs(pitch - initial_pitch)
         roll_error = abs(roll - initial_roll)

@@ -62,7 +62,7 @@ class _HomeScreenState extends State<HomeScreen> {
       socket!.on('warning', (data) {
         setState(() {
           _warningMessage =
-          'Warning: ${data['level']} ${data['axis']} error ${data['error']}';
+              'Warning: ${data['level']} ${data['axis']} error ${data['error']}';
         });
       });
 
@@ -237,10 +237,10 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               child: _imageData != null
                   ? Image.memory(
-                _imageData!,
-                fit: BoxFit.cover,
-                gaplessPlayback: true,
-              )
+                      _imageData!,
+                      fit: BoxFit.cover,
+                      gaplessPlayback: true,
+                    )
                   : Center(child: Text('카메라 화면이 여기에 표시됩니다')),
             ),
           ),
@@ -283,7 +283,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     final emotion = parts[0].trim();
                     final confidence = parts[1].trim();
                     final color = emotions.firstWhere(
-                            (e) => e['name'] == emotion,
+                        (e) => e['name'] == emotion,
                         orElse: () => {'color': Colors.white})['color'];
                     return Padding(
                       padding: EdgeInsets.symmetric(vertical: 7),
