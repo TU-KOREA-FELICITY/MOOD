@@ -115,14 +115,14 @@ app.post('/register', async (req, res) => {
         stopWebcam();
         const result = await runPythonScript('aws-face-reg.py', [username]);
         console.log('얼굴 등록 결과:\n', result);
-        res.json({ message: "얼굴 등록 프로세스 완료", result });
+        res.json({ success: true, message: "얼굴 등록 프로세스 완료", result });
       } catch (error) {
         console.error('aws-face-reg.py 실행 중 오류:', error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ success: false, error: error.message });
       }
     }, 5000);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 

@@ -15,7 +15,8 @@ class FaceRecognitionScreen extends StatefulWidget {
 
 class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
   final _formKey = GlobalKey<FormState>();
-  bool _regComplete = false;
+  bool _regNotComplete = true;
+  bool _buttonShow = false;
   String? userId;
   String _status = '';
   IO.Socket? socket;
@@ -153,7 +154,7 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
         context: context,
         builder: (context) => AlertDialog(
           title: Text('중복된 ID'),
-          content: Text('이미 사용 중인 ID입니다. 다른 ID를 입력해주세요.'),
+          content: Text('이미 사용 중인 ID입니다.\n다른 ID를 입력해주세요.'),
           actions: [
             TextButton(
               child: Text('확인'),
@@ -163,7 +164,8 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
         ),
       );
       setState(() {
-        _regComplete = false;
+        _isLoading = true;
+        _status = '얼굴 등록 중...';
       });
     } else {
       showDialog(
@@ -193,7 +195,17 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
         headers: {'Content-Type': 'application/json'},
         body: json.encode({'username': username}),
       );
-      _checkRegistrationStatus(username);
+
+      final responseData = json.decode(response.body);
+
+      if (responseData['success'] == true) {
+        _checkRegistrationStatus(username);
+      } else {
+        setState(() {
+          _status = '얼굴 등록을 다시 시도해주세요.';
+          _buttonShow = true;
+        });
+      }
     } catch (e) {
       setState(() {
         _status = '등록 시작 오류: $e';
@@ -206,11 +218,13 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
       final response =
           await http.get(Uri.parse('http://10.0.2.2:3000/check_registration'));
       final result = json.decode(response.body);
-      if (result['registered'] == true) {
+
+      if (result != null && result['registered'] == true) {
         setState(() {
-          _status = '등록 성공! 사용자 ID: ${result['user_id']}';
-          _regComplete = true;
+          _status = '${result['user_id']} ID로 얼굴 등록에 성공했어요.';
+          _regNotComplete = false;
           userId = username;
+          _buttonShow = false;
         });
       } else {
         Future.delayed(
@@ -218,7 +232,8 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
       }
     } catch (e) {
       setState(() {
-        _status = '등록 상태 확인 오류: $e';
+        _status = '얼굴 등록에 실패했어요.';
+        _buttonShow = true;
       });
     }
   }
@@ -241,7 +256,7 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              '얼굴등록을 시작합니다.',
+                              '얼굴 등록을 시작합니다',
                               style: TextStyle(
                                 fontSize: 26,
                                 fontWeight: FontWeight.bold,
@@ -290,7 +305,7 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
                             ),
                           ),
                         ),
-                        SizedBox(height: 20),
+                        SizedBox(height: 40),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -304,9 +319,51 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
                             ),
                           ],
                         ),
-                        SizedBox(height: 20),
-                        if (_regComplete)
-                          Container(
+                      ],
+                    ),
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 20.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (_regNotComplete && !_buttonShow)
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.7,
+                            child: ElevatedButton(
+                              onPressed: () {
+                                setState(() {
+                                  _status = '얼굴 ID 등록 중...';
+                                });
+                                _promptForUserId();
+                              },
+                              style: ButtonStyle(
+                                backgroundColor: WidgetStateProperty.all(
+                                    const Color(0xFF0126FA)),
+                                foregroundColor:
+                                    WidgetStateProperty.all(Colors.white),
+                                padding: WidgetStateProperty.all(
+                                    const EdgeInsets.symmetric(vertical: 12)),
+                                shape: WidgetStateProperty.all(
+                                  RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                ),
+                              ),
+                              child: const Text(
+                                '얼굴 등록하기',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                        if (!_regNotComplete && !_buttonShow)
+                          SizedBox(
                             width: MediaQuery.of(context).size.width * 0.7,
                             child: ElevatedButton(
                               onPressed: () {
@@ -317,19 +374,19 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
                                 );
                               },
                               style: ButtonStyle(
-                                backgroundColor: MaterialStateProperty.all(
-                                    Color(0xFF0126FA)),
+                                backgroundColor: WidgetStateProperty.all(
+                                    const Color(0xFF0126FA)),
                                 foregroundColor:
-                                    MaterialStateProperty.all(Colors.white),
-                                padding: MaterialStateProperty.all(
-                                    EdgeInsets.symmetric(vertical: 12)),
-                                shape: MaterialStateProperty.all(
+                                    WidgetStateProperty.all(Colors.white),
+                                padding: WidgetStateProperty.all(
+                                    const EdgeInsets.symmetric(vertical: 12)),
+                                shape: WidgetStateProperty.all(
                                   RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(20),
                                   ),
                                 ),
                               ),
-                              child: Text(
+                              child: const Text(
                                 '얼굴 등록 완료',
                                 style: TextStyle(
                                   fontSize: 18,
@@ -338,29 +395,30 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
                               ),
                             ),
                           ),
-                        if (!_regComplete)
-                          Container(
+                        if (_regNotComplete && _buttonShow)
+                          SizedBox(
                             width: MediaQuery.of(context).size.width * 0.7,
                             child: ElevatedButton(
                               onPressed: () {
                                 setState(() {
                                   _status = '얼굴 ID 등록 중...';
-                                  _regComplete = true;
                                 });
                                 _promptForUserId();
                               },
                               style: ButtonStyle(
-                                backgroundColor: WidgetStateProperty.all(Color(0xFF0126FA)),
-                                foregroundColor: WidgetStateProperty.all(Colors.white),
+                                backgroundColor: WidgetStateProperty.all(
+                                    const Color(0xFF0126FA)),
+                                foregroundColor:
+                                    WidgetStateProperty.all(Colors.white),
                                 padding: WidgetStateProperty.all(
-                                    EdgeInsets.symmetric(vertical: 12)),
+                                    const EdgeInsets.symmetric(vertical: 12)),
                                 shape: WidgetStateProperty.all(
                                   RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(20),
                                   ),
                                 ),
                               ),
-                              child: Text(
+                              child: const Text(
                                 'ID 다시 만들기',
                                 style: TextStyle(
                                   fontSize: 18,
@@ -369,7 +427,6 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
                               ),
                             ),
                           ),
-                        SizedBox(height: 20),
                       ],
                     ),
                   ),
