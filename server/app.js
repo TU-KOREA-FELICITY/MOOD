@@ -279,9 +279,35 @@ app.post('/registration_result', (req, res) => {
   res.sendStatus(200);
 });
 
+app.post('/run_aws_face_reg', async (req, res) => {
+  try {
+    const result = await runPythonScript('aws-face-reg.py');
+    console.log('얼굴 등록 결과:\n', result);
+    res.json({ result });
+  } catch (error) {
+    console.error('AWS face registration script error:', error.message);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.post('/auth_result', (req, res) => {
   authResult = req.body;
   console.log('얼굴 인증 결과:\n', authResult);
+  res.sendStatus(200);
+});
+
+app.get('/check_registration', (req, res) => {
+  res.json(registrationResult || { registered: false, user_id: null });
+});
+
+app.get('/check_auth', (req, res) => {
+  res.json(authResult || { authenticated: false, user_id: null });
+});
+
+app.post('/webcam_frame', (req, res) => {
+  const { frame } = req.body;
+  const io = req.app.get('io'); // server.js에서 설정한 io 객체를 가져옴
+  io.emit('webcam_stream', frame);
   res.sendStatus(200);
 });
 
@@ -309,21 +335,6 @@ app.post('/emotion_result', (req, res) => {
   res.sendStatus(200);
 });
 
-app.get('/check_registration', (req, res) => {
-  res.json(registrationResult || { registered: false, user_id: null });
-});
-
-app.get('/check_auth', (req, res) => {
-  res.json(authResult || { authenticated: false, user_id: null });
-});
-
-app.post('/webcam_frame', (req, res) => {
-  const { frame } = req.body;
-  const io = req.app.get('io'); // server.js에서 설정한 io 객체를 가져옴
-  io.emit('webcam_stream', frame);
-  res.sendStatus(200);
-});
-
 app.post('/warning', (req, res) => {
   console.log('Received warning:', req.body);
   const io = req.app.get('io'); // server.js에서 설정한 io 객체를 가져옴
@@ -331,15 +342,27 @@ app.post('/warning', (req, res) => {
   res.sendStatus(200);
 });
 
-// 새로운 엔드포인트 추가
-app.post('/run_aws_face_reg', async (req, res) => {
+app.post('/get_search_tag', async (req, res) => {
   try {
-    const result = await runPythonScript('aws-face-reg.py');
-    console.log('얼굴 등록 결과:\n', result);
-    res.json({ result });
+    const [dbResult] = await pool.query('SELECT emotion_name, tag FROM emotion');
+
+    if (dbResult.length > 0) {
+      res.json({
+        success: true,
+        emotions: dbResult.map(emotion => ({
+          emotion: emotion.emotion_name,
+          tag: emotion.tag,
+      })),
+    });
+    } else {
+      res.json({
+        success: false,
+        message: '감정 태그를 찾을 수 없습니다.',
+      });
+    }
   } catch (error) {
-    console.error('AWS face registration script error:', error.message);
-    res.status(500).json({ error: error.message });
+    console.error('태그 가져오는 중 오류 발생:', error);
+    res.status(500).json({ success: false, message: '서버 오류가 발생했습니다.' });
   }
 });
 

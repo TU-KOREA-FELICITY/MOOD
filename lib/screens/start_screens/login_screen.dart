@@ -3,7 +3,6 @@ import 'package:http/http.dart' as http;
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'dart:typed_data';
 import 'dart:convert';
-import '../homestart_screens/home_screen.dart';
 import 'welcome_screen.dart';
 
 class LoginScreen extends StatefulWidget {

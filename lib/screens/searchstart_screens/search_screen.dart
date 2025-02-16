@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'service/spotify_service.dart';
@@ -27,12 +29,14 @@ class _SearchScreenState extends State<SearchScreen>
   bool _showCancelIcon = false;
   List<String> recentSearches = [];
   Map<String, List> _searchResults = {'tracks': [], 'playlists': []};
+  List<Map<String, dynamic>> emotions = [];
 
   @override
   void initState() {
     super.initState();
     _spotifyService = widget.spotifyService;
     _initializeApp();
+    _fetchTag();
     // _startPeriodicUpdate();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -164,6 +168,54 @@ class _SearchScreenState extends State<SearchScreen>
     }
   }
 
+  Future<void> _fetchTag() async {
+    try {
+      final data = await _getSearchTag();
+      if (data['success']) {
+        setState(() {
+          emotions = List<Map<String, dynamic>>.from(data['emotions']);
+        });
+      } else {
+        print(data['message']);
+      }
+    } catch (e) {
+    }
+  }
+
+  Future<Map<String, dynamic>> _getSearchTag() async {
+    try {
+      final response = await http.post(
+        Uri.parse('http://10.0.2.2:3000/get_search_tag'),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        final result = json.decode(response.body);
+        if (result['success']) {
+          return {
+            'success': true,
+            'emotions': List<Map<String, dynamic>>.from(result['emotions']),
+          };
+        } else {
+          return {
+            'success': false,
+            'message': result['message'] ?? '알 수 없는 오류가 발생했습니다.',
+          };
+        }
+      } else {
+        return {
+          'success': false,
+          'message': '서버 오류: ${response.statusCode}',
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'message': '태그 가져오는 중 오류 발생: $e',
+      };
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -180,7 +232,7 @@ class _SearchScreenState extends State<SearchScreen>
                         Miniplayer(spotifyService: widget.spotifyService),
                         Expanded(
                           child: CategoryTagScreen(
-                              spotifyService: widget.spotifyService, userInfo: widget.userInfo),
+                              spotifyService: widget.spotifyService, userInfo: widget.userInfo, emotionInfo: emotions),
                         ),
                       ],
                     ),

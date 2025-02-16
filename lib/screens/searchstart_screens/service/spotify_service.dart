@@ -41,7 +41,8 @@ class SpotifyService {
 
     _accessToken = tokens['accessToken'] ?? '';
     _refreshToken = tokens['refreshToken'] ?? '';
-    _tokenExpiryTime = tokens['expiryTime'] ?? DateTime.now().add(Duration(hours: 1));
+    _tokenExpiryTime =
+        tokens['expiryTime'] ?? DateTime.now().add(Duration(hours: 1));
 
     await secureStorage.write(key: 'accessToken', value: _accessToken);
     await secureStorage.write(key: 'refreshToken', value: _refreshToken);
@@ -211,7 +212,7 @@ class SpotifyService {
   Future<List<dynamic>> getPlaylistTracks(String playlistId) async {
     await _refreshTokenIfNeeded();
     final url =
-    Uri.parse('https://api.spotify.com/v1/playlists/$playlistId/tracks');
+        Uri.parse('https://api.spotify.com/v1/playlists/$playlistId/tracks');
     try {
       final response = await http.get(
         url,
@@ -459,6 +460,59 @@ class SpotifyService {
     } catch (e) {
       print('검색 중 오류 발생: $e');
       return {'tracks': [], 'playlists': []};
+    }
+  }
+
+  Future<Map<String, dynamic>> searchPlaylists(String query) async {
+    await _refreshTokenIfNeeded();
+    final encodedQuery = Uri.encodeComponent(query);
+    final url = Uri.parse(
+        'https://api.spotify.com/v1/search?q=$encodedQuery&type=playlist&limit=10');
+    try {
+      final response = await http.get(
+        url,
+        headers: {'Authorization': 'Bearer $_accessToken'},
+      );
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return {'playlists': data['playlists']['items']};
+      } else {
+        print('플레이리스트 검색 실패: ${response.statusCode}');
+        print('에러 메시지: ${response.body}');
+        return {'playlists': []};
+      }
+    } catch (e) {
+      print('플레이리스트 검색 중 오류 발생: $e');
+      return {'playlists': []};
+    }
+  }
+
+  Future<List<String>> addTracksToPlaylist(
+      String playlistId, List<String> trackUris) async {
+    await _refreshTokenIfNeeded();
+    final url = 'https://api.spotify.com/v1/playlists/$playlistId/tracks';
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          'Authorization': 'Bearer $_accessToken',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'uris': trackUris,
+        }),
+      );
+      if (response.statusCode == 201) {
+        print('트랙이 성공적으로 추가되었습니다.');
+        return trackUris;
+      } else {
+        print('트랙 추가 실패: ${response.statusCode}');
+        print('에러 메시지: ${response.body}');
+        throw Exception('트랙 추가 실패: ${response.body}');
+      }
+    } catch (e) {
+      print('트랙 추가 중 오류 발생: $e');
+      throw e;
     }
   }
 }

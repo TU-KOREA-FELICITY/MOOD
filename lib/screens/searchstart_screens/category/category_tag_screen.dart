@@ -8,11 +8,13 @@ import '../service/spotify_service.dart';
 class CategoryTagScreen extends StatefulWidget {
   final SpotifyService spotifyService;
   final Map<String, dynamic> userInfo;
+  final List<Map<String, dynamic>> emotionInfo;
 
   const CategoryTagScreen({
     super.key,
     required this.spotifyService,
     required this.userInfo,
+    required this.emotionInfo,
   });
 
   @override
@@ -22,18 +24,8 @@ class CategoryTagScreen extends StatefulWidget {
 class _CategoryTagScreenState extends State<CategoryTagScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  final List<String> _emotionCategories = [
-    '행복',
-    '슬픔',
-    '분노',
-    '놀람',
-    '혐오',
-    '공포',
-    '평온',
-    '혼란'
-  ];
   List<dynamic> _playlists = [];
-  final bool _isLoading = false;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -76,29 +68,46 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
   }
 
   Future<void> _loadPlaylists() async {
-    List playlists = await widget.spotifyService.getPlaylists();
-
-    for (String emotion in _emotionCategories) {
-      bool playlistExists =
-          playlists.any((playlist) => playlist['name'] == emotion);
-
-      if (!playlistExists) {
-        // 해당 감정의 플레이리스트가 없으면 새로 생성
-        String newPlaylistId =
-            await widget.spotifyService.createPlaylist(emotion);
-        playlists.add({'name': emotion, 'id': newPlaylistId});
-      }
-    }
-
-    for (var playlist in playlists) {
-      int trackCount =
-          await widget.spotifyService.updatePlaylistInfo(playlist['id']);
-      playlist['tracks'] = {'total': trackCount};
-    }
-
     setState(() {
-      _playlists = playlists;
+      _isLoading = true; // 로딩 시작
     });
+    try {
+      List<dynamic> playlists = await widget.spotifyService.getPlaylists();
+      List<String> emotionNames = widget.emotionInfo
+          .map((emotion) => emotion['emotion'] as String)
+          .toList();
+
+      for (String emotion in emotionNames) {
+        bool playlistExists =
+        playlists.any((playlist) => playlist['name'] == emotion);
+        if (!playlistExists) {
+          // 해당 감정의 플레이리스트가 없으면 새로 생성
+          String newPlaylistId =
+          await widget.spotifyService.createPlaylist(emotion);
+          playlists.add({'name': emotion, 'id': newPlaylistId, 'tracks': {'total': 0}}); // tracks 초기화
+        }
+      }
+
+      // 기존 플레이리스트 정보 업데이트
+      for (var playlist in playlists) {
+        int trackCount =
+        await widget.spotifyService.updatePlaylistInfo(playlist['id']);
+        playlist['tracks'] = {'total': trackCount};
+      }
+
+      setState(() {
+        _playlists = playlists;
+      });
+    } catch (e) {
+      print('플레이리스트 로딩 중 오류: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('플레이리스트 로딩 실패: $e')),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   Color _getColorForEmotion(String emotion) {
@@ -134,6 +143,81 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('플레이리스트 삭제 실패: $e')),
+      );
+    }
+  }
+
+  Future<void> _addTracksToEmotionPlaylist(
+      String emotion, String playlistId, String emotionTag) async {
+    try {
+      // 1. 태그로 플레이리스트 검색
+      Map searchResults = await widget.spotifyService.searchPlaylists(emotionTag);
+
+      // 검색 결과가 있는지 확인
+      if (searchResults['playlists'] != null &&
+          searchResults['playlists'].isNotEmpty) {
+        List<dynamic> playlists = searchResults['playlists'];
+        // 검색된 플레이리스트를 순회하며 트랙을 추가 시도
+        for (int i = 0; i < playlists.length; i++) {
+          String sourcePlaylistId = playlists[i]['id'];
+          try {
+            // 2. 플레이리스트의 트랙 가져오기 (최대 20개)
+            List tracks =
+            await widget.spotifyService.getPlaylistTracks(sourcePlaylistId);
+            List<String> trackUrisToAdd = tracks
+                .take(20)
+                .map((track) => track['track']['uri'] as String)
+                .where((uri) => uri.startsWith('spotify:track:'))
+                .toList();
+
+            // 3. 현재 감정 카테고리 플레이리스트에 트랙 추가
+            if (trackUrisToAdd.isNotEmpty) {
+              // 플레이리스트 ID 유효성 검사
+              if (playlistId.length != 22 ||
+                  !RegExp(r'^[a-zA-Z0-9]+$').hasMatch(playlistId)) {
+                throw Exception('Invalid playlist ID');
+              }
+
+              // 트랙 URI 배치 처리
+              for (int j = 0; j < trackUrisToAdd.length; j += 100) {
+                int end = (j + 100 < trackUrisToAdd.length)
+                    ? j + 100
+                    : trackUrisToAdd.length;
+                await widget.spotifyService.addTracksToPlaylist(
+                    playlistId, trackUrisToAdd.sublist(j, end));
+              }
+
+              // 플레이리스트 트랙 수 업데이트
+              int newTrackCount =
+              await widget.spotifyService.updatePlaylistInfo(playlistId);
+              _updatePlaylistTrackCount(playlistId, newTrackCount);
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('$emotion 플레이리스트에 트랙을 추가했습니다.')),
+              );
+              // 트랙 추가에 성공했으므로 순회를 종료
+              return;
+            } else {
+              print(
+                  '$emotion: ${playlists[i]['name']}에서 유효한 트랙을 찾을 수 없습니다.');
+            }
+          } catch (e) {
+            print('$emotion: ${playlists[i]['name']}에서 트랙 추가 중 오류 발생: $e');
+          }
+        }
+        // 모든 플레이리스트에서 트랙을 추가하지 못한 경우
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('$emotion 태그로 검색된 플레이리스트에서 \n유효한 트랙을 찾을 수 없습니다.')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('$emotion 태그로 검색된 플레이리스트가 없습니다.')),
+        );
+      }
+    } catch (e) {
+      print('트랙 추가 중 오류 발생: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('트랙 추가 실패: $e')),
       );
     }
   }
@@ -247,9 +331,10 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
                     crossAxisSpacing: 16,
                     mainAxisSpacing: 16,
                   ),
-                  itemCount: _emotionCategories.length,
+                  itemCount: widget.emotionInfo.length,
                   itemBuilder: (context, index) {
-                    final emotion = _emotionCategories[index];
+                    final emotionInfoItem = widget.emotionInfo[index];
+                    final emotion = emotionInfoItem['emotion'];
                     final playlist = _playlists.firstWhere(
                       (p) => p['name'] == emotion,
                       orElse: () => {
@@ -259,8 +344,12 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
                       },
                     );
                     return GestureDetector(
-                      onTap: () =>
-                          _showPlaylistTracks(playlist['id'], playlist['name']),
+                      onTap: () async {
+                        String emotionTag = emotionInfoItem['tag'].split(',').first;
+                        await _addTracksToEmotionPlaylist(
+                            emotion, playlist['id'], emotionTag);
+                        _showPlaylistTracks(playlist['id'], playlist['name']);
+                      },
                       child: Container(
                         decoration: BoxDecoration(
                           color: _getColorForEmotion(emotion),
@@ -351,12 +440,12 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
                     child: ListView.builder(
                       itemCount: _playlists
                           .where((playlist) =>
-                              !_emotionCategories.contains(playlist['name']))
+                      !widget.emotionInfo.map((e) => e['emotion']).contains(playlist['name']))
                           .length,
                       itemBuilder: (context, index) {
                         final playlist = _playlists
                             .where((playlist) =>
-                                !_emotionCategories.contains(playlist['name']))
+                        !widget.emotionInfo.map((e) => e['emotion']).contains(playlist['name']))
                             .toList()[index];
                         return Padding(
                           padding: const EdgeInsets.symmetric(
