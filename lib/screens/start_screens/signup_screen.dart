@@ -81,7 +81,7 @@ class _SignupScreenState extends State<SignupScreen> {
             ),
             SizedBox(height: 20),
             Text(
-              '얼굴인식 시작하기',
+              '얼굴인식을 먼저 진행해주세요',
               style: TextStyle(fontSize: 16),
               textAlign: TextAlign.center,
             ),

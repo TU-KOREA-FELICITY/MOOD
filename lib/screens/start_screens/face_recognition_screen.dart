@@ -111,15 +111,23 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
     final username = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('얼굴 ID를 만들어주세요'),
-        content: TextField(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(30),
+        ),
+        title: Text('FACE ID 이름 설정하기'),
+        content: Container(
+          width: MediaQuery.of(context).size.width * 0.8,
+          height: 60,
+          child: TextField(
           controller: controller,
           autofocus: true,
-          decoration: InputDecoration(hintText: "영문으로 입력"),
+          decoration: InputDecoration(hintText: "영문으로 입력해 주세요"),
+        ),
         ),
         actions: [
           TextButton(
-            child: Text('확인'),
+            child: Text('다음', style: TextStyle(color: Color(0xFF0126FA))),
             onPressed: () => Navigator.of(context).pop(controller.text),
           ),
         ],
@@ -259,7 +267,7 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
                                 shape: BoxShape.circle,
                                 color: Color(0xFFF2F2F1),
                                 border: Border.all(
-                                    color: Color(0xFF2265F0), width: 6),
+                                    color: Color(0xFF0126FA), width: 6),
                               ),
                               child: ClipOval(
                                 child: imageBytes != null
@@ -275,8 +283,8 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
                                             width: 260,
                                             height: 260,
                                             child: CircularProgressIndicator(
-                                              strokeWidth: 10,
-                                              color: Color(0xFF2265F0),
+                                              strokeWidth: 6,
+                                              color: Color(0xFF0126FA),
                                             ),
                                           ),
                                           Icon(
@@ -296,6 +304,7 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
                           children: [
                             Text(
                               _status,
+                              textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
