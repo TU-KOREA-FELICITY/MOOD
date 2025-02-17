@@ -1,6 +1,7 @@
 // 검색 홈 (감정 카테고리 & 내 플레이리스트 탭)
 //블루 0xFF265F0
 
+import 'dart:math';
 import 'package:flutter/material.dart';
 import '../search/playlist_tracks_screen.dart';
 import '../service/spotify_service.dart';
@@ -148,10 +149,14 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
   }
 
   Future<void> _addTracksToEmotionPlaylist(
-      String emotion, String playlistId, String emotionTag) async {
+      String emotion, String playlistId, List<String> emotionTags) async {
     try {
+      // 태그 중 랜덤으로 하나 선택
+      final random = Random();
+      String selectedTag = emotionTags[random.nextInt(emotionTags.length)];
+
       // 1. 태그로 플레이리스트 검색
-      Map searchResults = await widget.spotifyService.searchPlaylists(emotionTag);
+      Map searchResults = await widget.spotifyService.searchPlaylists(selectedTag);
 
       // 검색 결과가 있는지 확인
       if (searchResults['playlists'] != null &&
@@ -344,29 +349,36 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
                       },
                     );
                     return GestureDetector(
-                      onTap: () async {
-                        String emotionTag = emotionInfoItem['tag'].split(',').first;
-                        await _addTracksToEmotionPlaylist(
-                            emotion, playlist['id'], emotionTag);
-                        _showPlaylistTracks(playlist['id'], playlist['name']);
-                      },
+                      onTap: () => _showPlaylistTracks(playlist['id'], playlist['name']),
                       child: Container(
                         decoration: BoxDecoration(
                           color: _getColorForEmotion(emotion),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Padding(
-                          padding: const EdgeInsets.all(12.0),
+                          padding: const EdgeInsets.all(6.0),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
-                                'Playlist',
-                                style: TextStyle(
-                                  color: Colors.grey[700],
-                                  fontSize: 12,
-                                ),
+                              Row(
+                                children: [
+                                  Text(
+                                    'Playlist',
+                                    style: TextStyle(
+                                      color: Colors.grey[700],
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                  IconButton(
+                                    icon: Icon(Icons.add, color: Colors.grey[700], size: 12),
+                                    onPressed: () async {
+                                      List<String> emotionTags = emotionInfoItem['tag'].split(',');
+                                      await _addTracksToEmotionPlaylist(
+                                          emotion, playlist['id'], emotionTags);
+                                    },
+                                  ),
+                                ],
                               ),
                               Text(
                                 emotion,
