@@ -1,5 +1,11 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:http/http.dart' as http;
+import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'dart:convert';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class HomeRecognitionScreen extends StatefulWidget {
   @override
@@ -7,7 +13,12 @@ class HomeRecognitionScreen extends StatefulWidget {
 }
 
 class _HomeRecognitionScreenState extends State<HomeRecognitionScreen> {
+  final storage = FlutterSecureStorage();
   int _currentIndex = 0;
+  IO.Socket? socket;
+  Uint8List? _imageData;
+  String _status = '';
+  String _emotionResult = '';
 
   final List<Map<String, dynamic>> emotions = [
     {'name': 'ANGRY', 'color': Color(0xFFFFDBD6)},
@@ -19,6 +30,104 @@ class _HomeRecognitionScreenState extends State<HomeRecognitionScreen> {
     {'name': 'CONFUSED', 'color': Color(0xFFFBF4FB)},
     {'name': 'FEAR', 'color': Color(0xFFEFEFEF)},
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _startEstimator();
+    connectToServer();
+  }
+
+  void connectToServer() {
+    try {
+      socket = IO.io('http://10.0.2.2:3000', <String, dynamic>{
+        'transports': ['websocket'],
+        'autoConnect': true,
+      });
+
+      socket!.onConnect((_) {
+        print('서버에 연결되었습니다.');
+      });
+
+      socket!.on('webcam_stream', (data) {
+        if (data != null) {
+          setState(() {
+            _imageData = base64Decode(data);
+          });
+        }
+      });
+
+      socket!.onDisconnect((_) => print('서버와 연결이 끊어졌습니다.'));
+      socket!.onError((err) => print('에러 발생: $err'));
+
+      socket!.connect();
+    } catch (e) {
+      print('서버 연결 중 오류 발생: $e');
+    }
+  }
+
+  Future<void> _startEstimator() async {
+    final token = await storage.read(key: 'token');
+    final url = Uri.parse('http://10.0.2.2:3000/start_estimator');
+    try {
+      final response = await http.post(url, headers: {
+        'Authorization': 'Bearer $token',
+      });
+      if (response.statusCode == 200) {
+        print('estimator.py가 성공적으로 시작되었습니다.');
+      } else {
+        print('estimator.py 시작 실패: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('estimator.py 시작 중 오류 발생: $e');
+    }
+  }
+
+  Future<void> _runEmotionAnalysis() async {
+    final token = await storage.read(key: 'token');
+    setState(() {
+      _status = '감정 분석 중...';
+    });
+    final url = Uri.parse('http://10.0.2.2:3000/analyze_emotion');
+    try {
+      final response = await http.post(url, headers: {
+        'Authorization': 'Bearer $token',
+      });
+      if (response.statusCode == 200) {
+        final result = json.decode(response.body);
+        setState(() {
+          _emotionResult = result['result'] ?? '';
+          _status = '감정 분석 완료';
+        });
+      } else {
+        print('aws-face-reg.py 실행 실패: ${response.statusCode}');
+        print('서버 응답: ${response.body}');
+        setState(() {
+          _status = '감정 분석 실패';
+        });
+      }
+    } catch (e) {
+      print('aws-face-reg.py 실행 중 오류 발생: $e');
+      setState(() {
+        _status = '서버 연결 오류: $e';
+      });
+    }
+  }
+
+  void _restartRecognition() {
+    setState(() {
+      _imageData = null;
+      _status = '';
+      _emotionResult = '';
+      _startEstimator();
+    });
+  }
+
+  @override
+  void dispose() {
+    socket?.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -110,31 +219,31 @@ class _HomeRecognitionScreenState extends State<HomeRecognitionScreen> {
                 Column(
                   children: emotions
                       .map((emotion) => Padding(
-                    padding: EdgeInsets.symmetric(vertical: 7),
-                    child: Center(
-                      child: Container(
-                        width: MediaQuery.of(context).size.width * 0.9,
-                        padding: EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: emotion['color'],
-                          borderRadius: BorderRadius.circular(8),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withAlpha(128),
-                              blurRadius: 5,
-                              spreadRadius: 1,
-                              offset: Offset(0, 2),
+                            padding: EdgeInsets.symmetric(vertical: 7),
+                            child: Center(
+                              child: Container(
+                                width: MediaQuery.of(context).size.width * 0.9,
+                                padding: EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: emotion['color'],
+                                  borderRadius: BorderRadius.circular(8),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey.withAlpha(128),
+                                      blurRadius: 5,
+                                      spreadRadius: 1,
+                                      offset: Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                child: Text(
+                                  emotion['name'],
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(fontSize: 20),
+                                ),
+                              ),
                             ),
-                          ],
-                        ),
-                        child: Text(
-                          emotion['name'],
-                          textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 20),
-                        ),
-                      ),
-                    ),
-                  ))
+                          ))
                       .toList(),
                 ),
               ],

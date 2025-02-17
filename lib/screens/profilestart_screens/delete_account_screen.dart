@@ -1,12 +1,50 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:mood/screens/start_screens/login_screen.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:http/http.dart' as http;
 
 class DeleteAccountScreen extends StatelessWidget {
-  final String userName = 'IN SUN';
-  final String carModel = 'Mercedes-Benz AMG G63';
+  final Map<String, dynamic> userInfo;
+
+  DeleteAccountScreen({required this.userInfo});
+
+  Future<void> _deleteAccount(BuildContext context) async {
+    final storage = FlutterSecureStorage();
+    final token = await storage.read(key: 'token');
+    final url = Uri.parse('http://10.0.2.2:3000/delete_account');
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: json.encode({'user_id': userInfo['user_id']}),
+      );
+
+      if (response.statusCode == 200) {
+        await storage.delete(key: 'token');
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => LoginScreen()),
+          (route) => false,
+        );
+      } else {
+        print('Failed to delete account: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error deleting account: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final String userName = userInfo['user_name'];
+    final String carModel = userInfo['car_type'];
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: false,
@@ -50,15 +88,16 @@ class DeleteAccountScreen extends StatelessWidget {
                         fontSize: 13,
                       ),
                     ),
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.grey,
-                    foregroundColor: Colors.black,
-                    padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.grey,
+                      foregroundColor: Colors.black,
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                    ),
                   ),
-                ),
                 ),
                 SizedBox(
                   width: 110,
@@ -72,20 +111,14 @@ class DeleteAccountScreen extends StatelessWidget {
                         fontSize: 13,
                       ),
                     ),
-                  onPressed: () {
-                    // 회원 탈퇴 로직
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(builder: (context) => LoginScreen()),
-                          (route) => false,
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF0126FA),
-                    foregroundColor: Colors.white,
-                    padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                    onPressed: () => _deleteAccount(context),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xFF0126FA),
+                      foregroundColor: Colors.white,
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                    ),
                   ),
-                ),
                 ),
               ],
             ),

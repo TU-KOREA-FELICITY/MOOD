@@ -3,8 +3,10 @@ import 'package:http/http.dart' as http;
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'dart:typed_data';
 import 'dart:convert';
+import '../bottom_navigation_widget.dart';
 import '../homestart_screens/home_screen.dart';
 import 'welcome_screen.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -17,6 +19,7 @@ class _LoginScreenState extends State<LoginScreen> {
   late bool _authNotComplete = true;
   IO.Socket? socket;
   Uint8List? imageBytes;
+  final storage = FlutterSecureStorage();
 
   @override
   void initState() {
@@ -96,7 +99,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
           if (loginResult['success']) {
             setState(() {
-              _status = '인증에 성공했습니다. 사용자 이름: ${loginResult['user_name']}';
+              _status =
+                  '인증에 성공했습니다. 사용자 이름: ${loginResult['user']['user_name']}';
             });
             Navigator.pushReplacement(
               context,
@@ -147,6 +151,8 @@ class _LoginScreenState extends State<LoginScreen> {
       if (response.statusCode == 200) {
         final result = json.decode(response.body);
         if (result['success']) {
+          // 세션 정보를 서버에 전송
+          await storage.write(key: 'token', value: result['token']);
           return {
             'success': true,
             'user': result['user'],
@@ -186,7 +192,21 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       if (response.statusCode == 200) {
-        Navigator.of(context).pushReplacementNamed('/home');
+        final userInfo = {
+          'user_aws_id': 'sun',
+          'user_name': '장인선',
+          'car_type': 'bmw',
+          'fav_genre': '국내 발라드',
+          'fav_artist': '아이유',
+        };
+        // 세션 정보를 서버에 전송
+        await storage.write(key: 'token', value: userInfo['user_aws_id']);
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => BottomNavigationWidget(userInfo: userInfo),
+          ),
+        );
       } else {
         setState(() {
           _status = '사용자 정보 삽입 오류: ${response.statusCode}';

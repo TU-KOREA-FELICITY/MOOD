@@ -4,9 +4,15 @@
     "dev": "nodemon server/server.js"
   },
   "dependencies": {
+    "bcryptjs": "^3.0.0",
+    "body-parser": "^1.20.3",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "express-session": "^1.18.1",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.10.1",
     "mysql2": "^3.12.0",
     "socket.io": "^4.8.1"
   },

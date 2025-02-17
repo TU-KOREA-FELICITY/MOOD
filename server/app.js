@@ -1,28 +1,21 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const session = require('express-session');
+const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
 const { spawn } = require('child_process');
 const path = require('path');
 const pool = require('./database');
 
 const app = express();
+const SECRET_KEY = 'your_secret_key'; // JWT 비밀 키
 
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(cors({ origin: '*' }));
+app.use(cookieParser());
 
-app.use(session({
-  secret: 'your_secret_key',
-  resave: false,
-  saveUninitialized: true,
-  cookie: { secure: false } // secure: true in production with HTTPS
-}));
-
-let authResult = null;
-let registrationResult = null;
-let emotionResult = null;
-let estimatorProcess = null;
-let webcamProcess = null;
+let webcamProcess;
+let estimatorProcess;
 
 function runPythonScript(scriptName, args = []) {
   return new Promise((resolve, reject) => {
@@ -95,9 +88,21 @@ function stopEstimator() {
   });
 }
 
+function authenticateToken(req, res, next) {
+  const token = req.cookies.token || req.headers['authorization'];
+
+  if (token == null) return res.sendStatus(401);
+
+  jwt.verify(token, SECRET_KEY, (err, user) => {
+    if (err) return res.sendStatus(403);
+    req.user = user;
+    next();
+  });
+}
+
 app.startEstimator = startEstimator;
 
-app.post('/start_estimator', (req, res) => {
+app.post('/start_estimator', authenticateToken, (req, res) => {
   startEstimator();
   res.json({ message: 'estimator.py started' });
 });
@@ -109,7 +114,6 @@ app.post('/register', async (req, res) => {
   }
   try {
     startWebcam();
-    // 5초 후 webcam.py 종료 및 aws-face-reg.py 실행
     setTimeout(async () => {
       try {
         stopWebcam();
@@ -137,7 +141,9 @@ app.post('/register_complete', async (req, res) => {
       [user_aws_id, username, car_type, fav_genre, fav_artist]
     );
     if (dbResult.affectedRows === 1) {
-      res.json({ message: "사용자 정보 저장 완료" });
+      const token = jwt.sign({ user_id: dbResult.insertId }, SECRET_KEY, { expiresIn: '1h' });
+      res.cookie('token', token, { httpOnly: true });
+      res.json({ message: "사용자 정보 저장 완료", token });
     } else {
       res.status(500).json({ error: "데이터베이스에 사용자 정보를 저장할 수 없습니다." });
     }
@@ -177,7 +183,8 @@ app.post('/login_complete', async (req, res) => {
 
     if (dbResult.length > 0) {
       const user = dbResult[0];
-      req.session.user = user;
+      const token = jwt.sign({ user_id: user.user_id }, SECRET_KEY, { expiresIn: '1h' });
+      res.cookie('token', token, { httpOnly: true });
       res.json({
         success: true,
         user: {
@@ -187,7 +194,8 @@ app.post('/login_complete', async (req, res) => {
           car_type: user.car_type,
           fav_genre: user.fav_genre,
           fav_artist: user.fav_artist
-        }
+        },
+        token: token // 토큰을 클라이언트에 반환
       });
     } else {
       res.status(401).json({ success: false, message: '사용자를 찾을 수 없습니다.' });
@@ -196,6 +204,17 @@ app.post('/login_complete', async (req, res) => {
     console.error('로그인 완료 중 오류:', error);
     res.status(500).json({ success: false, message: '서버 오류가 발생했습니다.' });
   }
+});
+
+app.post('/set_session', (req, res) => {
+  const { user_id } = req.body;
+  if (!user_id) {
+    return res.status(400).json({ error: 'user_id가 필요합니다.' });
+  }
+  const token = jwt.sign({ user_id }, SECRET_KEY, { expiresIn: '1h' });
+  res.cookie('token', token, { httpOnly: true });
+  console.log('세션 설정 완료:', { user_id }); // 디버그 로그 추가
+  res.json({ success: true, message: '세션 설정 완료' });
 });
 
 app.post('/registration_result', (req, res) => {
@@ -210,12 +229,12 @@ app.post('/auth_result', (req, res) => {
   res.sendStatus(200);
 });
 
-app.post('/analyze_emotion', async (req, res) => {
+app.post('/analyze_emotion', authenticateToken, async (req, res) => {
   await stopEstimator();
   try {
-    await runPythonScript('aws-emotion.py');
-    console.log('감정 분석 결과:\n', emotionResult.result);
-    res.json({ result: emotionResult.result });
+    const result = await runPythonScript('aws-emotion.py');
+    console.log('감정 분석 결과:\n', result);
+    res.json({ result });
   } catch (error) {
     console.error('Emotion analysis script error:', error.message);
     res.status(500).json({ error: error.message });
@@ -249,14 +268,34 @@ app.post('/webcam_frame', (req, res) => {
   res.sendStatus(200);
 });
 
-app.post('/warning', (req, res) => {
+app.post('/warning', authenticateToken, async (req, res) => {
   console.log('Received warning:', req.body);
   const io = req.app.get('io'); // server.js에서 설정한 io 객체를 가져옴
   io.emit('warning', req.body);
-  res.sendStatus(200);
+
+  const { level, axis, error, timestamp } = req.body;
+  const userId = req.user.user_id;
+
+  if (!userId) {
+    return res.status(401).json({ error: 'User not authenticated' });
+  }
+
+  try {
+    const [result] = await pool.query(
+      'INSERT INTO focus (user_id, focus_level, created_at) VALUES (?, ?, ?)',
+      [userId, level, timestamp]
+    );
+    if (result.affectedRows === 1) {
+      res.json({ message: 'Focus saved to database' });
+    } else {
+      res.status(500).json({ error: 'Failed to save focus to database' });
+    }
+  } catch (error) {
+    console.error('Error saving focus to database:', error);
+    res.status(500).json({ error: error.message });
+  }
 });
 
-// 새로운 엔드포인트 추가
 app.post('/run_aws_face_reg', async (req, res) => {
   try {
     const result = await runPythonScript('aws-face-reg.py');

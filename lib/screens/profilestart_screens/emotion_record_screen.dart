@@ -1,14 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
-
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class EmotionRecordScreen extends StatefulWidget {
+  final Map<String, dynamic> userInfo;
+
+  EmotionRecordScreen({required this.userInfo});
+
   @override
   _EmotionRecordScreenState createState() => _EmotionRecordScreenState();
 }
+
 class _EmotionRecordScreenState extends State<EmotionRecordScreen> {
   DateTime? _selectedDay;
   DateTime _focusedDay = DateTime.now();
+  final storage = FlutterSecureStorage();
   final List<Map<String, dynamic>> emotions = [
     {'emotion': '행복', 'color': Color(0xFFFFD1DC)},
     {'emotion': '슬픔', 'color': Color(0xFFADD8E6)},
@@ -19,19 +27,48 @@ class _EmotionRecordScreenState extends State<EmotionRecordScreen> {
     {'emotion': '공포', 'color': Color(0xFFADD8E6)},
     {'emotion': '혼란', 'color': Color(0xFFE6E6FA)},
   ];
+
+  Future<void> _recordEmotion(String emotion) async {
+    final token = await storage.read(key: 'token');
+    if (_selectedDay == null) return;
+
+    final url = Uri.parse('http://10.0.2.2:3000/record_emotion');
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: json.encode({
+          'date': _selectedDay!.toIso8601String(),
+          'emotion': emotion,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        print('Emotion recorded successfully');
+      } else {
+        print('Failed to record emotion: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error recording emotion: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
+      appBar: AppBar(
         centerTitle: false,
         title: Text(
-        '날짜별 감정 기록',
-        style: TextStyle(
-        fontWeight: FontWeight.bold,
-        fontSize: 20,
-    ),
+          '날짜별 감정 기록',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+          ),
         ),
-        ),
+      ),
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
         child: Column(
@@ -48,7 +85,10 @@ class _EmotionRecordScreenState extends State<EmotionRecordScreen> {
                 });
               },
               headerStyle: HeaderStyle(
-                titleTextStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black),
+                titleTextStyle: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black),
                 titleCentered: true,
                 formatButtonVisible: false,
               ),
@@ -97,7 +137,15 @@ class _EmotionRecordScreenState extends State<EmotionRecordScreen> {
                       ),
                     );
                   }
-                  final weekdayString = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                  final weekdayString = [
+                    'Mon',
+                    'Tue',
+                    'Wed',
+                    'Thu',
+                    'Fri',
+                    'Sat',
+                    'Sun'
+                  ];
                   return Center(
                     child: Text(
                       weekdayString[day.weekday - 1],
@@ -123,8 +171,7 @@ class _EmotionRecordScreenState extends State<EmotionRecordScreen> {
                   return GestureDetector(
                     onTap: () {
                       if (_selectedDay != null) {
-                        // 감정 기록 로직 추가
-                        print('${emotions[index]['emotion']} selected for $_selectedDay');
+                        _recordEmotion(emotions[index]['emotion']);
                       }
                     },
                     child: Card(

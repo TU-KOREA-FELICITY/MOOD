@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class SignUpCompletionScreen extends StatelessWidget {
   final Map<String, Object?> authData;
@@ -11,10 +12,16 @@ class SignUpCompletionScreen extends StatelessWidget {
       : super(key: key);
 
   Future<void> _completeSignUp(BuildContext context) async {
+    final storage = FlutterSecureStorage();
+    final token = await storage.read(key: 'token');
+
     try {
       final response = await http.post(
         Uri.parse('http://10.0.2.2:3000/register_complete'),
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
         body: json.encode({
           'user_aws_id': userInfo['userId'],
           'username': userInfo['name'],
@@ -25,41 +32,38 @@ class SignUpCompletionScreen extends StatelessWidget {
       );
 
       if (response.statusCode == 200) {
-        Navigator.pushNamed(context, '/home');
+        final result = json.decode(response.body);
+        if (result['success']) {
+          await storage.write(key: 'token', value: result['token']);
+          Navigator.pushNamed(context, '/home');
+        } else {
+          _showErrorDialog(
+              context, 'Failed to complete sign up. Please try again.');
+        }
       } else {
-        // Handle error
-        print('Failed to complete sign up: ${response.statusCode}');
-        print('Response body: ${response.body}');
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: Text('Error'),
-            content: Text('Failed to complete sign up. Please try again.'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text('OK'),
-              ),
-            ],
-          ),
-        );
+        _showErrorDialog(
+            context, 'Failed to complete sign up: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error: $e');
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text('Error'),
-          content: Text('An unexpected error occurred. Please try again.'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('OK'),
-            ),
-          ],
-        ),
-      );
+      _showErrorDialog(
+          context, 'An unexpected error occurred. Please try again.');
     }
+  }
+
+  void _showErrorDialog(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Error'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override

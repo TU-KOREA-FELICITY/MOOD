@@ -1,17 +1,58 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import '../start_screens/face_recognition_guide_screen.dart';
 
 class EditProfileScreen extends StatefulWidget {
+  final Map<String, dynamic> userInfo;
+
+  EditProfileScreen({required this.userInfo});
+
   @override
   _EditProfileScreenState createState() => _EditProfileScreenState();
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
   final _formKey = GlobalKey<FormState>();
+  final storage = FlutterSecureStorage();
   String _name = '';
   String _carModel = '';
   bool _isNameValid = false;
   bool _isCarModelValid = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _name = widget.userInfo['user_name'] ?? '';
+    _carModel = widget.userInfo['car_type'] ?? '';
+  }
+
+  Future<void> _saveProfile() async {
+    final token = await storage.read(key: 'token');
+    final url = Uri.parse('http://10.0.2.2:3000/update_profile');
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: json.encode({
+          'name': _name,
+          'carModel': _carModel,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        print('Profile updated successfully');
+      } else {
+        print('Failed to update profile: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error updating profile: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +87,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       context,
                       MaterialPageRoute(
                           builder: (context) => FaceRecognitionGuideScreen(
-                                userId: '',
+                                userId: widget.userInfo['user_id'],
                               )),
                     );
                   },
@@ -66,6 +107,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 children: [
                   Expanded(
                     child: TextFormField(
+                      initialValue: _name,
                       decoration: InputDecoration(
                         labelText: '이름 수정하기',
                         labelStyle: TextStyle(fontWeight: FontWeight.bold),
@@ -98,6 +140,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 children: [
                   Expanded(
                     child: TextFormField(
+                      initialValue: _carModel,
                       decoration: InputDecoration(
                         labelText: '차종 수정하기',
                         labelStyle: TextStyle(fontWeight: FontWeight.bold),
@@ -132,7 +175,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
                       _formKey.currentState!.save();
-                      // 정보 저장 로직
+                      _saveProfile();
                       // 로그인 화면으로 돌아가기
                       Navigator.of(context).pushNamedAndRemoveUntil(
                           '/login', (Route<dynamic> route) => false);

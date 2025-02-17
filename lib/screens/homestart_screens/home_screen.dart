@@ -5,14 +5,20 @@ import 'package:http/http.dart' as http;
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import '../searchstart_screens/service/spotify_service.dart';
 import 'home_recognition_screen.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class HomeScreen extends StatefulWidget {
+  final Map<String, dynamic> userInfo;
+
+  HomeScreen({required this.userInfo});
+
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
   final SpotifyService _spotifyService = SpotifyService();
+  final storage = FlutterSecureStorage();
   bool _isLoggedIn = false;
   int _currentIndex = 0;
   IO.Socket? socket;
@@ -54,7 +60,7 @@ class _HomeScreenState extends State<HomeScreen> {
       socket!.on('webcam_stream', (data) {
         if (data != null) {
           setState(() {
-            _imageData = base64Decode(data);
+            _imageData = Uint8List.fromList(base64Decode(data));
           });
         }
       });
@@ -83,9 +89,12 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _startEstimator() async {
+    final token = await storage.read(key: 'token');
     final url = Uri.parse('http://10.0.2.2:3000/start_estimator');
     try {
-      final response = await http.post(url);
+      final response = await http.post(url, headers: {
+        'Authorization': 'Bearer $token',
+      });
       if (response.statusCode == 200) {
         print('estimator.py가 성공적으로 시작되었습니다.');
       } else {
@@ -97,12 +106,15 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _runEmotionAnalysis() async {
+    final token = await storage.read(key: 'token');
     setState(() {
       _status = '감정 분석 중...';
     });
     final url = Uri.parse('http://10.0.2.2:3000/analyze_emotion');
     try {
-      final response = await http.post(url);
+      final response = await http.post(url, headers: {
+        'Authorization': 'Bearer $token',
+      });
       if (response.statusCode == 200) {
         final result = json.decode(response.body);
         setState(() {
@@ -110,14 +122,14 @@ class _HomeScreenState extends State<HomeScreen> {
           _status = '감정 분석 완료';
         });
       } else {
-        print('aws-face-reg.py 실행 실패: ${response.statusCode}');
+        print('감정 분석 실패: ${response.statusCode}');
         print('서버 응답: ${response.body}');
         setState(() {
           _status = '감정 분석 실패';
         });
       }
     } catch (e) {
-      print('aws-face-reg.py 실행 중 오류 발생: $e');
+      print('감정 분석 중 오류 발생: $e');
       setState(() {
         _status = '서버 연결 오류: $e';
       });
@@ -155,7 +167,7 @@ class _HomeScreenState extends State<HomeScreen> {
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
       title: Padding(
-        padding: EdgeInsets.only(left: 20),
+        padding: const EdgeInsets.only(left: 20),
         child: _getAppBarTitle(),
       ),
       titleSpacing: 0,
@@ -205,9 +217,9 @@ class _HomeScreenState extends State<HomeScreen> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Padding(
-          padding: EdgeInsets.only(top: 60, bottom: 20),
+          padding: const EdgeInsets.only(top: 60, bottom: 20),
           child: Text(
-            '감정/집중도 인식중',
+            '${widget.userInfo['user_name']}님의 감정/집중도 인식중',
             style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
           ),
         ),
@@ -286,11 +298,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         (e) => e['name'] == emotion,
                         orElse: () => {'color': Colors.white})['color'];
                     return Padding(
-                      padding: EdgeInsets.symmetric(vertical: 7),
+                      padding: const EdgeInsets.symmetric(vertical: 7),
                       child: Center(
                         child: Container(
                           width: MediaQuery.of(context).size.width * 0.9,
-                          padding: EdgeInsets.all(12),
+                          padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
                             color: color,
                             borderRadius: BorderRadius.circular(8),

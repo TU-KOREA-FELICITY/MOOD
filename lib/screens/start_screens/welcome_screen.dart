@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
+import '../homestart_screens/home_screen.dart';
 
 class WelcomeScreen extends StatefulWidget {
   final Map<String, dynamic> userInfo;
@@ -11,12 +12,16 @@ class WelcomeScreen extends StatefulWidget {
 }
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
-
   @override
   void initState() {
     super.initState();
     Timer(Duration(seconds: 4), () {
-      Navigator.of(context).pushReplacementNamed('/home');
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => HomeScreen(userInfo: widget.userInfo),
+        ),
+      );
     });
   }
 

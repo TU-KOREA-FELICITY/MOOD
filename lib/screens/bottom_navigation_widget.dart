@@ -6,6 +6,10 @@ import 'searchstart_screens/search_screen.dart';
 import 'searchstart_screens/service/spotify_service.dart';
 
 class BottomNavigationWidget extends StatefulWidget {
+  final Map<String, dynamic> userInfo;
+
+  BottomNavigationWidget({required this.userInfo});
+
   @override
   _BottomNavigationWidgetState createState() => _BottomNavigationWidgetState();
 }
@@ -20,9 +24,9 @@ class _BottomNavigationWidgetState extends State<BottomNavigationWidget> {
   void initState() {
     super.initState();
     _screens = [
-      HomeScreen(),
+      HomeScreen(userInfo: widget.userInfo),
       SearchScreen(spotifyService: _spotifyService),
-      ProfileScreen(),
+      ProfileScreen(userInfo: widget.userInfo),
     ];
   }
 
