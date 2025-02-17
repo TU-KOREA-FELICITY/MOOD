@@ -33,7 +33,9 @@ class SpotifyLoginScreen extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Text(
-                '스포티파이 계정으로\n로그인하여 음악을 감상하세요.',
+                'MOOD는 SPOTIFY를 기반으로 실행됩니다.\n'
+                    '스포티파이 어플이 설치된 상태에서\n'
+                    '로그인하여 음악을 감상하세요.',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),

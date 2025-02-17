@@ -118,7 +118,7 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
         title: Text('FACE ID 이름 설정하기'),
         content: Container(
           width: MediaQuery.of(context).size.width * 0.8,
-          height: 60,
+          height: 50,
           child: TextField(
           controller: controller,
           autofocus: true,
