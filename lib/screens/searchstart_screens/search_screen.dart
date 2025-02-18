@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../homestart_screens/emotion_analysis_service.dart';
 import 'service/spotify_service.dart';
 import '../start_screens/spotify_web_login_screen.dart';
 import 'widget/miniplayer.dart';
@@ -22,6 +23,7 @@ class SearchScreen extends StatefulWidget {
 class _SearchScreenState extends State<SearchScreen>
     with SingleTickerProviderStateMixin {
   late SpotifyService _spotifyService;
+  final EmotionAnalysisService _emotionAnalysisService = EmotionAnalysisService();
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
   bool _isConnected = false;
@@ -35,6 +37,7 @@ class _SearchScreenState extends State<SearchScreen>
   void initState() {
     super.initState();
     _spotifyService = widget.spotifyService;
+    _emotionAnalysisService.setUserInfo(widget.userInfo['user_id']);
     _initializeApp();
     _fetchTag();
     // _startPeriodicUpdate();
@@ -110,6 +113,10 @@ class _SearchScreenState extends State<SearchScreen>
     _focusNode.dispose();
     _searchController.dispose();
     super.dispose();
+  }
+
+  void _onTrackFinished() {
+    _emotionAnalysisService.runEmotionAnalysis();
   }
 
   Future<void> _loadRecentSearches() async {
@@ -229,7 +236,7 @@ class _SearchScreenState extends State<SearchScreen>
                   ? _buildRecentSearches()
                   : Column(
                       children: [
-                        Miniplayer(spotifyService: widget.spotifyService),
+                        Miniplayer(spotifyService: widget.spotifyService, onTrackFinished: _onTrackFinished,),
                         Expanded(
                           child: CategoryTagScreen(
                               spotifyService: widget.spotifyService, userInfo: widget.userInfo, emotionInfo: emotions),

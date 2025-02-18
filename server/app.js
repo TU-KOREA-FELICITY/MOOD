@@ -335,6 +335,30 @@ app.post('/emotion_result', (req, res) => {
   res.sendStatus(200);
 });
 
+app.post('/save_emotions', async (req, res) => {
+  const { user_id, emotions } = req.body;
+
+  if (!user_id || !emotions) {
+    return res.status(400).json({ error: "사용자 ID와 감정 데이터가 필요합니다." });
+  }
+
+  try {
+    const [dbResult] = await pool.query(
+      'INSERT INTO detectedEmotion (user_id, detected_emotion) VALUES (?, ?)',
+      [user_id, emotions]
+    );
+
+    if (dbResult.affectedRows === 1) {
+      res.json({ success: true, message: "감정 데이터 저장 완료" });
+    } else {
+      res.status(500).json({ success: false, error: "데이터베이스에 감정 데이터를 저장할 수 없습니다." });
+    }
+  } catch (error) {
+    console.error('감정 데이터 저장 중 오류:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 app.post('/warning', (req, res) => {
   console.log('Received warning:', req.body);
   const io = req.app.get('io'); // server.js에서 설정한 io 객체를 가져옴

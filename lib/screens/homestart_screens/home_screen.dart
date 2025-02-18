@@ -4,15 +4,22 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import '../searchstart_screens/service/spotify_service.dart';
+import 'emotion_analysis_service.dart';
 import 'home_recognition_screen.dart';
+import '../searchstart_screens/widget/miniplayer.dart';
 
 class HomeScreen extends StatefulWidget {
+  final Map<String, dynamic> userInfo;
+
+  HomeScreen({required this.userInfo});
+
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
   final SpotifyService _spotifyService = SpotifyService();
+  final EmotionAnalysisService _emotionAnalysisService = EmotionAnalysisService();
   bool _isLoggedIn = false;
   int _currentIndex = 0;
   IO.Socket? socket;
@@ -38,6 +45,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _checkLoginStatus();
     _startEstimator();
     connectToServer();
+    _emotionAnalysisService.setUserInfo(widget.userInfo['user_id']);
   }
 
   void connectToServer() {
@@ -100,28 +108,11 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _status = '감정 분석 중...';
     });
-    final url = Uri.parse('http://10.0.2.2:3000/analyze_emotion');
-    try {
-      final response = await http.post(url);
-      if (response.statusCode == 200) {
-        final result = json.decode(response.body);
-        setState(() {
-          _emotionResult = result['result'] ?? '';
-          _status = '감정 분석 완료';
-        });
-      } else {
-        print('aws-face-reg.py 실행 실패: ${response.statusCode}');
-        print('서버 응답: ${response.body}');
-        setState(() {
-          _status = '감정 분석 실패';
-        });
-      }
-    } catch (e) {
-      print('aws-face-reg.py 실행 중 오류 발생: $e');
-      setState(() {
-        _status = '서버 연결 오류: $e';
-      });
-    }
+    final result = await _emotionAnalysisService.runEmotionAnalysis();
+    setState(() {
+      _emotionResult = result['result'] ?? '';
+      _status = result['status'];
+    });
   }
 
   void _restartRecognition() {
@@ -205,7 +196,7 @@ class _HomeScreenState extends State<HomeScreen> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Padding(
-          padding: EdgeInsets.only(top: 60, bottom: 20),
+          padding: EdgeInsets.only(top: 20, bottom: 20),
           child: Text(
             '감정/집중도 인식중',
             style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
@@ -256,9 +247,19 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
-        ElevatedButton(
-          onPressed: _runEmotionAnalysis,
-          child: Text('감정 분석'),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ElevatedButton(
+              onPressed: _runEmotionAnalysis,
+              child: Text('감정 분석'),
+            ),
+            SizedBox(width: 16),
+            ElevatedButton(
+              onPressed: _restartRecognition,
+              child: Text('다시시도하기'),
+            ),
+          ],
         ),
         if (_emotionResult.isNotEmpty)
           Padding(
@@ -321,9 +322,12 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
           ),
-        ElevatedButton(
-          onPressed: _restartRecognition,
-          child: Text('다시시도하기'),
+        Offstage(
+          offstage: true, // 항상 숨김 상태로 설정
+          child: Miniplayer(
+            spotifyService: _spotifyService,
+            onTrackFinished: _runEmotionAnalysis,
+          ),
         ),
       ],
     );
