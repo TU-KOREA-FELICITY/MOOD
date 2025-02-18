@@ -6,7 +6,7 @@ import 'dart:convert';
 class SpotifyService {
   final String clientId = 'b97a6ed3a4d24de0b0ee76f73e54df74';
   final String clientSecret = '3d31c7ba27094d239c015ce6a1b86477';
-  final String redirectUri = 'http://localhost:8080/callback';
+  final String redirectUri = 'http://127.0.0.1:8080/callback';
   final String scopes =
       'user-read-playback-state user-modify-playback-state playlist-read-private playlist-read-collaborative user-library-read playlist-modify-private playlist-modify-public streaming';
 
@@ -283,6 +283,27 @@ class SpotifyService {
     } catch (e) {
       print('플레이리스트 정보 업데이트 중 오류 발생: $e');
       throw e;
+    }
+  }
+
+  Future<List<dynamic>> getMyPlaylists() async {
+    await _refreshTokenIfNeeded();
+    final url = Uri.parse('https://api.spotify.com/v1/me/playlists');
+    try {
+      final response = await http.get(
+        url,
+        headers: {'Authorization': 'Bearer $_accessToken'},
+      );
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return data['items'];
+      } else {
+        print('플레이리스트 가져오기 실패: ${response.statusCode}');
+        return [];
+      }
+    } catch (e) {
+      print('플레이리스트 가져오기 에러: $e');
+      return [];
     }
   }
 
