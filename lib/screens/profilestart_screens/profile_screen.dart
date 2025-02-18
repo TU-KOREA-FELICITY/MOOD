@@ -38,7 +38,7 @@ class ProfileScreen extends StatelessWidget {
                     ),
                     onPressed: () {
                       Navigator.push(context, MaterialPageRoute(
-                          builder: (context) => EmotionRecordScreen()
+                          builder: (context) => EmotionRecordScreen(userInfo: userInfo)
                       ));
                     },
                   ),

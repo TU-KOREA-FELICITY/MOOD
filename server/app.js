@@ -359,6 +359,39 @@ app.post('/save_emotions', async (req, res) => {
   }
 });
 
+app.post('/get_emotions', async (req, res) => {
+  const { user_aws_id } = req.body;
+
+  try {
+    const [dbResult] = await pool.query(`
+          SELECT de.*
+          FROM detectedemotion de
+          JOIN user u ON de.user_id = u.user_id
+          WHERE u.user_aws_id = ?
+        `, [user_aws_id]);
+
+    if (dbResult.length > 0) {
+          const emotions = dbResult.map(emotion => ({
+            detected_id: emotion.detected_id,
+            user_id: emotion.user_id,
+            detected_emotion: emotion.detected_emotion,
+            detected_at: emotion.detected_at,
+          }));
+
+          req.session.emotions = emotions;
+          res.json({
+            success: true,
+            emotions: emotions
+          });
+        } else {
+      res.status(401).json({ success: false, message: '사용자의 감정 데이터를 찾을 수 없습니다.' });
+    }
+  } catch (error) {
+    console.error('감정 데이터 조회 중 오류:', error);
+    res.status(500).json({ success: false, message: '서버 오류가 발생했습니다.' });
+  }
+});
+
 app.post('/warning', (req, res) => {
   console.log('Received warning:', req.body);
   const io = req.app.get('io'); // server.js에서 설정한 io 객체를 가져옴
