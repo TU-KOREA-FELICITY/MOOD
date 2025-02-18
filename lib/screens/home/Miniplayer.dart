@@ -6,7 +6,8 @@ import 'package:spotify_sdk/spotify_sdk.dart';
 class Miniplayer extends StatefulWidget {
   final SpotifyService spotifyService;
 
-  const Miniplayer({super.key, required this.spotifyService});
+  const Miniplayer({Key ? key, required this.spotifyService}) :
+  super(key: key);
 
   @override
   _MiniplayerState createState() => _MiniplayerState();
@@ -121,7 +122,7 @@ class _MiniplayerState extends State<Miniplayer>
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       child: Container(
-        height: 100,
+        height: 120,
         padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: Colors.grey[200],
@@ -180,7 +181,7 @@ class _MiniplayerState extends State<Miniplayer>
                 ),
               ],
             ),
-            SizedBox(height: 4),
+            SizedBox(height: 8),
             // 재생 바
             SliderTheme(
               data: SliderThemeData(

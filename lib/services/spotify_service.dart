@@ -454,4 +454,26 @@ class SpotifyService {
       throw e;
     }
   }
+
+  Future<Map<String, dynamic>> getPlaylist(String playlistId) async {
+    await _refreshTokenIfNeeded();
+    final url = Uri.parse('https://api.spotify.com/v1/playlists/$playlistId');
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {'Authorization': 'Bearer $_accessToken'},
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return data;
+      } else {
+        throw Exception('플레이리스트 정보 가져오기 실패: ${response.body}');
+      }
+    } catch (e) {
+      print('플레이리스트 정보 가져오기 중 오류 발생: $e');
+      throw e;
+    }
+  }
 }

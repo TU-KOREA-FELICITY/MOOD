@@ -284,24 +284,29 @@ class _PlaylistTracksViewState extends State<PlaylistTracksView> {
               ),
               SizedBox(height: 20),
               ElevatedButton(
-                onPressed: () => _showPlaylistOptions(null, '감정 카테고리'),
+                onPressed: () {
+                  Navigator.pop(context);
+                  _showPlaylistOptions(_tracks, '감정 카테고리');
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(20),
                   ),
-                ),
-                child: Text('감정 카테고리'),
-              ),
-              SizedBox(height: 10),
-              ElevatedButton(
-                onPressed: () => _showPlaylistOptions(null, '내 플레이리스트'),
-                style: ElevatedButton.styleFrom(
+                  ),
+                  child: Text('감정 카테고리'),
+                  ),
+                  SizedBox(height: 10),
+                  ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    _showPlaylistOptions(_tracks, '내 플레이리스트');
+                  },style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(20),
                   ),
-                ),
+                  ),
                 child: Text('내 플레이리스트'),
               ),
             ],
