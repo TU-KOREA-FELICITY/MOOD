@@ -10,7 +10,7 @@ class SignUpCompletionScreen extends StatelessWidget {
       {Key? key, required this.authData, required this.userInfo})
       : super(key: key);
 
-  Future<void> _completeSignUp(BuildContext context) async {
+  Future _completeSignUp(BuildContext context) async {
     try {
       final response = await http.post(
         Uri.parse('http://10.0.2.2:3000/register_complete'),
@@ -25,40 +25,69 @@ class SignUpCompletionScreen extends StatelessWidget {
       );
 
       if (response.statusCode == 200) {
-        Navigator.pushNamed(context, '/home');
+        final loginResult = await _loginComplete(userInfo['userId']);
+        if (loginResult['success']) {
+          Navigator.pushNamed(
+            context,
+            '/home',
+            arguments: loginResult['user'],
+          );
+        } else {
+          throw Exception(loginResult['message']);
+        }
       } else {
-        // Handle error
-        print('Failed to complete sign up: ${response.statusCode}');
-        print('Response body: ${response.body}');
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: Text('Error'),
-            content: Text('Failed to complete sign up. Please try again.'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text('OK'),
-              ),
-            ],
-          ),
-        );
+        throw Exception('Failed to complete sign up: ${response.statusCode}');
       }
     } catch (e) {
       print('Error: $e');
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: Text('Error'),
-          content: Text('An unexpected error occurred. Please try again.'),
+          title: Text('오류'),
+          content: Text('예기치 못한 오류가 발생했습니다. 다시 시도해 주세요.'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text('OK'),
+              child: Text('확인'),
             ),
           ],
         ),
       );
+    }
+  }
+
+  Future<Map<String, dynamic>> _loginComplete(String userAwsId) async {
+    try {
+      final response = await http.post(
+        Uri.parse('http://10.0.2.2:3000/login_complete'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({'user_aws_id': userAwsId}),
+      );
+
+      if (response.statusCode == 200) {
+        final result = json.decode(response.body);
+        if (result['success']) {
+          return {
+            'success': true,
+            'user': result['user'],
+          };
+        } else {
+          return {
+            'success': false,
+            'message': result['message'] ?? '알 수 없는 오류가 발생했습니다.',
+          };
+        }
+      } else {
+        return {
+          'success': false,
+          'message': '서버 오류: ${response.statusCode}',
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'message': '로그인 완료 중 오류 발생: $e',
+      };
     }
   }
 
