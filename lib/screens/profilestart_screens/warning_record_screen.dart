@@ -4,10 +4,6 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class WarningRecordScreen extends StatefulWidget {
-  final Map<String, dynamic> userInfo;
-
-  WarningRecordScreen({required this.userInfo});
-
   @override
   _WarningRecordScreenState createState() => _WarningRecordScreenState();
 }

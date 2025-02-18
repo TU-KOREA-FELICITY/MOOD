@@ -1,3 +1,4 @@
+import sys
 import math
 import cv2
 import mediapipe as mp
@@ -14,6 +15,13 @@ absl.logging.set_verbosity(absl.logging.INFO)
 # Node.js 서버 URL
 server_url = 'http://localhost:3000/webcam_frame'
 warning_url = 'http://localhost:3000/warning'
+
+# 명령줄 인수를 통해 토큰 설정
+if len(sys.argv) > 1:
+    token = sys.argv[1]
+else:
+    print("토큰이 필요합니다.")
+    sys.exit(1)
 
 # Mediapipe 초기화
 mp_face_mesh = mp.solutions.face_mesh.FaceMesh(max_num_faces=1)
@@ -48,8 +56,9 @@ warning_sent = {
 def send_warning(level, axis, error):
     current_time = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
     data = {'level': level, 'axis': axis, 'error': error, 'timestamp': current_time}
+    headers = {'Authorization': f'Bearer {token}'}
     try:
-        response = requests.post(warning_url, json=data)
+        response = requests.post(warning_url, json=data, headers=headers)
         print("Response from server:", response.text)
     except requests.exceptions.RequestException as e:
         print(f"Failed to send warning: {e}")

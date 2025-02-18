@@ -8,15 +8,11 @@ import 'home_recognition_screen.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class HomeScreen extends StatefulWidget {
-  final Map<String, dynamic> userInfo;
-
-  HomeScreen({required this.userInfo});
-
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   final SpotifyService _spotifyService = SpotifyService();
   final storage = FlutterSecureStorage();
   bool _isLoggedIn = false;
@@ -26,6 +22,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String _warningMessage = '';
   String _emotionResult = '';
   String _status = '';
+  Map<String, dynamic>? userInfo;
 
   final List<Map<String, dynamic>> emotions = [
     {'name': 'ANGRY', 'color': Color(0xFFFFDBD6)},
@@ -41,9 +38,38 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _checkLoginStatus();
-    _startEstimator();
-    connectToServer();
+    WidgetsBinding.instance.addObserver(this);
+    _loadUserInfo();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    socket?.disconnect();
+    socket?.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      connectToServer();
+    } else if (state == AppLifecycleState.paused) {
+      socket?.disconnect();
+    }
+  }
+
+  Future<void> _loadUserInfo() async {
+    String? userInfoString = await storage.read(key: 'userInfo');
+    if (userInfoString != null) {
+      if (mounted) {
+        setState(() {
+          userInfo = json.decode(userInfoString);
+        });
+      }
+      _checkLoginStatus();
+      connectToServer();
+    }
   }
 
   void connectToServer() {
@@ -55,61 +81,93 @@ class _HomeScreenState extends State<HomeScreen> {
 
       socket!.onConnect((_) {
         print('서버에 연결되었습니다.');
-      });
-
-      socket!.on('webcam_stream', (data) {
-        if (data != null) {
-          setState(() {
-            _imageData = Uint8List.fromList(base64Decode(data));
+        if (mounted) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            setState(() {
+              _status = '서버에 연결되었습니다.';
+            });
           });
         }
       });
 
-      socket!.on('warning', (data) {
-        setState(() {
-          _warningMessage =
-              'Warning: ${data['level']} ${data['axis']} error ${data['error']}';
-        });
+      socket!.on('webcam_stream', (data) {
+        if (data != null) {
+          final decodedData = Uint8List.fromList(base64Decode(data));
+          if (mounted) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              setState(() {
+                _imageData = decodedData;
+              });
+            });
+          }
+        }
       });
 
-      socket!.onDisconnect((_) => print('서버와 연결이 끊어졌습니다.'));
-      socket!.onError((err) => print('에러 발생: $err'));
+      socket!.on('warning', (data) {
+        if (mounted) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            setState(() {
+              _warningMessage =
+                  'Warning: ${data['level']} ${data['axis']} error ${data['error']}';
+            });
+          });
+        }
+      });
+
+      socket!.onDisconnect((_) {
+        print('서버와 연결이 끊어졌습니다.');
+        if (mounted) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            setState(() {
+              _status = '서버와 연결이 끊어졌습니다.';
+            });
+          });
+        }
+      });
+
+      socket!.onError((err) {
+        if (mounted) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            setState(() {
+              _status = '에러 발생: $err';
+            });
+          });
+        }
+      });
 
       socket!.connect();
     } catch (e) {
       print('서버 연결 중 오류 발생: $e');
+      if (mounted) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          setState(() {
+            _status = '서버 연결 중 오류 발생: $e';
+          });
+        });
+      }
     }
   }
 
   Future<void> _checkLoginStatus() async {
     bool isLoggedIn = await _spotifyService.isLoggedIn();
-    setState(() {
-      _isLoggedIn = isLoggedIn;
-    });
-  }
-
-  Future<void> _startEstimator() async {
-    final token = await storage.read(key: 'token');
-    final url = Uri.parse('http://10.0.2.2:3000/start_estimator');
-    try {
-      final response = await http.post(url, headers: {
-        'Authorization': 'Bearer $token',
+    if (mounted) {
+      setState(() {
+        _isLoggedIn = isLoggedIn;
       });
-      if (response.statusCode == 200) {
-        print('estimator.py가 성공적으로 시작되었습니다.');
-      } else {
-        print('estimator.py 시작 실패: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('estimator.py 시작 중 오류 발생: $e');
     }
   }
 
   Future<void> _runEmotionAnalysis() async {
     final token = await storage.read(key: 'token');
-    setState(() {
-      _status = '감정 분석 중...';
-    });
+    if (token == null) {
+      print('토큰 없음');
+      return;
+    }
+    if (mounted) {
+      setState(() {
+        _status = '감정 분석 중...';
+      });
+    }
     final url = Uri.parse('http://10.0.2.2:3000/analyze_emotion');
     try {
       final response = await http.post(url, headers: {
@@ -117,39 +175,41 @@ class _HomeScreenState extends State<HomeScreen> {
       });
       if (response.statusCode == 200) {
         final result = json.decode(response.body);
-        setState(() {
-          _emotionResult = result['result'] ?? '';
-          _status = '감정 분석 완료';
-        });
+        if (mounted) {
+          setState(() {
+            _emotionResult = result['result'] ?? '';
+            _status = '감정 분석 완료';
+          });
+        }
       } else {
         print('감정 분석 실패: ${response.statusCode}');
         print('서버 응답: ${response.body}');
-        setState(() {
-          _status = '감정 분석 실패';
-        });
+        if (mounted) {
+          setState(() {
+            _status = '감정 분석 실패: ${response.statusCode}';
+          });
+        }
       }
     } catch (e) {
       print('감정 분석 중 오류 발생: $e');
-      setState(() {
-        _status = '서버 연결 오류: $e';
-      });
+      if (mounted) {
+        setState(() {
+          _status = '서버 연결 오류: $e';
+        });
+      }
     }
   }
 
   void _restartRecognition() {
-    setState(() {
-      _imageData = null;
-      _warningMessage = '';
-      _emotionResult = '';
-      _status = '';
-      _startEstimator();
-    });
-  }
-
-  @override
-  void dispose() {
-    socket?.dispose();
-    super.dispose();
+    if (mounted) {
+      setState(() {
+        _imageData = null;
+        _warningMessage = '';
+        _emotionResult = '';
+        _status = '';
+        connectToServer();
+      });
+    }
   }
 
   @override
@@ -213,131 +273,134 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _getBody() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 60, bottom: 20),
-          child: Text(
-            '${widget.userInfo['user_name']}님의 감정/집중도 인식중',
-            style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
-          ),
-        ),
-        Center(
-          child: GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => HomeRecognitionScreen()),
-              );
-            },
-            child: Container(
-              width: 300,
-              height: 400,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withAlpha(128),
-                    spreadRadius: 5,
-                    blurRadius: 7,
-                    offset: Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: _imageData != null
-                  ? Image.memory(
-                      _imageData!,
-                      fit: BoxFit.cover,
-                      gaplessPlayback: true,
-                    )
-                  : Center(child: Text('카메라 화면이 여기에 표시됩니다')),
-            ),
-          ),
-        ),
-        if (_warningMessage.isNotEmpty)
-          Center(
-            child: Text(
-              _warningMessage,
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.red,
-              ),
-            ),
-          ),
-        ElevatedButton(
-          onPressed: _runEmotionAnalysis,
-          child: Text('감정 분석'),
-        ),
-        if (_emotionResult.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '감정 분석 결과',
-                  style: TextStyle(fontSize: 23, fontWeight: FontWeight.bold),
+    return userInfo == null
+        ? Center(child: CircularProgressIndicator())
+        : Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 60, bottom: 20),
+                child: Text(
+                  '${userInfo!['user_name']}님의 감정/집중도 인식중',
+                  style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
                 ),
-                SizedBox(height: 10),
-                Column(
-                  children: _emotionResult
-                      .split('\n')
-                      .where((line) => line.contains(':'))
-                      .map((line) {
-                    final parts = line.split(': ');
-                    if (parts.length < 2) {
-                      return Container(); // 잘못된 데이터 처리
-                    }
-                    final emotion = parts[0].trim();
-                    final confidence = parts[1].trim();
-                    final color = emotions.firstWhere(
-                        (e) => e['name'] == emotion,
-                        orElse: () => {'color': Colors.white})['color'];
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 7),
-                      child: Center(
-                        child: Container(
-                          width: MediaQuery.of(context).size.width * 0.9,
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: color,
-                            borderRadius: BorderRadius.circular(8),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withAlpha(128),
-                                blurRadius: 5,
-                                spreadRadius: 1,
-                                offset: Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: Text(
-                            '$emotion: $confidence',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(fontSize: 20),
-                          ),
-                        ),
-                      ),
+              ),
+              Center(
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => HomeRecognitionScreen()),
                     );
-                  }).toList(),
+                  },
+                  child: Container(
+                    width: 300,
+                    height: 400,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withAlpha(128),
+                          spreadRadius: 5,
+                          blurRadius: 7,
+                          offset: Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: _imageData != null
+                        ? Image.memory(
+                            _imageData!,
+                            fit: BoxFit.cover,
+                            gaplessPlayback: true,
+                          )
+                        : Center(child: Text('카메라 화면이 여기에 표시됩니다')),
+                  ),
                 ),
-                SizedBox(height: 10),
-                Text(
-                  '상태: $_status',
-                  style: TextStyle(fontSize: 16),
+              ),
+              if (_warningMessage.isNotEmpty)
+                Center(
+                  child: Text(
+                    _warningMessage,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.red,
+                    ),
+                  ),
                 ),
-              ],
-            ),
-          ),
-        ElevatedButton(
-          onPressed: _restartRecognition,
-          child: Text('다시시도하기'),
-        ),
-      ],
-    );
+              ElevatedButton(
+                onPressed: _runEmotionAnalysis,
+                child: Text('감정 분석'),
+              ),
+              if (_emotionResult.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '감정 분석 결과',
+                        style: TextStyle(
+                            fontSize: 23, fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(height: 10),
+                      Column(
+                        children: _emotionResult
+                            .split('\n')
+                            .where((line) => line.contains(':'))
+                            .map((line) {
+                          final parts = line.split(': ');
+                          if (parts.length < 2) {
+                            return Container(); // 잘못된 데이터 처리
+                          }
+                          final emotion = parts[0].trim();
+                          final confidence = parts[1].trim();
+                          final color = emotions.firstWhere(
+                              (e) => e['name'] == emotion,
+                              orElse: () => {'color': Colors.white})['color'];
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 7),
+                            child: Center(
+                              child: Container(
+                                width: MediaQuery.of(context).size.width * 0.9,
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: color,
+                                  borderRadius: BorderRadius.circular(8),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey.withAlpha(128),
+                                      blurRadius: 5,
+                                      spreadRadius: 1,
+                                      offset: Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                child: Text(
+                                  '$emotion: $confidence',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(fontSize: 20),
+                                ),
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                      SizedBox(height: 10),
+                      Text(
+                        '상태: $_status',
+                        style: TextStyle(fontSize: 16),
+                      ),
+                    ],
+                  ),
+                ),
+              ElevatedButton(
+                onPressed: _restartRecognition,
+                child: Text('다시시도하기'),
+              ),
+            ],
+          );
   }
 }

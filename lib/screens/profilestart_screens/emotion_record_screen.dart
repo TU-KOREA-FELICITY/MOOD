@@ -5,10 +5,6 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class EmotionRecordScreen extends StatefulWidget {
-  final Map<String, dynamic> userInfo;
-
-  EmotionRecordScreen({required this.userInfo});
-
   @override
   _EmotionRecordScreenState createState() => _EmotionRecordScreenState();
 }

@@ -88,8 +88,13 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _checkAuthStatus() async {
     try {
-      final response =
-          await http.get(Uri.parse('http://10.0.2.2:3000/check_auth'));
+      final token = await storage.read(key: 'token');
+      final response = await http.get(
+        Uri.parse('http://10.0.2.2:3000/check_auth'),
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
       final result = json.decode(response.body);
 
       if (!mounted) return;
@@ -102,11 +107,15 @@ class _LoginScreenState extends State<LoginScreen> {
               _status =
                   '인증에 성공했습니다. 사용자 이름: ${loginResult['user']['user_name']}';
             });
+
+            // userInfo를 storage에 저장
+            await storage.write(
+                key: 'userInfo', value: json.encode(loginResult['user']));
+
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                builder: (context) =>
-                    WelcomeScreen(userInfo: loginResult['user']),
+                builder: (context) => WelcomeScreen(),
               ),
             );
           } else {
@@ -192,6 +201,9 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       if (response.statusCode == 200) {
+        final responseBody = json.decode(response.body);
+        final token = responseBody['token'];
+
         final userInfo = {
           'user_aws_id': 'sun',
           'user_name': '장인선',
@@ -199,12 +211,16 @@ class _LoginScreenState extends State<LoginScreen> {
           'fav_genre': '국내 발라드',
           'fav_artist': '아이유',
         };
-        // 세션 정보를 서버에 전송
-        await storage.write(key: 'token', value: userInfo['user_aws_id']);
+
+        // 토큰과 userInfo를 안전한 저장소에 저장
+        await storage.write(key: 'token', value: token);
+        await storage.write(key: 'userInfo', value: json.encode(userInfo));
+
+        // BottomNavigationWidget으로 이동
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => BottomNavigationWidget(userInfo: userInfo),
+            builder: (context) => BottomNavigationWidget(),
           ),
         );
       } else {

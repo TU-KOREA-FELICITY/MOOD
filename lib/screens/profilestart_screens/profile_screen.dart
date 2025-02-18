@@ -8,25 +8,30 @@ import 'dart:convert';
 import 'delete_account_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
-  final Map<String, dynamic> userInfo;
-
-  ProfileScreen({required this.userInfo});
-
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
   final storage = FlutterSecureStorage();
-  late String userName;
+  Map<String, dynamic>? userInfo;
   Map<String, dynamic>? _profileData;
   String _status = '프로필 데이터를 불러오는 중...';
 
   @override
   void initState() {
     super.initState();
-    userName = widget.userInfo['user_name'] ?? 'Unknown';
-    _fetchProfileData();
+    _loadUserInfo();
+  }
+
+  Future<void> _loadUserInfo() async {
+    String? userInfoString = await storage.read(key: 'userInfo');
+    if (userInfoString != null) {
+      setState(() {
+        userInfo = json.decode(userInfoString);
+      });
+      _fetchProfileData();
+    }
   }
 
   Future<void> _fetchProfileData() async {
@@ -56,232 +61,241 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            SizedBox(height: 10),
-            Icon(Icons.sentiment_satisfied_alt, size: 90, color: Colors.black),
-            SizedBox(height: 5),
-            Text("이름 : $userName",
-                style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black)),
-            SizedBox(height: 10),
-            Divider(color: Colors.grey),
-            ListTile(
-              title: Text('모니터링',
-                  style: TextStyle(
-                      fontSize: 20,
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold)),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+      body: userInfo == null
+          ? Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              child: Column(
                 children: [
                   SizedBox(height: 10),
-                  TextButton(
-                    child: Row(
-                      children: [
-                        Icon(Icons.calendar_today,
-                            color: Colors.black, size: 20),
-                        SizedBox(width: 10),
-                        Text('날짜별 감정기록',
-                            style:
-                                TextStyle(fontSize: 17, color: Colors.black)),
-                      ],
-                    ),
-                    onPressed: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => EmotionRecordScreen(
-                                  userInfo: widget.userInfo)));
-                    },
-                  ),
-                  TextButton(
-                    child: Row(
-                      children: [
-                        Icon(Icons.warning, color: Colors.black, size: 20),
-                        SizedBox(width: 10),
-                        Text('주행 중 경고기록',
-                            style:
-                                TextStyle(fontSize: 17, color: Colors.black)),
-                      ],
-                    ),
-                    onPressed: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => WarningRecordScreen(
-                                  userInfo: widget.userInfo)));
-                    },
-                  ),
-                ],
-              ),
-            ),
-            Divider(color: Colors.grey),
-            ListTile(
-              title: Text('설정',
-                  style: TextStyle(
-                      fontSize: 20,
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold)),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+                  Icon(Icons.sentiment_satisfied_alt,
+                      size: 90, color: Colors.black),
+                  SizedBox(height: 5),
+                  Text("이름 : ${userInfo!['user_name']}",
+                      style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black)),
                   SizedBox(height: 10),
-                  TextButton(
-                    child: Row(
+                  Divider(color: Colors.grey),
+                  ListTile(
+                    title: Text('모니터링',
+                        style: TextStyle(
+                            fontSize: 20,
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold)),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(Icons.edit, color: Colors.black, size: 20),
-                        SizedBox(width: 10),
-                        Text('운전자 정보 수정',
-                            style:
-                                TextStyle(fontSize: 17, color: Colors.black)),
-                      ],
-                    ),
-                    onPressed: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => EditProfileScreen(
-                                  userInfo: widget.userInfo)));
-                    },
-                  ),
-                  TextButton(
-                    child: Row(
-                      children: [
-                        Icon(Icons.logout, color: Colors.black, size: 20),
-                        SizedBox(width: 10),
-                        Text('로그아웃',
-                            style:
-                                TextStyle(fontSize: 17, color: Colors.black)),
-                      ],
-                    ),
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              side: BorderSide(color: Colors.grey),
-                            ),
-                            backgroundColor: Colors.white,
-                            title: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text('로그아웃',
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold)),
-                                IconButton(
-                                  icon: Icon(Icons.close),
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                ),
-                              ],
-                            ),
-                            content: Text('로그아웃 하시겠습니까?',
-                                style: TextStyle(fontSize: 16)),
-                            actions: <Widget>[
-                              TextButton(
-                                child: Text('NO'),
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                              ),
-                              TextButton(
-                                child: Text('YES'),
-                                onPressed: () {
-                                  Navigator.of(context).pushNamedAndRemoveUntil(
-                                      '/login',
-                                      (Route<dynamic> route) => false);
-                                },
-                              ),
+                        SizedBox(height: 10),
+                        TextButton(
+                          child: Row(
+                            children: [
+                              Icon(Icons.calendar_today,
+                                  color: Colors.black, size: 20),
+                              SizedBox(width: 10),
+                              Text('날짜별 감정기록',
+                                  style: TextStyle(
+                                      fontSize: 17, color: Colors.black)),
                             ],
-                          );
-                        },
-                      );
-                    },
-                  ),
-                  TextButton(
-                    child: Row(
-                      children: [
-                        Icon(Icons.delete, color: Colors.black, size: 20),
-                        SizedBox(width: 10),
-                        Text('회원탈퇴',
-                            style:
-                                TextStyle(fontSize: 17, color: Colors.black)),
+                          ),
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        EmotionRecordScreen()));
+                          },
+                        ),
+                        TextButton(
+                          child: Row(
+                            children: [
+                              Icon(Icons.warning,
+                                  color: Colors.black, size: 20),
+                              SizedBox(width: 10),
+                              Text('주행 중 경고기록',
+                                  style: TextStyle(
+                                      fontSize: 17, color: Colors.black)),
+                            ],
+                          ),
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        WarningRecordScreen()));
+                          },
+                        ),
                       ],
                     ),
-                    onPressed: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => DeleteAccountScreen(
-                                  userInfo: widget.userInfo)));
-                    },
+                  ),
+                  Divider(color: Colors.grey),
+                  ListTile(
+                    title: Text('설정',
+                        style: TextStyle(
+                            fontSize: 20,
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold)),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: 10),
+                        TextButton(
+                          child: Row(
+                            children: [
+                              Icon(Icons.edit, color: Colors.black, size: 20),
+                              SizedBox(width: 10),
+                              Text('운전자 정보 수정',
+                                  style: TextStyle(
+                                      fontSize: 17, color: Colors.black)),
+                            ],
+                          ),
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => EditProfileScreen()));
+                          },
+                        ),
+                        TextButton(
+                          child: Row(
+                            children: [
+                              Icon(Icons.logout, color: Colors.black, size: 20),
+                              SizedBox(width: 10),
+                              Text('로그아웃',
+                                  style: TextStyle(
+                                      fontSize: 17, color: Colors.black)),
+                            ],
+                          ),
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    side: BorderSide(color: Colors.grey),
+                                  ),
+                                  backgroundColor: Colors.white,
+                                  title: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text('로그아웃',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold)),
+                                      IconButton(
+                                        icon: Icon(Icons.close),
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                  content: Text('로그아웃 하시겠습니까?',
+                                      style: TextStyle(fontSize: 16)),
+                                  actions: <Widget>[
+                                    TextButton(
+                                      child: Text('NO'),
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                    ),
+                                    TextButton(
+                                      child: Text('YES'),
+                                      onPressed: () async {
+                                        await storage.deleteAll();
+                                        Navigator.of(context)
+                                            .pushNamedAndRemoveUntil(
+                                                '/login',
+                                                (Route<dynamic> route) =>
+                                                    false);
+                                      },
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                        ),
+                        TextButton(
+                          child: Row(
+                            children: [
+                              Icon(Icons.delete, color: Colors.black, size: 20),
+                              SizedBox(width: 10),
+                              Text('회원탈퇴',
+                                  style: TextStyle(
+                                      fontSize: 17, color: Colors.black)),
+                            ],
+                          ),
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        DeleteAccountScreen()));
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  Divider(color: Colors.grey),
+                  ListTile(
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: 10),
+                        TextButton(
+                          onPressed: () {},
+                          child: Row(
+                            children: [
+                              Icon(Icons.announcement,
+                                  color: Colors.black, size: 20),
+                              SizedBox(width: 10),
+                              Text('공지사항',
+                                  style: TextStyle(
+                                      fontSize: 17, color: Colors.black)),
+                            ],
+                          ),
+                        ),
+                        TextButton(
+                          child: Row(
+                            children: [
+                              Icon(Icons.question_answer,
+                                  color: Colors.black, size: 20),
+                              SizedBox(width: 10),
+                              Text('1:1 문의',
+                                  style: TextStyle(
+                                      fontSize: 17, color: Colors.black)),
+                            ],
+                          ),
+                          onPressed: () {
+                            // 문의 페이지로 이동
+                          },
+                        ),
+                        TextButton(
+                          child: Row(
+                            children: [
+                              Icon(Icons.info, color: Colors.black, size: 20),
+                              SizedBox(width: 10),
+                              Text('버전정보',
+                                  style: TextStyle(
+                                      fontSize: 17, color: Colors.black)),
+                              Spacer(),
+                              Text('1.0',
+                                  style: TextStyle(
+                                      fontSize: 17, color: Colors.grey)),
+                            ],
+                          ),
+                          onPressed: () {
+                            // 버전 정보 페이지로 이동
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
             ),
-            Divider(color: Colors.grey),
-            ListTile(
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(height: 10),
-                  TextButton(
-                    onPressed: () {},
-                    child: Row(
-                      children: [
-                        Icon(Icons.announcement, color: Colors.black, size: 20),
-                        SizedBox(width: 10),
-                        Text('공지사항',
-                            style:
-                                TextStyle(fontSize: 17, color: Colors.black)),
-                      ],
-                    ),
-                  ),
-                  TextButton(
-                    child: Row(
-                      children: [
-                        Icon(Icons.question_answer,
-                            color: Colors.black, size: 20),
-                        SizedBox(width: 10),
-                        Text('1:1 문의',
-                            style:
-                                TextStyle(fontSize: 17, color: Colors.black)),
-                      ],
-                    ),
-                    onPressed: () {
-                      // 문의 페이지로 이동
-                    },
-                  ),
-                  TextButton(
-                    child: Row(
-                      children: [
-                        Icon(Icons.info, color: Colors.black, size: 20),
-                        SizedBox(width: 10),
-                        Text('버전정보',
-                            style:
-                                TextStyle(fontSize: 17, color: Colors.black)),
-                        Spacer(),
-                        Text('1.0',
-                            style: TextStyle(fontSize: 17, color: Colors.grey)),
-                      ],
-                    ),
-                    onPressed: () {
-                      // 버전 정보 페이지로 이동
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

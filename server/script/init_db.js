@@ -69,3 +69,5 @@ const createTables = async () => {
 };
 
 createTables();
+
+//ALTER TABLE focus ADD COLUMN axis VARCHAR(255);

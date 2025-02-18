@@ -84,7 +84,7 @@ class SpotifyLoginScreen extends StatelessWidget {
       await _spotifyService.setTokens(result);
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => HomeScreen(userInfo: userInfo)),
+        MaterialPageRoute(builder: (context) => HomeScreen()),
       );
     }
   }

@@ -33,8 +33,11 @@ class SignUpCompletionScreen extends StatelessWidget {
 
       if (response.statusCode == 200) {
         final result = json.decode(response.body);
+
         if (result['success']) {
           await storage.write(key: 'token', value: result['token']);
+          await storage.write(key: 'userInfo', value: json.encode(userInfo));
+
           Navigator.pushNamed(context, '/home');
         } else {
           _showErrorDialog(
