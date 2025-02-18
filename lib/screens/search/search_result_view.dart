@@ -37,9 +37,7 @@ class _SearchResultViewState extends State<SearchResultView> {
   final FocusNode _focusNode = FocusNode();
   Map<String, bool> _showButtons = {};
   bool _selectionMode = false;
-  bool _playlistSelectionMode = false;
   List<dynamic> _selectedTracks = [];
-  List<dynamic> _selectedPlaylists = [];
   final List<String> _emotionCategories = ['행복', '슬픔', '분노', '놀람', '혐오', '공포', '중립', '경멸'];
 
   @override
@@ -361,39 +359,13 @@ class _SearchResultViewState extends State<SearchResultView> {
             children: [
               Padding(
                 padding: EdgeInsets.all(16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
+                child: Text(
                   '검색 결과',
                   style: TextStyle(
                     fontSize: 18.0,
                     fontWeight: FontWeight.bold,
                     color: Colors.black,
                   ),
-                ),
-                Row(
-                  children: [
-                    TextButton(
-                      onPressed: () {
-                        setState(() {
-                          _playlistSelectionMode = true;
-                        });
-                      },
-                      child: Text('선택'),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        setState(() {
-                          _playlistSelectionMode = false;
-                          _selectedPlaylists.clear();
-                        });
-                      },
-                      child: Text('해제'),
-                    ),
-                  ],
-                ),
-                  ],
                 ),
               ),
               SizedBox(height: 7.0),
@@ -406,16 +378,6 @@ class _SearchResultViewState extends State<SearchResultView> {
                   ),
                 ),
               ),
-              if (_selectedPlaylists.isNotEmpty)
-                Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      _showAddDialogForPlaylists();
-                    },
-                    child: Text('선택한 플레이리스트 추가'),
-                  ),
-                ),
             ],
           );
   }
@@ -675,20 +637,6 @@ class _SearchResultViewState extends State<SearchResultView> {
           ),
           child: ListTile(
             contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            leading: _playlistSelectionMode
-            ? Checkbox(value: _selectedPlaylists.contains(playlist),
-                onChanged: (bool? value){
-              setState(() {
-                if (value ==  true) {
-                  _selectedPlaylists.add(playlist);
-                }
-                else {
-                  _selectedPlaylists.remove(playlist);
-                }
-              });
-                },
-            )
-            :null,
             title: Text(
               playlist?['name'] ?? '알 수 없는 플레이리스트',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
@@ -703,6 +651,10 @@ class _SearchResultViewState extends State<SearchResultView> {
                     await SpotifySdk.play(spotifyUri: playlist['uri']);
                     _updateCurrentTrack();
                   },
+                ),
+                IconButton(
+                  icon: Icon(Icons.playlist_add, color: Colors.black),
+                  onPressed: () {},
                 ),
               ],
             ),
@@ -770,58 +722,4 @@ class _SearchResultViewState extends State<SearchResultView> {
       },
     );
   }
-
-  void _showAddDialogForPlaylists() async {
-    List<dynamic> myPlaylists = await widget.spotifyService.getMyPlaylists();
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('플레이리스트 추가'),
-          content: SingleChildScrollView(
-            child: ListBody(
-              children: myPlaylists.map((playlist) {
-                return InkWell(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(playlist['name']),
-                  ),
-                  onTap: () {
-                    _addSelectedPlaylists(playlist);
-                    Navigator.of(context).pop();
-                  },
-                );
-              }).toList(),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-
-  void _addSelectedPlaylists(dynamic targetPlaylist) async {
-    String targetPlaylistId = targetPlaylist['id'];
-    for (var playlist in _selectedPlaylists) {
-      String playlistId = playlist['id'];
-      try {
-        List<dynamic> tracks = await widget.spotifyService.getPlaylistTracks(playlistId);
-        List<String> trackUris = tracks.map<String>((track) => track['track']['uri'] as String).toList();
-        await widget.spotifyService.addTrackToPlaylist(targetPlaylistId, trackUris);
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('선택한 플레이리스트의 트랙들을 "${targetPlaylist['name']}"에 추가했습니다.')),
-        );
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('플레이리스트 추가에 실패했습니다: $e')),
-        );
-      }
-    }
-    setState(() {
-      _selectedPlaylists.clear();
-      _playlistSelectionMode = false;
-    });
-  }
 }
-

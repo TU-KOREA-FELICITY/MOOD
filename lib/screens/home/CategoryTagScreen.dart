@@ -17,7 +17,7 @@ class CategoryTagScreen extends StatefulWidget {
 class _CategoryTagScreenState extends State<CategoryTagScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  final List<String> _emotionCategories = ['행복', '슬픔', '분노', '놀람', '혐오', '공포', '중립', '경멸'];
+  final List<String> _emotionCategories = ['행복', '슬픔', '분노', '놀람', '혐오', '공포', '평온', '혼란'];
   List<dynamic> _playlists = [];
   final bool _isLoading = false;
 
@@ -64,16 +64,17 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
     List playlists = await widget.spotifyService.getPlaylists();
 
     for (String emotion in _emotionCategories) {
-      if (!playlists.any((playlist) => playlist['name'] == emotion)) {
+      bool playlistExists = playlists.any((playlist) => playlist['name'] == emotion);
+
+      if (!playlistExists) {
         // 해당 감정의 플레이리스트가 없으면 새로 생성
-        await widget.spotifyService.createPlaylist(emotion);
-        playlists.add({'name': emotion, 'id': 'new_${emotion}_id'});
+        String newPlaylistId = await widget.spotifyService.createPlaylist(emotion);
+        playlists.add({'name': emotion, 'id': newPlaylistId});
       }
     }
 
     for (var playlist in playlists) {
-      int trackCount =
-          await widget.spotifyService.updatePlaylistInfo(playlist['id']);
+      int trackCount = await widget.spotifyService.updatePlaylistInfo(playlist['id']);
       playlist['tracks'] = {'total': trackCount};
     }
 
@@ -90,8 +91,8 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
       case '놀람': return Colors.purple[300]!;
       case '혐오': return Colors.green[300]!;
       case '공포': return Colors.black54;
-      case '중립': return Colors.grey[300]!;
-      case '경멸': return Colors.orange[300]!;
+      case '평온': return Colors.grey[300]!;
+      case '혼란': return Colors.orange[300]!;
       default: return Colors.grey[300]!;
     }
   }
