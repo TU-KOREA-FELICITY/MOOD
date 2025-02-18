@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 
@@ -7,8 +8,6 @@ class HomeRecognitionScreen extends StatefulWidget {
 }
 
 class _HomeRecognitionScreenState extends State<HomeRecognitionScreen> {
-  int _currentIndex = 0;
-
   final List<Map<String, dynamic>> emotions = [
     {'name': 'ANGRY', 'color': Color(0xFFFFDBD6)},
     {'name': 'HAPPY', 'color': Color(0xFFFEEFF2)},
@@ -20,6 +19,12 @@ class _HomeRecognitionScreenState extends State<HomeRecognitionScreen> {
     {'name': 'FEAR', 'color': Color(0xFFEFEFEF)},
   ];
 
+  List<FlSpot> generateRandomData(int count) {
+    final random = Random();
+    return List.generate(
+        count, (index) => FlSpot(index.toDouble(), random.nextInt(4).toDouble()));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,28 +35,7 @@ class _HomeRecognitionScreenState extends State<HomeRecognitionScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        '실시간 얼굴 인식 중',
-                        style: TextStyle(
-                            fontSize: 23, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    Container(
-                      width: 100,
-                      height: 70,
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.black),
-                      ),
-                      child: Center(child: Text('카메라')),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 30),
+                SizedBox(height: 10),
                 Text(
                   '나의 집중도',
                   style: TextStyle(fontSize: 23, fontWeight: FontWeight.bold),
@@ -73,23 +57,64 @@ class _HomeRecognitionScreenState extends State<HomeRecognitionScreen> {
                   ),
                   child: LineChart(
                     LineChartData(
-                      gridData: FlGridData(show: false),
-                      titlesData: FlTitlesData(show: false),
-                      borderData: FlBorderData(show: false),
+                      gridData: FlGridData(
+                        show: true,
+                        drawHorizontalLine: true,
+                        drawVerticalLine: true,
+                        horizontalInterval: 1,
+                        verticalInterval: 1,
+                        getDrawingHorizontalLine: (value) => FlLine(
+                          color: Colors.grey.shade300,
+                          strokeWidth: 1,
+                        ),
+                        getDrawingVerticalLine: (value) => FlLine(
+                          color: Colors.grey.shade300,
+                          strokeWidth: 1,
+                        ),
+                      ),
+                      titlesData: FlTitlesData(
+                        leftTitles: AxisTitles(
+                          sideTitles: SideTitles(
+                            showTitles: true,
+                            interval: 1,
+                            getTitlesWidget: (value, meta) {
+                              switch (value.toInt()) {
+                                case 0:
+                                  return Text('양호');
+                                case 1:
+                                  return Text('주의');
+                                case 2:
+                                  return Text('위험');
+                                case 3:
+                                  return Text('경고');
+                                default:
+                                  return Container();
+                              }
+                            },
+                            reservedSize: 40,
+                          ),
+                        ),
+                        bottomTitles: AxisTitles(
+                          sideTitles: SideTitles(showTitles: false),
+                        ),
+                        topTitles: AxisTitles(
+                          sideTitles: SideTitles(showTitles: false),
+                        ),
+                        rightTitles: AxisTitles(
+                          sideTitles: SideTitles(showTitles: false),
+                        ),
+                      ),
+                      borderData: FlBorderData(
+                        show: true,
+                        border: Border.all(color: Colors.black),
+                      ),
                       minX: 0,
                       maxX: 6,
                       minY: 0,
-                      maxY: 6,
+                      maxY: 3,
                       lineBarsData: [
                         LineChartBarData(
-                          spots: [
-                            FlSpot(0, 3),
-                            FlSpot(1, 1),
-                            FlSpot(2, 4),
-                            FlSpot(3, 2),
-                            FlSpot(4, 5),
-                            FlSpot(5, 1),
-                          ],
+                          spots: generateRandomData(7),
                           isCurved: true,
                           color: Colors.blue,
                           barWidth: 3,

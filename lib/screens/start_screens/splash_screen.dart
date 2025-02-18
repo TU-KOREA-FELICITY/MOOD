@@ -14,14 +14,14 @@ class _SplashScreenState extends State<SplashScreen> {
 
   _navigateToLogin() async {
     await Future.delayed(Duration(seconds: 3), () {});
-    Navigator.pushReplacementNamed(context, '/login');
+    Navigator.pushReplacementNamed(context, '/auth_choice');
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: Image.asset('assets/MOOD_logo_blue.png', width: 250, height: 250),
+        child: Image.asset('assets/MOOD_logo_blue.png', width: 225, height: 225),
       ),
     );
   }
