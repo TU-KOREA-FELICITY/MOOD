@@ -239,7 +239,7 @@ class _SearchScreenState extends State<SearchScreen>
                         Miniplayer(spotifyService: widget.spotifyService, onTrackFinished: _onTrackFinished,),
                         Expanded(
                           child: CategoryTagScreen(
-                              spotifyService: widget.spotifyService, userInfo: widget.userInfo, emotionInfo: emotions),
+                              spotifyService: widget.spotifyService, userInfo: widget.userInfo, emotionInfo: emotions, emotionAnalysisService: _emotionAnalysisService,),
                         ),
                       ],
                     ),

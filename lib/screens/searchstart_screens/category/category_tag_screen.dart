@@ -3,6 +3,7 @@
 
 import 'dart:math';
 import 'package:flutter/material.dart';
+import '../../homestart_screens/emotion_analysis_service.dart';
 import '../search/playlist_tracks_screen.dart';
 import '../service/spotify_service.dart';
 
@@ -10,12 +11,14 @@ class CategoryTagScreen extends StatefulWidget {
   final SpotifyService spotifyService;
   final Map<String, dynamic> userInfo;
   final List<Map<String, dynamic>> emotionInfo;
+  final EmotionAnalysisService emotionAnalysisService;
 
   const CategoryTagScreen({
     super.key,
     required this.spotifyService,
     required this.userInfo,
     required this.emotionInfo,
+    required this.emotionAnalysisService,
   });
 
   @override
@@ -33,6 +36,11 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     _loadPlaylists();
+    widget.emotionAnalysisService.onTagsResultReceived = _handleTagsResult;
+  }
+
+  void _handleTagsResult(Map<String, dynamic> tagsResult) {
+    _addTracksByDetectedEmotion(tagsResult);
   }
 
   @override
@@ -70,29 +78,30 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
 
   Future<void> _loadPlaylists() async {
     setState(() {
-      _isLoading = true; // 로딩 시작
+      _isLoading = true;
     });
+
     try {
-      List<dynamic> playlists = await widget.spotifyService.getPlaylists();
+      List playlists = await widget.spotifyService.getPlaylists();
       List<String> emotionNames = widget.emotionInfo
           .map((emotion) => emotion['emotion'] as String)
           .toList();
 
-      for (String emotion in emotionNames) {
-        bool playlistExists =
-        playlists.any((playlist) => playlist['name'] == emotion);
-        if (!playlistExists) {
-          // 해당 감정의 플레이리스트가 없으면 새로 생성
-          String newPlaylistId =
-          await widget.spotifyService.createPlaylist(emotion);
-          playlists.add({'name': emotion, 'id': newPlaylistId, 'tracks': {'total': 0}}); // tracks 초기화
-        }
+      // 현재 존재하는 플레이리스트 이름 목록 생성
+      Set<String> existingPlaylistNames = playlists.map((playlist) => playlist['name'] as String).toSet();
+
+      // 생성해야 할 감정 플레이리스트 목록
+      List<String> playlistsToCreate = emotionNames.where((emotion) => !existingPlaylistNames.contains(emotion)).toList();
+
+      // 필요한 플레이리스트만 생성
+      for (String emotion in playlistsToCreate) {
+        String newPlaylistId = await widget.spotifyService.createPlaylist(emotion);
+        playlists.add({'name': emotion, 'id': newPlaylistId, 'tracks': {'total': 0}});
       }
 
-      // 기존 플레이리스트 정보 업데이트
+      // 모든 플레이리스트의 트랙 수 업데이트
       for (var playlist in playlists) {
-        int trackCount =
-        await widget.spotifyService.updatePlaylistInfo(playlist['id']);
+        int trackCount = await widget.spotifyService.updatePlaylistInfo(playlist['id']);
         playlist['tracks'] = {'total': trackCount};
       }
 
@@ -148,14 +157,14 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
     }
   }
 
-  Future<void> _addTracksToEmotionPlaylist(
+  Future<void> _addInitialTracks(
       String emotion, String playlistId, List<String> emotionTags) async {
     try {
       // 태그 중 랜덤으로 하나 선택
       final random = Random();
       String selectedTag = emotionTags[random.nextInt(emotionTags.length)];
 
-      // 1. 태그로 플레이리스트 검색
+      // 태그로 플레이리스트 검색
       Map searchResults = await widget.spotifyService.searchPlaylists(selectedTag);
 
       // 검색 결과가 있는지 확인
@@ -166,7 +175,7 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
         for (int i = 0; i < playlists.length; i++) {
           String sourcePlaylistId = playlists[i]['id'];
           try {
-            // 2. 플레이리스트의 트랙 가져오기 (최대 20개)
+            // 플레이리스트의 트랙 가져오기 (최대 20개)
             List tracks =
             await widget.spotifyService.getPlaylistTracks(sourcePlaylistId);
             List<String> trackUrisToAdd = tracks
@@ -175,7 +184,7 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
                 .where((uri) => uri.startsWith('spotify:track:'))
                 .toList();
 
-            // 3. 현재 감정 카테고리 플레이리스트에 트랙 추가
+            // 현재 감정 카테고리 플레이리스트에 트랙 추가
             if (trackUrisToAdd.isNotEmpty) {
               // 플레이리스트 ID 유효성 검사
               if (playlistId.length != 22 ||
@@ -224,6 +233,64 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('트랙 추가 실패: $e')),
       );
+    }
+  }
+
+  Future<void> _addTracksByDetectedEmotion(Map<String, dynamic> tagsResult) async {
+    if (!tagsResult['success']) {
+      print('태그 결과 오류: ${tagsResult['message']}');
+      return;
+    }
+
+    for (var emotionTag in tagsResult['tags']) {
+      String emotion = emotionTag['emotion'];
+      List<String> tags = (emotionTag['tags'] as List<dynamic>).cast<String>();
+
+      // 랜덤 태그 선택
+      String randomTag = tags[Random().nextInt(tags.length)];
+
+      // 감정에 해당하는 플레이리스트 찾기
+      var playlist = _playlists.firstWhere(
+              (p) => p['name'] == emotion,
+          orElse: () => null
+      );
+
+      if (playlist == null) {
+        print('$emotion에 해당하는 플레이리스트를 찾을 수 없습니다.');
+        continue;
+      }
+
+      try {
+        // 태그로 플레이리스트 검색
+        Map searchResults = await widget.spotifyService.searchPlaylists(randomTag);
+
+        if (searchResults['playlists'] == null || searchResults['playlists'].isEmpty) {
+          print('$randomTag 태그로 검색된 플레이리스트가 없습니다.');
+          continue;
+        }
+
+        // 검색된 플레이리스트 중 랜덤 선택
+        var randomPlaylist = searchResults['playlists'][Random().nextInt(searchResults['playlists'].length)];
+
+        // 선택된 플레이리스트에서 트랙 가져오기
+        List tracks = await widget.spotifyService.getPlaylistTracks(randomPlaylist['id']);
+
+        // 최대 5개 트랙 랜덤 선택
+        tracks.shuffle();
+        List selectedTracks = tracks.take(5).toList();
+
+        // 선택된 트랙을 감정 카테고리 플레이리스트에 추가
+        List<String> trackUris = selectedTracks.map((track) => track['track']['uri'] as String).toList();
+        await widget.spotifyService.addTracksToPlaylist(playlist['id'], trackUris);
+
+        // 플레이리스트 트랙 수 업데이트
+        int newTrackCount = await widget.spotifyService.updatePlaylistInfo(playlist['id']);
+        _updatePlaylistTrackCount(playlist['id'], newTrackCount);
+
+        print('$emotion 플레이리스트에 ${trackUris.length}개의 트랙을 추가했습니다.');
+      } catch (e) {
+        print('$emotion 플레이리스트에 트랙 추가 중 오류 발생: $e');
+      }
     }
   }
 
@@ -374,10 +441,11 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
                                     icon: Icon(Icons.add, color: Colors.grey[700], size: 12),
                                     onPressed: () async {
                                       List<String> emotionTags = emotionInfoItem['tag'].split(',');
-                                      await _addTracksToEmotionPlaylist(
+                                      await _addInitialTracks(
                                           emotion, playlist['id'], emotionTags);
                                     },
                                   ),
+
                                 ],
                               ),
                               Text(

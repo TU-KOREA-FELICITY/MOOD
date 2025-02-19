@@ -30,6 +30,17 @@ class _EmotionRecordScreenState extends State<EmotionRecordScreen> {
     {'emotion': '혼란', 'color': Color(0xFFE6E6FA)},
   ];
 
+  final Map<String, String> emotionEmojis = {
+    '행복': '😊',
+    '슬픔': '😢',
+    '분노': '😡',
+    '평온': '😌',
+    '놀람': '😲',
+    '혐오': '🤢',
+    '공포': '😱',
+    '혼란': '😕',
+  };
+
   @override
   void initState() {
     super.initState();
@@ -126,9 +137,12 @@ class _EmotionRecordScreenState extends State<EmotionRecordScreen> {
         if (counts.isNotEmpty) {
           String mostFrequentEmotion =
               counts.entries.reduce((a, b) => a.value > b.value ? a : b).key;
-          dailyHourlyEmotions[date]![hour] = mostFrequentEmotion;
+          dailyHourlyEmotions[date]![hour] = '${emotionEmojis[mostFrequentEmotion] ?? ''} $mostFrequentEmotion';
         }
       });
+      if (dailyHourlyEmotions[date]!.isEmpty) {
+        dailyHourlyEmotions.remove(date);
+      }
     });
 
     // 각 날짜에서 가장 빈도 높은 감정을 선택
@@ -137,7 +151,7 @@ class _EmotionRecordScreenState extends State<EmotionRecordScreen> {
       if (counts.isNotEmpty) {
         String mostFrequentEmotion =
             counts.entries.reduce((a, b) => a.value > b.value ? a : b).key;
-        dailyEmotions[date] = mostFrequentEmotion;
+        dailyEmotions[date] = '${emotionEmojis[mostFrequentEmotion] ?? ''} $mostFrequentEmotion';
       }
     });
 
@@ -196,7 +210,7 @@ class _EmotionRecordScreenState extends State<EmotionRecordScreen> {
                   _focusedDay = focusedDay;
                   _selectedDayEmotions = _dailyHourlyEmotions[_selectedDay] ?? {};
                 });
-                _showEmotionDialog(_selectedDay!);
+                _showEmotionDialog(_selectedDay);
               },
               headerStyle: HeaderStyle(
                 titleTextStyle: TextStyle(
@@ -234,6 +248,7 @@ class _EmotionRecordScreenState extends State<EmotionRecordScreen> {
                       ),
                     );
                   }
+                  return null;
                 },
                 dowBuilder: (context, day) {
                   if (day.weekday == DateTime.saturday) {
@@ -264,33 +279,38 @@ class _EmotionRecordScreenState extends State<EmotionRecordScreen> {
             SizedBox(height: 20),
             Divider(color: Colors.grey),
             SizedBox(height: 30),
-            Text(
-              '시간대별 가장 빈도 높은 감정',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 10),
-            Container(
-              height: 100,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: 24,
-                itemBuilder: (context, index) {
-                  return Card(
-                    child: Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text('${index}시'),
-                          Text(_selectedDayEmotions[index] ?? '데이터 없음'),
-                        ],
-                      ),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '시간대별 가장 빈도 높은 감정',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 10),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: _selectedDayEmotions.length,
+                      itemBuilder: (context, index) {
+                        final hour = _selectedDayEmotions.keys.elementAt(index);
+                        final emotion = _selectedDayEmotions[hour];
+                        return Card(
+                          child: ListTile(
+                            leading: Text('${hour}시', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                            title: Align(
+                              alignment: Alignment.centerRight,
+                              child: Text(emotion ?? '', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                            ),
+                          ),
+                        );
+                      },
                     ),
-                  );
-                },
+                  ),
+                ],
               ),
             ),
             SizedBox(height: 20),
+            /*
             Expanded(
               child: GridView.builder(
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -303,10 +323,8 @@ class _EmotionRecordScreenState extends State<EmotionRecordScreen> {
                 itemBuilder: (context, index) {
                   return GestureDetector(
                     onTap: () {
-                      if (_selectedDay != null) {
-                        // 감정 기록 로직 추가
-                        print('${emotions[index]['emotion']} selected for $_selectedDay');
-                      }
+                      // 감정 기록 로직 추가
+                      print('${emotions[index]['emotion']} selected for $_selectedDay');
                     },
                     child: Card(
                       color: emotions[index]['color'],
@@ -324,6 +342,7 @@ class _EmotionRecordScreenState extends State<EmotionRecordScreen> {
                 },
               ),
             ),
+            */
           ],
         ),
       ),

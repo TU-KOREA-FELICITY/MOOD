@@ -215,10 +215,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   SizedBox(height: 40),
                   GestureDetector(
-                    // 임시 로그인 경로
-                    onTap: () {
-                      Navigator.of(context).pushReplacementNamed('/home');
-                    },
                     child: SizedBox(
                       width: 260,
                       height: 260,

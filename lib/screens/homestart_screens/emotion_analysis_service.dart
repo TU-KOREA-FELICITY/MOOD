@@ -55,6 +55,8 @@ class EmotionAnalysisService {
     }
   }
 
+  Function(Map<String, dynamic>)? onTagsResultReceived;
+
   Future<void> saveEmotions(String emotionResult) async {
     List<String> emotions = getTopEmotions(emotionResult);
     final url = Uri.parse('http://10.0.2.2:3000/save_emotions');
@@ -72,6 +74,13 @@ class EmotionAnalysisService {
       );
       if (response.statusCode == 200) {
         print('감정 저장 성공');
+
+        final tagsResult = await getEmotionTags(translatedEmotions);
+        print(tagsResult);
+
+        if (onTagsResultReceived != null) {
+          onTagsResultReceived!(tagsResult);
+        }
       } else {
         print('감정 저장 실패: ${response.statusCode}');
       }
@@ -85,14 +94,15 @@ class EmotionAnalysisService {
         .split('\n')
         .where((line) => line.contains(':'))
         .map((line) {
-      final parts = line.split(': ');
-      if (parts.length < 2) return null;
-      return {
-        'emotion': parts[0].trim(),
-        'confidence': double.tryParse(parts[1].trim()) ?? 0.0,
-      };
-    })
-        .where((item) => item != null).cast<Map<String, dynamic>>()
+          final parts = line.split(': ');
+          if (parts.length < 2) return null;
+          return {
+            'emotion': parts[0].trim(),
+            'confidence': double.tryParse(parts[1].trim()) ?? 0.0,
+          };
+        })
+        .where((item) => item != null)
+        .cast<Map<String, dynamic>>()
         .toList();
 
     if (emotionList.isEmpty) {
@@ -101,5 +111,34 @@ class EmotionAnalysisService {
 
     emotionList.sort((a, b) => b['confidence'].compareTo(a['confidence']));
     return emotionList.take(3).map((e) => e['emotion'] as String).toList();
+  }
+
+  Future<Map<String, dynamic>> getEmotionTags(String detectedEmotions) async {
+    final url = Uri.parse('http://10.0.2.2:3000/get_emotion_tags');
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({'detected_emotions': detectedEmotions}),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['success']) {
+          return {'success': true, 'tags': data['tags']};
+        } else {
+          return {'success': false, 'message': data['message']};
+        }
+      } else {
+        return {
+          'success': false,
+          'message': '서버 오류 발생 (${response.statusCode})'
+        };
+      }
+    } catch (e) {
+      print('API 요청 중 오류 발생: $e');
+      return {'success': false, 'message': '네트워크 오류 발생'};
+    }
   }
 }

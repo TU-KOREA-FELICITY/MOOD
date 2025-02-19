@@ -364,31 +364,63 @@ app.post('/get_emotions', async (req, res) => {
 
   try {
     const [dbResult] = await pool.query(`
-          SELECT de.*
-          FROM detectedemotion de
-          JOIN user u ON de.user_id = u.user_id
-          WHERE u.user_aws_id = ?
-        `, [user_aws_id]);
+      SELECT de.*
+      FROM detectedemotion de
+      JOIN user u ON de.user_id = u.user_id
+      WHERE u.user_aws_id = ?
+    `, [user_aws_id]);
 
     if (dbResult.length > 0) {
-          const emotions = dbResult.map(emotion => ({
-            detected_id: emotion.detected_id,
-            user_id: emotion.user_id,
-            detected_emotion: emotion.detected_emotion,
-            detected_at: emotion.detected_at,
-          }));
+      const emotions = dbResult.map(emotion => ({
+        detected_id: emotion.detected_id,
+        user_id: emotion.user_id,
+        detected_emotion: emotion.detected_emotion,
+        detected_at: emotion.detected_at,
+      }));
 
-          req.session.emotions = emotions;
-          res.json({
-            success: true,
-            emotions: emotions
-          });
-        } else {
+      req.session.emotions = emotions;
+      res.json({
+        success: true,
+        emotions: emotions
+      });
+    } else {
       res.status(401).json({ success: false, message: '사용자의 감정 데이터를 찾을 수 없습니다.' });
     }
   } catch (error) {
     console.error('감정 데이터 조회 중 오류:', error);
     res.status(500).json({ success: false, message: '서버 오류가 발생했습니다.' });
+  }
+});
+
+app.post('/get_emotion_tags', async (req, res) => {
+  const { detected_emotions } = req.body;
+
+  if (!detected_emotions) {
+     return res.status(400).json({ success: false, message: '감정 데이터가 필요합니다.' });
+  }
+
+  try {
+    const emotionsArray = detected_emotions.split(',');
+
+    const [tagsResult] = await pool.query(`
+      SELECT emotion_name, tag
+      FROM emotion
+      WHERE emotion_name IN (?)
+    `, [emotionsArray]);
+
+    if (tagsResult.length > 0) {
+      const tags = tagsResult.map(row => ({
+        emotion: row.emotion_name,
+        tags: row.tag.split(',')
+      }));
+
+      return res.json({ success: true, tags });
+    } else {
+      return res.status(404).json({ success: false, message: '해당 감정에 대한 태그를 찾을 수 없습니다.' });
+    }
+  } catch (error) {
+    console.error('태그 조회 중 오류:', error);
+    return res.status(500).json({ success: false, message: '서버 오류가 발생했습니다.' });
   }
 });
 
