@@ -1,9 +1,49 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'package:mood/screens/start_screens/login_screen.dart';
 
 class DeleteAccountScreen extends StatelessWidget {
-  final String userName = 'IN SUN';
-  final String carModel = 'Mercedes-Benz AMG G63';
+  final Map<String, dynamic> userInfo;
+
+  DeleteAccountScreen({required this.userInfo});
+
+  Future<void> deleteAccount(BuildContext context) async {
+    try {
+      final response = await http.post(
+        Uri.parse('http://10.0.2.2:3000/delete_complete'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'user_aws_id': userInfo['user_aws_id']}),
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+
+        if (responseData['success'] == true) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('회원 탈퇴가 완료되었습니다.')),
+          );
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => LoginScreen()),
+                (route) => false,
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(responseData['message'] ?? '회원 탈퇴에 실패했습니다.')),
+          );
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('서버 오류가 발생했습니다. 다시 시도해주세요.')),
+        );
+      }
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('네트워크 오류가 발생했습니다. 다시 시도해주세요.')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,12 +66,15 @@ class DeleteAccountScreen extends StatelessWidget {
             SizedBox(height: 150),
             Icon(Icons.delete_outline, size: 100),
             SizedBox(height: 20),
-            Text('이름 : $userName',
+            Text('얼굴 ID : ${userInfo['user_aws_id']}',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             SizedBox(height: 10),
-            Text('차종 : $carModel',
+            Text('이름 : ${userInfo['user_name']}',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            SizedBox(height: 300),
+            SizedBox(height: 10),
+            Text('차종 : ${userInfo['car_type']}',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            SizedBox(height: 200),
             Text('회원을 탈퇴 하시겠습니까?',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
             SizedBox(height: 20),
@@ -73,12 +116,7 @@ class DeleteAccountScreen extends StatelessWidget {
                       ),
                     ),
                   onPressed: () {
-                    // 회원 탈퇴 로직
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(builder: (context) => LoginScreen()),
-                          (route) => false,
-                    );
+                    deleteAccount(context);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xFF0126FA),

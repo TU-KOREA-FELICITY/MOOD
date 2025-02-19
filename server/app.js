@@ -273,6 +273,31 @@ app.post('/user_info_update', async (req, res) => {
   }
 });
 
+app.post('/delete_complete', async (req, res) => {
+  const { user_aws_id } = req.body;
+
+  try {
+    const [dbResult] = await pool.query('DELETE FROM user WHERE user_aws_id = ?', [user_aws_id]);
+
+    if (dbResult.affectedRows > 0) {
+      req.session.destroy((err) => {
+        if (err) {
+          console.error('세션 삭제 중 오류:', err);
+        }
+        res.json({
+          success: true,
+          message: '회원 탈퇴가 완료되었습니다.'
+        });
+      });
+    } else {
+      res.status(404).json({ success: false, message: '사용자를 찾을 수 없습니다.' });
+    }
+  } catch (error) {
+    console.error('회원 탈퇴 중 오류:', error);
+    res.status(500).json({ success: false, message: '서버 오류가 발생했습니다.' });
+  }
+});
+
 app.post('/registration_result', (req, res) => {
   registrationResult = req.body;
   console.log('얼굴 등록 결과:\n', registrationResult);

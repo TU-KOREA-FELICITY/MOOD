@@ -141,7 +141,7 @@ class ProfileScreen extends StatelessWidget {
                     ),
                     onPressed: () {
                       Navigator.push(context, MaterialPageRoute(
-                          builder: (context) => DeleteAccountScreen()
+                          builder: (context) => DeleteAccountScreen(userInfo: userInfo),
                       ));
                     },
                   ),
