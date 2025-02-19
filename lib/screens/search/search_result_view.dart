@@ -199,9 +199,9 @@ class _SearchResultViewState extends State<SearchResultView> {
                   child: Column(
                     children: [
                       TabBar(
-                        labelColor: Colors.blueAccent,
+                        labelColor: Color(0xFF2265F0),
                         unselectedLabelColor: Colors.grey,
-                        indicatorColor: Colors.blueAccent,
+                        indicatorColor: Color(0xFF2265F0),
                         tabs: [
                           Tab(
                             text: '트랙',
@@ -323,8 +323,10 @@ class _SearchResultViewState extends State<SearchResultView> {
           ),
         ),
         SizedBox(height: 8.0),
-        Expanded(
-          child: Padding(
+        Column(
+            children: [
+              Expanded(
+    child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 18.0),
             child: ListView(
               children: _buildTrackList(),
@@ -334,13 +336,25 @@ class _SearchResultViewState extends State<SearchResultView> {
         if (_selectedTracks.isNotEmpty)
           Padding(
             padding: EdgeInsets.all(16.0),
-            child: ElevatedButton(
-              onPressed: () {
-                _showAddDialog();
-              },
-              child: Text('선택한 곡 추가'),
+            child: Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () => _showAddDialog(),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xFF2265F0),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: Text('선택한 곡 추가', style: TextStyle(color: Colors.white)),
+                  ),
+                ),
+              ],
             ),
           ),
+          ],
+        ),
       ],
     );
   }
@@ -381,14 +395,24 @@ class _SearchResultViewState extends State<SearchResultView> {
             ),
           ),
         ),
+        SizedBox(height: 8.0),
         if (_selectedPlaylists.isNotEmpty)
           Padding(
             padding: EdgeInsets.all(16.0),
-            child: ElevatedButton(
-              onPressed: () {
-                _showAddDialogForPlaylists();
-              },
-              child: Text('플레이리스트 전체 곡 추가'),
+            child: Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(onPressed: () => _showAddDialogForPlaylists(),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xFF2265F0),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: Text('플레이리스트 곡 추가'),
+                  ),
+                ),
+              ],
             ),
           ),
       ],
@@ -670,7 +694,9 @@ class _SearchResultViewState extends State<SearchResultView> {
 
 
   List<Widget> _buildPlaylistList() {
-    return (_searchResults['playlists'] as List<dynamic>).map((playlist) {
+    return (_searchResults['playlists'] as List<dynamic>).where((playlist)
+    => playlist?['name'] != null && playlist['name'] != '알 수 없는 플레이리스트')
+        .map((playlist) {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
         child: Container(
@@ -703,7 +729,7 @@ class _SearchResultViewState extends State<SearchResultView> {
             )
                 : _buildPlaylistCover(playlist),
             title: Text(
-              playlist?['name'] ?? '알 수 없는 플레이리스트',
+              playlist?['name'],
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             subtitle: Text('${playlist?['tracks']?['total'] ?? 0} 트랙'),
@@ -726,7 +752,7 @@ class _SearchResultViewState extends State<SearchResultView> {
                   builder: (context) => PlaylistDetailView(
                     spotifyService: widget.spotifyService,
                     playlistId: playlist?['id'] ?? '',
-                    playlistName: playlist?['name'] ?? '알 수 없는 플레이리스트',
+                    playlistName: playlist?['name'],
                     onPlaylistUpdated: (playlistId, trackCount) {
                       print('플레이리스트 $playlistId 가 $trackCount 곡으로 업데이트됨');
                       },

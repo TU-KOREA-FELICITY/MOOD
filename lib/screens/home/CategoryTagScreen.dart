@@ -458,7 +458,6 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
               ),
               ),
               ),
-
               IconButton(
                 icon: Icon(Icons.close),
                 onPressed: () {

@@ -122,7 +122,8 @@ class _PlaylistDetailViewState extends State<PlaylistDetailView> {
                               if (_selectedTracks.length == tracks.length) {
                                 _selectedTracks.clear();
                               } else {
-                                _selectedTracks = Set.from(tracks);
+                                _selectedTracks = Set.from(tracks.map((track) => track['track']['uri'])
+                                );
                               }
                             });
                           },
@@ -130,7 +131,7 @@ class _PlaylistDetailViewState extends State<PlaylistDetailView> {
                             _selectedTracks.length == tracks.length
                                 ? '전체선택해제'
                                 : '전체선택',
-                            style: TextStyle(color: Colors.grey),
+                            style: TextStyle(color: Colors.black38),
                           ),
                         ),
                     ],
@@ -184,14 +185,14 @@ class _PlaylistDetailViewState extends State<PlaylistDetailView> {
                                   onTap: _isEditing
                                       ? () {
                                     setState(() {
-                                      if (_selectedTracks.contains(track[index])) {
-                                        _selectedTracks.remove(track[index]);
+                                      if (_selectedTracks.contains(trackUri)) {
+                                        _selectedTracks.remove(trackUri);
                                       } else {
-                                        _selectedTracks.add(track[index]);
+                                        _selectedTracks.add(trackUri);
                                       }
                                     });
                                   }
-                                      : () => widget.spotifyService.playTrack(track['uri']),
+                                      : () => widget.spotifyService.playTrack(trackUri),
                                 ),
                               ),
                             ],
