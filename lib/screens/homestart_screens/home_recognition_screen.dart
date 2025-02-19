@@ -22,7 +22,9 @@ class _HomeRecognitionScreenState extends State<HomeRecognitionScreen> {
   List<FlSpot> generateRandomData(int count) {
     final random = Random();
     return List.generate(
-        count, (index) => FlSpot(index.toDouble(), random.nextInt(4).toDouble()));
+      count,
+          (index) => FlSpot(index.toDouble(), random.nextInt(4).toDouble()),
+    );
   }
 
   @override
@@ -35,7 +37,6 @@ class _HomeRecognitionScreenState extends State<HomeRecognitionScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(height: 10),
                 Text(
                   '나의 집중도',
                   style: TextStyle(fontSize: 23, fontWeight: FontWeight.bold),
@@ -43,6 +44,7 @@ class _HomeRecognitionScreenState extends State<HomeRecognitionScreen> {
                 SizedBox(height: 20),
                 Container(
                   height: 200,
+                  padding: EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(10),
@@ -61,8 +63,8 @@ class _HomeRecognitionScreenState extends State<HomeRecognitionScreen> {
                         show: true,
                         drawHorizontalLine: true,
                         drawVerticalLine: true,
-                        horizontalInterval: 1,
-                        verticalInterval: 1,
+                        horizontalInterval: 0.25,
+                        verticalInterval: 0.25,
                         getDrawingHorizontalLine: (value) => FlLine(
                           color: Colors.grey.shade300,
                           strokeWidth: 1,
@@ -78,18 +80,31 @@ class _HomeRecognitionScreenState extends State<HomeRecognitionScreen> {
                             showTitles: true,
                             interval: 1,
                             getTitlesWidget: (value, meta) {
+                              String text;
                               switch (value.toInt()) {
                                 case 0:
-                                  return Text('양호');
+                                  text = '양호';
+                                  break;
                                 case 1:
-                                  return Text('주의');
+                                  text = '주의';
+                                  break;
                                 case 2:
-                                  return Text('위험');
+                                  text = '위험';
+                                  break;
                                 case 3:
-                                  return Text('경고');
+                                  text = '경고';
+                                  break;
                                 default:
                                   return Container();
                               }
+                              return Text(
+                                text,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                  color: Colors.black,
+                                ),
+                              );
                             },
                             reservedSize: 40,
                           ),
@@ -116,11 +131,14 @@ class _HomeRecognitionScreenState extends State<HomeRecognitionScreen> {
                         LineChartBarData(
                           spots: generateRandomData(7),
                           isCurved: true,
-                          color: Colors.blue,
+                          color: Color(0xFF0126FA),
                           barWidth: 3,
                           isStrokeCapRound: true,
-                          dotData: FlDotData(show: false),
-                          belowBarData: BarAreaData(show: false),
+                          dotData: FlDotData(show: true),
+                          belowBarData: BarAreaData(
+                            show: true,
+                            color: Color(0xFF0126FA).withOpacity(0.1),
+                          ),
                         ),
                       ],
                     ),
