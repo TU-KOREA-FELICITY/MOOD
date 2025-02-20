@@ -210,7 +210,7 @@ class _PlaylistDetailViewState extends State<PlaylistDetailView> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(10),
                         ),
                       ),
                       child: Text('추가', style: TextStyle(color: Colors.white)),

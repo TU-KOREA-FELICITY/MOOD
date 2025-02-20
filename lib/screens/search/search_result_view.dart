@@ -286,59 +286,60 @@ class _SearchResultViewState extends State<SearchResultView> {
     }
     return _isLoading
         ? Center(child: CircularProgressIndicator())
-        : Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+        : Stack(
       children: [
-        Padding(
-          padding: EdgeInsets.all(16.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                '검색 결과',
-                style: TextStyle(
-                  fontSize: 18.0,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-              ),
-              TextButton(
-                onPressed: () {
-                  setState(() {
-                    _selectionMode = !_selectionMode;
-                    if (!_selectionMode) {
-                      _selectedTracks.clear();
-                    }
-                  });
-                },
-                child: Text(
-                  _selectionMode ? '해제' : '선택',
-                  style: TextStyle(
-                    color: _selectionMode ? Colors.grey : Colors.blue,
-                    fontWeight: FontWeight.bold,
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    '검색 결과',
+                    style: TextStyle(
+                      fontSize: 18.0,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
                   ),
+                  TextButton(
+                    onPressed: () {
+                      setState(() {
+                        _selectionMode = !_selectionMode;
+                        if (!_selectionMode) {
+                          _selectedTracks.clear();
+                        }
+                      });
+                      },
+                    child: Text(
+                      _selectionMode ? '해제' : '선택',
+                      style: TextStyle(
+                        color: _selectionMode ? Colors.grey : Colors.blue,
+                        fontWeight: FontWeight.bold,
+                      ),
                 ),
               ),
             ],
           ),
         ),
         SizedBox(height: 8.0),
-        Column(
-            children: [
-              Expanded(
-    child: Padding(
+        Expanded(
+          child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 18.0),
             child: ListView(
               children: _buildTrackList(),
             ),
           ),
         ),
+        ],
+    ),
         if (_selectedTracks.isNotEmpty)
-          Padding(
-            padding: EdgeInsets.all(16.0),
-            child: Row(
-              children: [
-                Expanded(
+          Positioned(
+            bottom: 30.0,
+                  left: 20.0,
+                  right: 20.0,
                   child: ElevatedButton(
                     onPressed: () => _showAddDialog(),
                     style: ElevatedButton.styleFrom(
@@ -346,17 +347,15 @@ class _SearchResultViewState extends State<SearchResultView> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
+                      padding: EdgeInsets.symmetric(vertical: 13),
                     ),
-                    child: Text('선택한 곡 추가', style: TextStyle(color: Colors.white)),
+                    child: Text('선택한 곡 추가', style:
+                    TextStyle(color: Colors.white,
+                    fontSize: 20, fontWeight: FontWeight.w900)),
                   ),
                 ),
               ],
-            ),
-          ),
-          ],
-        ),
-      ],
-    );
+            );
   }
 
   Widget _buildPlaylistsTab() {
