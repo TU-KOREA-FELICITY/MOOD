@@ -127,7 +127,7 @@ class SpotifyService {
   }
 
   Future<bool> isLoggedIn() async {
-    return _accessToken != null && _accessToken.isNotEmpty;
+    return _accessToken.isNotEmpty;
   }
 
   Future<void> logout() async {

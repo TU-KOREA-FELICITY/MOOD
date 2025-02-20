@@ -14,7 +14,6 @@ class FaceRecognitionScreen extends StatefulWidget {
 }
 
 class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
-  final _formKey = GlobalKey<FormState>();
   bool _regNotComplete = true;
   bool _buttonShow = false;
   String? userId;

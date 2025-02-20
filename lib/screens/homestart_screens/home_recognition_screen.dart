@@ -7,7 +7,6 @@ class HomeRecognitionScreen extends StatefulWidget {
 }
 
 class _HomeRecognitionScreenState extends State<HomeRecognitionScreen> {
-  int _currentIndex = 0;
 
   final List<Map<String, dynamic>> emotions = [
     {'name': 'ANGRY', 'color': Color(0xFFFFDBD6)},

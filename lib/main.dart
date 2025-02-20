@@ -5,7 +5,6 @@ import 'screens/start_screens/splash_screen.dart';
 import 'screens/start_screens/login_screen.dart';
 import 'screens/start_screens/spotify_login_screen.dart';
 import 'screens/start_screens/welcome_screen.dart';
-import 'screens/start_screens/login_failed_screen.dart';
 import 'screens/start_screens/signup_screen.dart';
 import 'screens/start_screens/music_preference_screen.dart';
 import 'screens/profilestart_screens/profile_screen.dart';
@@ -41,7 +40,6 @@ class MyApp extends StatelessWidget {
           as Map<String, dynamic>?;
           return WelcomeScreen(userInfo: args ?? {});
         },
-        '/login_failed': (context) => LoginFailedScreen(),
         '/signup': (context) {
           final args = ModalRoute.of(context)?.settings.arguments as String?;
           return SignupScreen(userId: args ?? '');

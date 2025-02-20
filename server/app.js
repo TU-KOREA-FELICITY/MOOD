@@ -23,6 +23,7 @@ let registrationResult = null;
 let emotionResult = null;
 let estimatorProcess = null;
 let webcamProcess = null;
+let userInfo = null;
 
 function runPythonScript(scriptName, args = []) {
   return new Promise((resolve, reject) => {
@@ -68,6 +69,8 @@ function startEstimator() {
   if (!estimatorProcess) {
     const scriptPath = path.join(__dirname, '..', 'CAM', 'estimator.py');
     estimatorProcess = spawn('python', [scriptPath]);
+
+    estimatorProcess.stdin.write(JSON.stringify(userInfo) + '\n');
     estimatorProcess.stdout.on('data', (data) => {
       console.log(`estimator.py: ${data}`);
     });
@@ -78,6 +81,8 @@ function startEstimator() {
       console.log(`estimator.py 종료 코드: ${code}`);
       estimatorProcess = null;
     });
+  } else {
+    estimatorProcess.stdin.write(JSON.stringify(userInfo) + '\n');
   }
 }
 
@@ -98,8 +103,15 @@ function stopEstimator() {
 app.startEstimator = startEstimator;
 
 app.post('/start_estimator', (req, res) => {
-  startEstimator();
-  res.json({ message: 'estimator.py started' });
+  const { userInfo: receivedUserInfo } = req.body;
+  userInfo = receivedUserInfo;
+  if (estimatorProcess) {
+    estimatorProcess.stdin.write(JSON.stringify(userInfo) + '\n');
+    res.json({ message: 'User info sent to estimator.py' });
+  } else {
+    startEstimator(userInfo);
+    res.json({ message: 'estimator.py started with user info' });
+  }
 });
 
 app.post('/register', async (req, res) => {
@@ -449,11 +461,32 @@ app.post('/get_emotion_tags', async (req, res) => {
   }
 });
 
-app.post('/warning', (req, res) => {
+app.post('/warning', async (req, res) => {
   console.log('Received warning:', req.body);
   const io = req.app.get('io'); // server.js에서 설정한 io 객체를 가져옴
   io.emit('warning', req.body);
-  res.sendStatus(200);
+
+  const { level, axis, timestamp } = req.body; // error 제거
+  const user_id = req.body.userInfo.user_id;
+
+  if (user_id) {
+    try {
+      const [result] = await pool.query(
+        'INSERT INTO focus (user_id, focus_level, axis, created_at) VALUES (?, ?, ?, ?)', // error 제거
+        [user_id, level, axis, timestamp]
+      );
+      if (result.affectedRows === 1) {
+        res.json({ message: 'Focus saved to database' });
+      } else {
+        res.status(500).json({ error: 'Failed to save focus to database' });
+      }
+    } catch (error) {
+      console.error('Error saving focus to database:', error);
+      res.status(500).json({ error: error.message });
+    }
+  } else {
+    res.status(400).json({ error: 'User ID is missing' });
+  }
 });
 
 app.post('/get_search_tag', async (req, res) => {

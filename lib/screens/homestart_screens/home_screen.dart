@@ -19,7 +19,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final SpotifyService _spotifyService = SpotifyService();
-  final EmotionAnalysisService _emotionAnalysisService = EmotionAnalysisService();
+  final EmotionAnalysisService _emotionAnalysisService =
+      EmotionAnalysisService();
   bool _isLoggedIn = false;
   int _currentIndex = 0;
   IO.Socket? socket;
@@ -70,7 +71,7 @@ class _HomeScreenState extends State<HomeScreen> {
       socket!.on('warning', (data) {
         setState(() {
           _warningMessage =
-          'Warning: ${data['level']} ${data['axis']} error ${data['error']}';
+              'Warning: ${data['level']} ${data['axis']} error ${data['error']}';
         });
       });
 
@@ -93,7 +94,11 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _startEstimator() async {
     final url = Uri.parse('http://10.0.2.2:3000/start_estimator');
     try {
-      final response = await http.post(url);
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({'userInfo': widget.userInfo}),
+      );
       if (response.statusCode == 200) {
         print('estimator.py가 성공적으로 시작되었습니다.');
       } else {
@@ -198,7 +203,7 @@ class _HomeScreenState extends State<HomeScreen> {
         Padding(
           padding: EdgeInsets.only(top: 20, bottom: 20),
           child: Text(
-            '감정/집중도 인식중',
+            '${widget.userInfo['user_name']}님의 감정/집중도 인식중',
             style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
           ),
         ),
@@ -228,10 +233,10 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               child: _imageData != null
                   ? Image.memory(
-                _imageData!,
-                fit: BoxFit.cover,
-                gaplessPlayback: true,
-              )
+                      _imageData!,
+                      fit: BoxFit.cover,
+                      gaplessPlayback: true,
+                    )
                   : Center(child: Text('카메라 화면이 여기에 표시됩니다')),
             ),
           ),
@@ -284,7 +289,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     final emotion = parts[0].trim();
                     final confidence = parts[1].trim();
                     final color = emotions.firstWhere(
-                            (e) => e['name'] == emotion,
+                        (e) => e['name'] == emotion,
                         orElse: () => {'color': Colors.white})['color'];
                     return Padding(
                       padding: EdgeInsets.symmetric(vertical: 7),

@@ -162,11 +162,11 @@ class _SignupScreenState extends State<SignupScreen> {
                   }
                 },
                 style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all(Color(0xFF0126FA)),
-                  foregroundColor: MaterialStateProperty.all(Colors.white),
-                  padding: MaterialStateProperty.all(
+                  backgroundColor: WidgetStateProperty.all(Color(0xFF0126FA)),
+                  foregroundColor: WidgetStateProperty.all(Colors.white),
+                  padding: WidgetStateProperty.all(
                       EdgeInsets.symmetric(vertical: 12)),
-                  shape: MaterialStateProperty.all(
+                  shape: WidgetStateProperty.all(
                     RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                     ),
