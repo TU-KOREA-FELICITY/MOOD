@@ -1,11 +1,12 @@
 import 'dart:convert';
 import 'dart:typed_data';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'package:fl_chart/fl_chart.dart';
 import '../searchstart_screens/service/spotify_service.dart';
 import 'emotion_analysis_service.dart';
-import 'home_recognition_screen.dart';
 import '../searchstart_screens/widget/miniplayer.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -22,6 +23,11 @@ class _HomeScreenState extends State<HomeScreen> {
   final EmotionAnalysisService _emotionAnalysisService =
       EmotionAnalysisService();
   bool _isLoggedIn = false;
+  bool _isMinimized = false;
+  double _boxWidth = 320;
+  double _boxHeight = 240;
+  double _boxTop = 20;
+  double _boxLeft = 20;
   int _currentIndex = 0;
   IO.Socket? socket;
   Uint8List? _imageData;
@@ -39,6 +45,14 @@ class _HomeScreenState extends State<HomeScreen> {
     {'name': 'CONFUSED', 'color': Color(0xFFFBF4FB)},
     {'name': 'FEAR', 'color': Color(0xFFEFEFEF)},
   ];
+
+  List<FlSpot> generateRandomData(int count) {
+    final random = Random();
+    return List.generate(
+      count,
+      (index) => FlSpot(index.toDouble(), random.nextInt(4).toDouble()),
+    );
+  }
 
   @override
   void initState() {
@@ -130,6 +144,12 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  void _toggleMinimize() {
+    setState(() {
+      _isMinimized = !_isMinimized;
+    });
+  }
+
   @override
   void dispose() {
     socket?.dispose();
@@ -207,40 +227,54 @@ class _HomeScreenState extends State<HomeScreen> {
             style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
           ),
         ),
-        Center(
-          child: GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => HomeRecognitionScreen()),
-              );
-            },
-            child: Container(
-              width: 300,
-              height: 400,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withAlpha(128),
-                    spreadRadius: 5,
-                    blurRadius: 7,
-                    offset: Offset(0, 3),
+        AnimatedPositioned(
+            duration: Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            top: _isMinimized
+                ? 15
+                : (MediaQuery.of(context).size.height - _boxHeight) / 2,
+            left: _isMinimized
+                ? 15
+                : (MediaQuery.of(context).size.width - _boxWidth) / 2,
+            child: GestureDetector(
+                onTap: _toggleMinimize,
+                child: AnimatedContainer(
+                  duration: Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                  width: _isMinimized ? 100 : _boxWidth,
+                  height: _isMinimized
+                      ? 100 * (_boxHeight / _boxWidth)
+                      : _boxHeight,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(_isMinimized ? 5 : 10),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withAlpha(128),
+                        spreadRadius: _isMinimized ? 2 : 5,
+                        blurRadius: _isMinimized ? 3 : 7,
+                        offset: Offset(0, _isMinimized ? 1 : 3),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              child: _imageData != null
-                  ? Image.memory(
-                      _imageData!,
-                      fit: BoxFit.cover,
-                      gaplessPlayback: true,
-                    )
-                  : Center(child: Text('카메라 화면이 여기에 표시됩니다')),
-            ),
-          ),
-        ),
+                  child: ClipRect(
+                    child: Align(
+                      alignment: Alignment.center,
+                      widthFactor: 1.0,
+                      heightFactor: 1.0,
+                      child: AspectRatio(
+                        aspectRatio: _boxWidth / _boxHeight,
+                        child: _imageData != null
+                            ? Image.memory(
+                                _imageData!,
+                                fit: BoxFit.cover,
+                                gaplessPlayback: true,
+                              )
+                            : Center(child: Text('카메라 화면이 여기에 표시됩니다')),
+                      ),
+                    ),
+                  ),
+                ))),
         if (_warningMessage.isNotEmpty)
           Center(
             child: Text(
@@ -262,9 +296,118 @@ class _HomeScreenState extends State<HomeScreen> {
             SizedBox(width: 16),
             ElevatedButton(
               onPressed: _restartRecognition,
-              child: Text('다시시도하기'),
+              child: Text('다시 시도하기'),
             ),
           ],
+        ),
+        SizedBox(height: 20),
+        Text(
+          '나의 집중도',
+          style: TextStyle(fontSize: 23, fontWeight: FontWeight.bold),
+        ),
+        SizedBox(height: 20),
+        Container(
+          height: 200,
+          width: 300,
+          padding: EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withAlpha(128),
+                blurRadius: 10,
+                spreadRadius: 5,
+                offset: Offset(0, 3),
+              ),
+            ],
+          ),
+          child: LineChart(
+            LineChartData(
+              gridData: FlGridData(
+                show: true,
+                drawHorizontalLine: true,
+                drawVerticalLine: true,
+                horizontalInterval: 0.25,
+                verticalInterval: 0.25,
+                getDrawingHorizontalLine: (value) => FlLine(
+                  color: Colors.grey.shade300,
+                  strokeWidth: 1,
+                ),
+                getDrawingVerticalLine: (value) => FlLine(
+                  color: Colors.grey.shade300,
+                  strokeWidth: 1,
+                ),
+              ),
+              titlesData: FlTitlesData(
+                leftTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    interval: 1,
+                    getTitlesWidget: (value, meta) {
+                      String text;
+                      switch (value.toInt()) {
+                        case 0:
+                          text = '안전';
+                          break;
+                        case 1:
+                          text = '경고';
+                          break;
+                        case 2:
+                          text = '주의';
+                          break;
+                        case 3:
+                          text = '위험';
+                          break;
+                        default:
+                          return Container();
+                      }
+                      return Text(
+                        text,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                          color: Colors.black,
+                        ),
+                      );
+                    },
+                    reservedSize: 40,
+                  ),
+                ),
+                bottomTitles: AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
+                topTitles: AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
+                rightTitles: AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
+              ),
+              borderData: FlBorderData(
+                show: true,
+                border: Border.all(color: Colors.black),
+              ),
+              minX: 0,
+              maxX: 6,
+              minY: 0,
+              maxY: 3,
+              lineBarsData: [
+                LineChartBarData(
+                  spots: generateRandomData(7),
+                  isCurved: true,
+                  color: Color(0xFF0126FA),
+                  barWidth: 3,
+                  isStrokeCapRound: true,
+                  dotData: FlDotData(show: true),
+                  belowBarData: BarAreaData(
+                    show: true,
+                    color: Color(0xFF0126FA).withOpacity(0.1),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
         if (_emotionResult.isNotEmpty)
           Padding(
@@ -272,11 +415,13 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                SizedBox(height: 20),
                 Text(
                   '감정 분석 결과',
                   style: TextStyle(fontSize: 23, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
                 ),
-                SizedBox(height: 10),
+                SizedBox(height: 20),
                 Column(
                   children: _emotionResult
                       .split('\n')
@@ -320,10 +465,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   }).toList(),
                 ),
                 SizedBox(height: 10),
-                Text(
-                  '상태: $_status',
-                  style: TextStyle(fontSize: 16),
-                ),
               ],
             ),
           ),
