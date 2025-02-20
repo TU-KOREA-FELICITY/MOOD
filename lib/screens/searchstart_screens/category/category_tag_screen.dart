@@ -3,6 +3,7 @@
 
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:spotify_sdk/spotify_sdk.dart';
 import '../../homestart_screens/emotion_analysis_service.dart';
 import '../search/playlist_tracks_screen.dart';
 import '../service/spotify_service.dart';
@@ -40,7 +41,7 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
   }
 
   void _handleTagsResult(Map<String, dynamic> tagsResult) {
-    _addTracksByDetectedEmotion(tagsResult);
+    _showLoadingDialogAndAddTracks(tagsResult);
   }
 
   @override
@@ -288,10 +289,50 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
         _updatePlaylistTrackCount(playlist['id'], newTrackCount);
 
         print('$emotion 플레이리스트에 ${trackUris.length}개의 트랙을 추가했습니다.');
+
+        // 태그 리스트의 첫 번째 감정에 해당하는 플레이리스트 실행
+        if (tagsResult['tags'].isNotEmpty) {
+          String firstEmotion = tagsResult['tags'][0]['emotion'];
+          var playlist = _playlists.firstWhere(
+                (p) => p['name'] == firstEmotion,
+            orElse: () => null,
+          );
+
+          if (playlist != null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('$firstEmotion 플레이리스트를 재생합니다.')),
+            );
+            await SpotifySdk.play(spotifyUri: playlist['uri']);
+          } else {
+            print('$firstEmotion에 해당하는 플레이리스트를 찾을 수 없습니다.');
+          }
+        }
       } catch (e) {
         print('$emotion 플레이리스트에 트랙 추가 중 오류 발생: $e');
       }
     }
+  }
+
+  Future _showLoadingDialogAndAddTracks(Map<String, dynamic> tagsResult) async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(height: 16),
+              Text('감정에 맞는 트랙을 추가하고 있습니다...'),
+            ],
+          ),
+        );
+      },
+    );
+    await Future.delayed(Duration(seconds: 2));
+    Navigator.of(context).pop();
+    await _addTracksByDetectedEmotion(tagsResult);
   }
 
   void _showEditPlaylistNameDialog(String playlistId, String currentName) {
@@ -441,11 +482,32 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
                                     icon: Icon(Icons.add, color: Colors.grey[700], size: 12),
                                     onPressed: () async {
                                       List<String> emotionTags = emotionInfoItem['tag'].split(',');
-                                      await _addInitialTracks(
-                                          emotion, playlist['id'], emotionTags);
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return AlertDialog(
+                                            title: Text('랜덤 추천 트랙 추가'),
+                                            content: Text('이 감정에 대한 트랙을 추가하시겠습니까?'),
+                                            actions: <Widget>[
+                                              TextButton(
+                                                child: Text('취소'),
+                                                onPressed: () {
+                                                  Navigator.of(context).pop();
+                                                },
+                                              ),
+                                              TextButton(
+                                                child: Text('확인'),
+                                                onPressed: () async {
+                                                  Navigator.of(context).pop();
+                                                  await _addInitialTracks(emotion, playlist['id'], emotionTags);
+                                                },
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      );
                                     },
                                   ),
-
                                 ],
                               ),
                               Text(

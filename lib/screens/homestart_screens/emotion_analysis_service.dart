@@ -126,7 +126,18 @@ class EmotionAnalysisService {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         if (data['success']) {
-          return {'success': true, 'tags': data['tags']};
+          List<Map<String, dynamic>> orderedTags = [];
+
+          for (String emotion in detectedEmotions.split(',')) {
+            var matchingTag = data['tags'].firstWhere(
+                    (tag) => tag['emotion'] == emotion,
+                orElse: () => null
+            );
+            if (matchingTag != null) {
+              orderedTags.add(matchingTag);
+            }
+          }
+          return {'success': true, 'tags': orderedTags};
         } else {
           return {'success': false, 'message': data['message']};
         }
