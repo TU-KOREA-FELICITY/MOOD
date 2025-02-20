@@ -27,7 +27,7 @@ class _PlaylistDetailViewState extends State<PlaylistDetailView> {
   Set<String> _selectedTracks = {};
   bool _selectionMode = false;
   List<dynamic> _tracks = [];
-  final List<String> _emotionCategories = ['행복', '슬픔', '분노', '놀람', '혐오', '공포', '중립', '경멸'];
+  final List<String> _emotionCategories = ['행복', '슬픔', '분노', '놀람', '혐오', '공포', '평온', '혼란'];
 
   @override
   void initState() {
@@ -359,12 +359,14 @@ class _PlaylistDetailViewState extends State<PlaylistDetailView> {
           await widget.spotifyService
               .addTrackToPlaylist(selectedPlaylist['id'], batch);
         }
+        Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('선택한 곡이 플레이리스트에 추가되었습니다.')),
         );
         setState(() {
           _selectedTracks.clear();
           _selectionMode = false;
+          _isEditing = false;
         });
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(

@@ -1,4 +1,4 @@
-// 검색 홈 (내 플레이리스트 탭에서 플레이리스트 클릭 시)
+// 검색 홈 (플레이리스트 클릭 시)
 
 import 'package:flutter/material.dart';
 import '../../services/spotify_service.dart';

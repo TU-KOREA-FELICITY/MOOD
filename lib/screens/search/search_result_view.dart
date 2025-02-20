@@ -40,7 +40,7 @@ class _SearchResultViewState extends State<SearchResultView> {
   bool _playlistSelectionMode = false;
   List<dynamic> _selectedTracks = [];
   List<dynamic> _selectedPlaylists = [];
-  final List<String> _emotionCategories = ['행복', '슬픔', '분노', '놀람', '혐오', '공포', '중립', '경멸'];
+  final List<String> _emotionCategories = ['행복', '슬픔', '분노', '놀람', '혐오', '공포', '평온', '혼란'];
 
   @override
   void initState() {
@@ -612,13 +612,14 @@ class _SearchResultViewState extends State<SearchResultView> {
         track.map<String>((track) => track['uri']).toList();
         await widget.spotifyService
             .addTrackToPlaylist(selectedPlaylist['id'], trackUris);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('선택한 곡이 플레이리스트에 추가되었습니다.')),
-        );
+        Navigator.of(context).pop();
         setState(() {
           _selectedTracks.clear();
           _selectionMode = false;
         });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('선택한 곡이 플레이리스트에 추가되었습니다.')),
+        );
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('곡 추가에 실패했습니다: $e')),
@@ -783,8 +784,10 @@ class _SearchResultViewState extends State<SearchResultView> {
               ),
               SizedBox(height: 20),
               ElevatedButton(
-                onPressed: () =>
-                    _showPlaylistOptions(_selectedTracks, '감정 카테고리'),
+                onPressed: () {
+                  Navigator.pop(context); // 다이얼로그 닫기
+                  _showPlaylistOptions(_selectedTracks, '감정 카테고리');
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
                   shape: RoundedRectangleBorder(

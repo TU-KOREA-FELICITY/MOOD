@@ -1,7 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import '../../services/spotify_service.dart';
+import 'package:marquee/marquee.dart';
 import 'package:spotify_sdk/spotify_sdk.dart';
+import '../../services/spotify_service.dart';
 
 class Miniplayer extends StatefulWidget {
   final SpotifyService spotifyService;
@@ -138,23 +139,38 @@ class _MiniplayerState extends State<Miniplayer>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        _currentTrack,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 17,
+                      Container(
+                        height: 24,
+                        child: Marquee(
+                          text: _currentTrack,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 17,
+                          ),
+                          scrollAxis: Axis.horizontal,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          blankSpace: 60.0,
+                          velocity: 30.0,
+                          pauseAfterRound: Duration(seconds: 1),
+                          startPadding: 10.0,
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
                       ),
-                      Text(
-                        _artistName,
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 14,
+                      SizedBox(height: 4),
+                      Container(
+                        height: 16,
+                        child: Marquee(
+                          text: _artistName,
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 14,
+                          ),
+                          scrollAxis: Axis.horizontal,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          blankSpace: 60.0,
+                          velocity: 30.0,
+                          pauseAfterRound: Duration(seconds: 1),
+                          startPadding: 10.0,
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),

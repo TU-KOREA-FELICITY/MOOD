@@ -2,6 +2,7 @@
 //블루 0xFF265F0
 
 import 'package:flutter/material.dart';
+import 'package:spotify_sdk/spotify_sdk.dart';
 import '../../services/spotify_service.dart';
 import 'playlist_tracks_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -127,9 +128,11 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
     } catch (e) {
       print('플레이리스트 로딩 중 오류 발생: $e');
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -333,8 +336,7 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
                   },
                 );
                 return GestureDetector(
-                  onTap: () =>
-                      _showPlaylistTracks(playlist['id'], playlist['name']),
+                  onTap: () => _showPlaylistTracks(playlist['id'], playlist['name']),
                   child: Container(
                     decoration: BoxDecoration(
                       color: _getColorForEmotion(emotion),
@@ -342,30 +344,44 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(12.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      child: Stack(
                         children: [
-                          Text(
-                            'Playlist',
-                            style: TextStyle(
-                              color: Colors.grey[700],
-                              fontSize: 12,
-                            ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Playlist',
+                                style: TextStyle(
+                                  color: Colors.grey[700],
+                                  fontSize: 12,
+                                ),
+                              ),
+                              Text(
+                                emotion,
+                                style: const TextStyle(
+                                  color: Colors.black87,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                '${playlist['tracks']['total']}곡',
+                                style: TextStyle(
+                                  color: Colors.grey[700],
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
                           ),
-                          Text(
-                            emotion,
-                            style: const TextStyle(
-                              color: Colors.black87,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Text(
-                            '${playlist['tracks']['total']}곡',
-                            style: TextStyle(
-                              color: Colors.grey[700],
-                              fontSize: 12,
+                          Positioned(
+                            right: 0,
+                            bottom: 0,
+                            child: IconButton(
+                              icon: Icon(Icons.play_arrow, color: Colors.black),
+                              onPressed: () async {
+                                await SpotifySdk.play(spotifyUri: playlist['uri']);
+                              },
                             ),
                           ),
                         ],
@@ -525,6 +541,12 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
                                 fontSize: 18, fontWeight: FontWeight.bold),
                           ),
                           subtitle: Text('${playlist['tracks']['total']}곡'),
+                          leading: IconButton(
+                            icon: Icon(Icons.play_arrow, color: Colors.black),
+                            onPressed: () async {
+                              await SpotifySdk.play(spotifyUri: playlist['uri']);
+                            },
+                          ),
                           trailing: IconButton(
                             icon: Icon(icon),
                             onPressed: () {
