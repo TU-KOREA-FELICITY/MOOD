@@ -127,10 +127,12 @@ class _HomeScreenState extends State<HomeScreen> {
       _status = '감정 분석 중...';
     });
     final result = await _emotionAnalysisService.runEmotionAnalysis();
-    setState(() {
-      _emotionResult = result['result'] ?? '';
-      _status = result['status'];
-    });
+    if (mounted) {
+      setState(() {
+        _emotionResult = result['result'] ?? '';
+        _status = result['status'];
+      });
+    }
   }
 
   void _restartRecognition() {

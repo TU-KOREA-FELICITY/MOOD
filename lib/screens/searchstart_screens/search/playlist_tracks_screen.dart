@@ -295,7 +295,10 @@ class _PlaylistTracksScreenState extends State<PlaylistTracksScreen> {
               ),
               SizedBox(height: 10),
               ElevatedButton(
-                onPressed: () => _showPlaylistOptions(null, '내 플레이리스트'),
+                onPressed: () {
+                  Navigator.pop(context);
+                  _showPlaylistOptions(_tracks, '내 플레이리스트');
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
                   shape: RoundedRectangleBorder(
@@ -471,7 +474,7 @@ class _PlaylistTracksScreenState extends State<PlaylistTracksScreen> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(10),
                         ),
                       ),
                       child: Text('삭제', style: TextStyle(color: Colors.white)),
@@ -484,7 +487,7 @@ class _PlaylistTracksScreenState extends State<PlaylistTracksScreen> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(10),
                         ),
                       ),
                       child: Text('추가', style: TextStyle(color: Colors.white)),

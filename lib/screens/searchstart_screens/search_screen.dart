@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../homestart_screens/emotion_analysis_service.dart';
 import 'service/spotify_service.dart';
+import '../homestart_screens/emotion_analysis_service.dart';
 import '../start_screens/spotify_web_login_screen.dart';
 import 'widget/miniplayer.dart';
 import 'search/search_result_screen.dart';
@@ -40,7 +40,6 @@ class _SearchScreenState extends State<SearchScreen>
     _emotionAnalysisService.setUserInfo(widget.userInfo['user_id']);
     _initializeApp();
     _fetchTag();
-    // _startPeriodicUpdate();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _authenticateAutomatically();
@@ -68,7 +67,6 @@ class _SearchScreenState extends State<SearchScreen>
       _isConnected = _spotifyService.isConnected;
     });
     if (_isConnected) {
-      // _updateCurrentTrack();
     }
   }
 
@@ -96,17 +94,8 @@ class _SearchScreenState extends State<SearchScreen>
       setState(() {
         _isConnected = true;
       });
-      // _updateCurrentTrack();
     }
   }
-
-  // void _startPeriodicUpdate() {
-  //   _updateTimer = Timer.periodic(Duration(seconds: 1), (timer) {
-  //     if (_isConnected) {
-  //       _updateCurrentTrack();
-  //     }
-  //   });
-  // }
 
   @override
   void dispose() {

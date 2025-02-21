@@ -145,15 +145,6 @@ class SpotifyService {
     }
   }
 
-  Future<void> playTrack(String spotifyUri) async {
-    try {
-      await SpotifySdk.play(spotifyUri: spotifyUri);
-    } catch (e) {
-      print('Failed to play track: $e');
-      throw e;
-    }
-  }
-
   Future<String> getCurrentUserId() async {
     await _refreshTokenIfNeeded();
 
@@ -231,6 +222,15 @@ class SpotifyService {
     }
   }
 
+  Future<void> playTrack(String spotifyUri) async {
+    try {
+      await SpotifySdk.play(spotifyUri: spotifyUri);
+    } catch (e) {
+      print('Failed to play track: $e');
+      throw e;
+    }
+  }
+
   Future<int> addTrackToPlaylist(
       String playlistId, List<String> trackUris) async {
     await _refreshTokenIfNeeded();
@@ -255,6 +255,35 @@ class SpotifyService {
       }
     } catch (e) {
       print('곡 추가 중 오류 발생: $e');
+      throw e;
+    }
+  }
+
+  Future<List<String>> addTracksToPlaylist(
+      String playlistId, List<String> trackUris) async {
+    await _refreshTokenIfNeeded();
+    final url = 'https://api.spotify.com/v1/playlists/$playlistId/tracks';
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          'Authorization': 'Bearer $_accessToken',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'uris': trackUris,
+        }),
+      );
+      if (response.statusCode == 201) {
+        print('트랙이 성공적으로 추가되었습니다.');
+        return trackUris;
+      } else {
+        print('트랙 추가 실패: ${response.statusCode}');
+        print('에러 메시지: ${response.body}');
+        throw Exception('트랙 추가 실패: ${response.body}');
+      }
+    } catch (e) {
+      print('트랙 추가 중 오류 발생: $e');
       throw e;
     }
   }
@@ -379,7 +408,6 @@ class SpotifyService {
 
     final url = 'https://api.spotify.com/v1/playlists/$playlistId';
 
-    // 업데이트할 필드만 포함하는 맵을 생성합니다.
     final Map<String, dynamic> body = {};
     if (name != null) {
       body['name'] = name;
@@ -484,35 +512,6 @@ class SpotifyService {
     } catch (e) {
       print('플레이리스트 검색 중 오류 발생: $e');
       return {'playlists': []};
-    }
-  }
-
-  Future<List<String>> addTracksToPlaylist(
-      String playlistId, List<String> trackUris) async {
-    await _refreshTokenIfNeeded();
-    final url = 'https://api.spotify.com/v1/playlists/$playlistId/tracks';
-    try {
-      final response = await http.post(
-        Uri.parse(url),
-        headers: {
-          'Authorization': 'Bearer $_accessToken',
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode({
-          'uris': trackUris,
-        }),
-      );
-      if (response.statusCode == 201) {
-        print('트랙이 성공적으로 추가되었습니다.');
-        return trackUris;
-      } else {
-        print('트랙 추가 실패: ${response.statusCode}');
-        print('에러 메시지: ${response.body}');
-        throw Exception('트랙 추가 실패: ${response.body}');
-      }
-    } catch (e) {
-      print('트랙 추가 중 오류 발생: $e');
-      throw e;
     }
   }
 }

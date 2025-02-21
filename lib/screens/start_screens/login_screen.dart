@@ -77,7 +77,7 @@ class _LoginScreenState extends State<LoginScreen> {
       _checkAuthStatus();
     } catch (e) {
       setState(() {
-        _status = '인증 시작 오류: $e';
+        _status = '로그인 오류';
       });
     }
   }
@@ -112,7 +112,7 @@ class _LoginScreenState extends State<LoginScreen> {
           }
         } catch (e) {
           setState(() {
-            _status = '로그인 완료 중 오류: $e';
+            _status = '로그인 완료 중 오류';
             _authNotComplete = false;
           });
         }
@@ -128,7 +128,7 @@ class _LoginScreenState extends State<LoginScreen> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _status = '인증 상태 확인 오류: $e';
+          _status = '인증 상태 확인 오류';
           _authNotComplete = false;
         });
       }
@@ -165,7 +165,7 @@ class _LoginScreenState extends State<LoginScreen> {
     } catch (e) {
       return {
         'success': false,
-        'message': '로그인 완료 중 오류 발생: $e',
+        'message': '로그인 완료 중 오류 발생',
       };
     }
   }

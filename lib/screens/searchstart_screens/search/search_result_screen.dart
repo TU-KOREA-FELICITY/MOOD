@@ -39,7 +39,9 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
   final FocusNode _focusNode = FocusNode();
   Map<String, bool> _showButtons = {};
   bool _selectionMode = false;
+  bool _playlistSelectionMode = false;
   List<dynamic> _selectedTracks = [];
+  List<dynamic> _selectedPlaylists = [];
   final List<String> _emotionCategories = [
     '행복',
     '슬픔',
@@ -209,9 +211,9 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
                   child: Column(
                     children: [
                       TabBar(
-                        labelColor: Colors.blueAccent,
+                        labelColor: Color(0xFF2265F0),
                         unselectedLabelColor: Colors.grey,
-                        indicatorColor: Colors.blueAccent,
+                        indicatorColor: Color(0xFF2265F0),
                         tabs: [
                           Tab(
                             text: '트랙',
@@ -312,26 +314,22 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
                         color: Colors.black,
                       ),
                     ),
-                    Row(
-                      children: [
-                        TextButton(
-                          onPressed: () {
-                            setState(() {
-                              _selectionMode = true;
-                            });
-                          },
-                          child: Text('선택'),
+                    TextButton(
+                      onPressed: () {
+                        setState(() {
+                          _selectionMode = !_selectionMode;
+                          if (!_selectionMode) {
+                            _selectedTracks.clear();
+                          }
+                        });
+                      },
+                      child: Text(
+                        _selectionMode ? '해제' : '선택',
+                        style: TextStyle(
+                          color: _selectionMode ? Colors.grey : Colors.blue,
+                          fontWeight: FontWeight.bold,
                         ),
-                        TextButton(
-                          onPressed: () {
-                            setState(() {
-                              _selectionMode = false;
-                              _selectedTracks.clear();
-                            });
-                          },
-                          child: Text('해제'),
-                        ),
-                      ],
+                      ),
                     ),
                   ],
                 ),
@@ -346,17 +344,26 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
                 ),
               ),
               if (_selectedTracks.isNotEmpty)
-                Padding(
-                  padding: EdgeInsets.all(16.0),
+                Positioned(
+                  bottom: 30.0,
+                  left: 20.0,
+                  right: 20.0,
                   child: ElevatedButton(
-                    onPressed: () {
-                      _showAddDialog();
-                    },
-                    child: Text('선택한 곡 추가'),
+                    onPressed: () => _showAddDialog(),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xFF2265F0),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      padding: EdgeInsets.symmetric(vertical: 13),
+                    ),
+                    child: Text('선택한 곡 추가', style:
+                    TextStyle(color: Colors.white,
+                        fontSize: 20, fontWeight: FontWeight.w900)),
                   ),
                 ),
             ],
-          );
+    );
   }
 
   Widget _buildPlaylistsTab() {
@@ -371,13 +378,18 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
             children: [
               Padding(
                 padding: EdgeInsets.all(16.0),
-                child: Text(
-                  '검색 결과',
-                  style: TextStyle(
-                    fontSize: 18.0,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      '검색 결과',
+                      style: TextStyle(
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ],
                 ),
               ),
               SizedBox(height: 7.0),
@@ -390,6 +402,27 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
                   ),
                 ),
               ),
+              SizedBox(height: 8.0),
+              if (_selectedPlaylists.isNotEmpty)
+                Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () => _showAddDialogForPlaylists(),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Color(0xFF2265F0),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          child: Text('플레이리스트 곡 추가'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
             ],
           );
   }
@@ -512,9 +545,9 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
   void _showPlaylistOptions(List<dynamic> track, String option) async {
     final playlists = await _getPlaylists();
     final List<Map<String, dynamic>> typedPlaylists =
-        List<Map<String, dynamic>>.from(playlists);
+    List<Map<String, dynamic>>.from(playlists);
     final filteredPlaylists =
-        filterPlaylists(typedPlaylists, option == '감정 카테고리');
+    filterPlaylists(typedPlaylists, option == '감정 카테고리');
     final selectedPlaylist = await showDialog<Map<String, dynamic>>(
       context: context,
       builder: (BuildContext context) {
@@ -585,16 +618,17 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
     if (selectedPlaylist != null) {
       try {
         List<String> trackUris =
-            track.map<String>((track) => track['uri']).toList();
+        track.map<String>((track) => track['uri']).toList();
         await widget.spotifyService
             .addTrackToPlaylist(selectedPlaylist['id'], trackUris);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('선택한 곡이 플레이리스트에 추가되었습니다.')),
-        );
+        Navigator.of(context).pop();
         setState(() {
           _selectedTracks.clear();
           _selectionMode = false;
         });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('선택한 곡이 플레이리스트에 추가되었습니다.')),
+        );
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('곡 추가에 실패했습니다: $e')),
@@ -606,7 +640,7 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
   Widget _buildAlbumCover(dynamic track) {
     final images = track['album']?['images'] as List?;
     final imageUrl =
-        images?.isNotEmpty == true ? images?.first['url'] as String? : null;
+    images?.isNotEmpty == true ? images?.first['url'] as String? : null;
     return Container(
       width: 50,
       height: 50,
@@ -616,22 +650,61 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
       ),
       child: imageUrl != null
           ? ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.network(
-                imageUrl,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Center(
-                      child: Icon(Icons.music_note, color: Colors.grey[600]));
-                },
-              ),
-            )
+        borderRadius: BorderRadius.circular(8),
+        child: Image.network(
+          imageUrl,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            return Center(
+                child: Icon(Icons.music_note, color: Colors.grey[600]));
+          },
+        ),
+      )
           : Center(child: Icon(Icons.music_note, color: Colors.grey[600])),
     );
   }
 
+  Widget _buildPlaylistCover(dynamic playlist) {
+    if(playlist == null) {
+      return Container(
+        width: 50,
+        height: 50,
+        decoration: BoxDecoration(
+          color: Colors.grey[300],
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Center(child: Icon(Icons.error, color: Colors.grey[600])),
+      );
+    }
+    final images = playlist['images'] as List?;
+    final imageUrl = images?.isNotEmpty == true ? images?.first['url'] as String? : null;
+    return Container(
+      width: 50,
+      height: 50,
+      decoration: BoxDecoration(
+        color: Colors.grey[300],
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: imageUrl != null
+          ? ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: Image.network(
+          imageUrl,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            return Center(
+                child: Icon(Icons.playlist_play, color: Colors.grey[600]));
+          },
+        ),
+      )
+          : Center(child: Icon(Icons.playlist_play, color: Colors.grey[600])),
+    );
+  }
+
   List<Widget> _buildPlaylistList() {
-    return (_searchResults['playlists'] as List<dynamic>).map((playlist) {
+    return (_searchResults['playlists'] as List<dynamic>).where((playlist)
+    => playlist?['name'] != null && playlist['name'] != '알 수 없는 플레이리스트')
+        .map((playlist) {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
         child: Container(
@@ -649,8 +722,22 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
           ),
           child: ListTile(
             contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            leading: _playlistSelectionMode
+                ? Checkbox(value: _selectedPlaylists.contains(playlist),
+              onChanged: (bool? value){
+                setState(() {
+                  if (value ==  true) {
+                    _selectedPlaylists.add(playlist);
+                  }
+                  else {
+                    _selectedPlaylists.remove(playlist);
+                  }
+                });
+              },
+            )
+                : _buildPlaylistCover(playlist),
             title: Text(
-              playlist?['name'] ?? '알 수 없는 플레이리스트',
+              playlist?['name'],
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             subtitle: Text('${playlist?['tracks']?['total'] ?? 0} 트랙'),
@@ -664,10 +751,6 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
                     _updateCurrentTrack();
                   },
                 ),
-                IconButton(
-                  icon: Icon(Icons.playlist_add, color: Colors.black),
-                  onPressed: () {},
-                ),
               ],
             ),
             onTap: () {
@@ -677,7 +760,10 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
                   builder: (context) => PlaylistDetailScreen(
                     spotifyService: widget.spotifyService,
                     playlistId: playlist?['id'] ?? '',
-                    playlistName: playlist?['name'] ?? '알 수 없는 플레이리스트',
+                    playlistName: playlist?['name'],
+                    onPlaylistUpdated: (playlistId, trackCount) {
+                      print('플레이리스트 $playlistId 가 $trackCount 곡으로 업데이트됨');
+                    },
                   ),
                 ),
               );
@@ -706,8 +792,10 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
               ),
               SizedBox(height: 20),
               ElevatedButton(
-                onPressed: () =>
-                    _showPlaylistOptions(_selectedTracks, '감정 카테고리'),
+                onPressed: () {
+                  Navigator.pop(context); // 다이얼로그 닫기
+                  _showPlaylistOptions(_selectedTracks, '감정 카테고리');
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
                   shape: RoundedRectangleBorder(
@@ -733,5 +821,57 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
         );
       },
     );
+  }
+
+  void _showAddDialogForPlaylists() async {
+    List<dynamic> myPlaylists = await widget.spotifyService.getPlaylists();
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('플레이리스트추가'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: myPlaylists.map((playlist) {
+                return InkWell(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(playlist['name']),
+                  ),
+                  onTap: () {
+                    _addSelectedPlaylists(playlist);
+                    Navigator.of(context).pop();
+                  },
+                );
+              }).toList(),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _addSelectedPlaylists(dynamic targetPlaylist) async {
+    String targetPlaylistId = targetPlaylist['id'];
+    for (var playlist in _selectedPlaylists) {
+      String playlistId = playlist['id'];
+      try {
+        List<dynamic> tracks = await widget.spotifyService.getPlaylistTracks(playlistId);
+        List<String> trackUris = tracks.map<String>((track) => track['track']['uri'] as String).toList();
+        await widget.spotifyService.addTrackToPlaylist(targetPlaylistId, trackUris);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('선택한 플레이리스트의 트랙들을 "${targetPlaylist['name']}"에 추가했습니다.')),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('플레이리스트 추가에 실패했습니다: $e')),
+        );
+      }
+    }
+    setState(() {
+      _selectedPlaylists.clear();
+      _playlistSelectionMode = false;
+    });
   }
 }
