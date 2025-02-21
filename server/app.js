@@ -461,6 +461,30 @@ app.post('/get_emotion_tags', async (req, res) => {
   }
 });
 
+app.post('/get_search_tag', async (req, res) => {
+  try {
+    const [dbResult] = await pool.query('SELECT emotion_name, tag FROM emotion');
+
+    if (dbResult.length > 0) {
+      res.json({
+        success: true,
+        emotions: dbResult.map(emotion => ({
+          emotion: emotion.emotion_name,
+          tag: emotion.tag,
+      })),
+    });
+    } else {
+      res.json({
+        success: false,
+        message: '감정 태그를 찾을 수 없습니다.',
+      });
+    }
+  } catch (error) {
+    console.error('태그 가져오는 중 오류 발생:', error);
+    res.status(500).json({ success: false, message: '서버 오류가 발생했습니다.' });
+  }
+});
+
 app.post('/warning', async (req, res) => {
   console.log('Received warning:', req.body);
   const io = req.app.get('io'); // server.js에서 설정한 io 객체를 가져옴
@@ -489,26 +513,24 @@ app.post('/warning', async (req, res) => {
   }
 });
 
-app.post('/get_search_tag', async (req, res) => {
+app.post('/get_warning', async (req, res) => {
+  const { user_id } = req.body;
+
   try {
-    const [dbResult] = await pool.query('SELECT emotion_name, tag FROM emotion');
+    const [dbResult] = await pool.query(`
+      SELECT focus_level AS level, axis, created_at AS timestamp
+      FROM focus
+      WHERE user_id = ?
+      ORDER BY created_at DESC
+    `, [user_id]);
 
     if (dbResult.length > 0) {
-      res.json({
-        success: true,
-        emotions: dbResult.map(emotion => ({
-          emotion: emotion.emotion_name,
-          tag: emotion.tag,
-      })),
-    });
+      res.json({ success: true, warnings: dbResult });
     } else {
-      res.json({
-        success: false,
-        message: '감정 태그를 찾을 수 없습니다.',
-      });
+      res.status(404).json({ success: false, message: '경고 기록을 찾을 수 없습니다.' });
     }
   } catch (error) {
-    console.error('태그 가져오는 중 오류 발생:', error);
+    console.error('경고 기록을 가져오는 중 오류:', error);
     res.status(500).json({ success: false, message: '서버 오류가 발생했습니다.' });
   }
 });

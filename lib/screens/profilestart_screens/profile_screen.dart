@@ -52,7 +52,7 @@ class ProfileScreen extends StatelessWidget {
                     ),
                     onPressed: () {
                       Navigator.push(context, MaterialPageRoute(
-                          builder: (context) => WarningRecordScreen()
+                          builder: (context) => WarningRecordScreen(userInfo: userInfo)
                       ));
                     },
                   ),
@@ -155,7 +155,7 @@ class ProfileScreen extends StatelessWidget {
                 children: [
                   SizedBox(height: 10),
                   TextButton(
-                    onPressed: () {  },
+                    onPressed: () {},
                     child: Row(
                       children: [
                         Icon(Icons.announcement, color: Colors.black, size: 20),

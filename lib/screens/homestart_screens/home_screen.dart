@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:fl_chart/fl_chart.dart';
+import 'package:audioplayers/audioplayers.dart';
 import '../searchstart_screens/service/spotify_service.dart';
 import 'emotion_analysis_service.dart';
 import '../searchstart_screens/widget/miniplayer.dart';
@@ -20,8 +21,9 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final SpotifyService _spotifyService = SpotifyService();
-  final EmotionAnalysisService _emotionAnalysisService =
-      EmotionAnalysisService();
+  final EmotionAnalysisService _emotionAnalysisService = EmotionAnalysisService();
+  final AudioPlayer _audioPlayer = AudioPlayer();
+  bool _isDialogShowing = false;
   bool _isLoggedIn = false;
   int _currentIndex = 0;
   IO.Socket? socket;
@@ -147,14 +149,33 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void updateWarningData(String warningMessage) {
     double warningLevel = 0;
-    if (warningMessage.contains('안전'))
+    String dialogTitle = '';
+    String dialogContent = '';
+    String soundAsset = '';
+
+    if (warningMessage.contains('안전')) {
       warningLevel = 0;
-    else if (warningMessage.contains('경고'))
+      if (_isDialogShowing) {
+        Navigator.of(context).pop();
+        _isDialogShowing = false;
+        _audioPlayer.stop();
+      }
+    } else if (warningMessage.contains('경고')) {
       warningLevel = 1;
-    else if (warningMessage.contains('주의'))
+      dialogTitle = '경고';
+      dialogContent = '경고 상태입니다. 주의해주세요.';
+      soundAsset = 'warning_sound.mp3';
+    } else if (warningMessage.contains('주의')) {
       warningLevel = 2;
-    else if (warningMessage.contains('위험'))
+      dialogTitle = '주의';
+      dialogContent = '주의 상태입니다. 집중해주세요.';
+      soundAsset = 'caution_sound.mp3';
+    } else if (warningMessage.contains('위험')) {
       warningLevel = 3;
+      dialogTitle = '위험';
+      dialogContent = '위험 상태입니다. 즉시 조치를 취해주세요.';
+      soundAsset = 'danger_sound.mp3';
+    }
 
     DateTime now = DateTime.now();
     warningData.add(FlSpot(now.millisecondsSinceEpoch.toDouble(), warningLevel));
@@ -162,7 +183,39 @@ class _HomeScreenState extends State<HomeScreen> {
     double tenMinutesAgo = now.millisecondsSinceEpoch.toDouble() - (30 * 60 * 1000);
     warningData.removeWhere((spot) => spot.x < tenMinutesAgo);
 
+    if (warningLevel > 0 && !_isDialogShowing) {
+      _showWarningDialog(dialogTitle, dialogContent);
+      _playWarningSound(soundAsset);
+    }
+
     setState(() {});
+  }
+
+  void _showWarningDialog(String title, String content) {
+    _isDialogShowing = true;
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(content),
+          actions: <Widget>[
+            TextButton(
+              child: Text('확인'),
+              onPressed: () {
+                Navigator.of(context).pop();
+                _isDialogShowing = false;
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _playWarningSound(String assetPath) async {
+    await _audioPlayer.play(AssetSource(assetPath));
   }
 
   @override
