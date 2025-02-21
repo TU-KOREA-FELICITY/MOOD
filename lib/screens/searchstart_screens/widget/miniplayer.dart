@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:spotify_sdk/models/image_uri.dart';
 import 'package:spotify_sdk/spotify_sdk.dart';
 import 'package:marquee/marquee.dart';
 import '../service/spotify_service.dart';
@@ -23,6 +25,7 @@ class _MiniplayerState extends State<Miniplayer>
   double _duration = 1.0;
   Timer? _updateTimer;
   Timer? _trackEndTimer;
+  Uint8List? _albumArtwork;
 
   @override
   void initState() {
@@ -39,9 +42,11 @@ class _MiniplayerState extends State<Miniplayer>
   }
 
   void _checkTrackEnd() {
-    if (_sliderValue >= 0.99) { // 트랙의 99%가 재생되었을 때
+    if (_sliderValue >= 0.99) {
+      // 트랙의 99%가 재생되었을 때
       _trackEndTimer?.cancel(); // 기존 타이머 취소
-      _trackEndTimer = Timer(Duration(seconds: 1), () { // 1초 후 콜백 호출
+      _trackEndTimer = Timer(Duration(seconds: 1), () {
+        // 1초 후 콜백 호출
         widget.onTrackFinished(); // 트랙 종료 시 콜백 호출
       });
     }
@@ -63,6 +68,9 @@ class _MiniplayerState extends State<Miniplayer>
       _updateCurrentTrack();
     } catch (e) {
       print('Failed to toggle play/pause: $e');
+      if (e.toString().contains('SpotifyDisconnectedException')) {
+        await _reconnectToSpotify();
+      }
     }
   }
 
@@ -91,14 +99,39 @@ class _MiniplayerState extends State<Miniplayer>
         setState(() {
           _currentTrack = playerState.track!.name;
           _artistName = playerState.track!.artist.name!;
-          _isPlaying =
-          playerState.isPaused != null ? !playerState.isPaused : false;
+          _isPlaying = playerState.isPaused != null ? !playerState.isPaused : false;
           _duration = playerState.track!.duration.toDouble();
           _sliderValue = (playerState.playbackPosition / _duration).clamp(0.0, 1.0);
         });
+        _albumArtwork = await _loadAlbumArtwork(playerState.track!.imageUri);
+        setState(() {});
       }
     } catch (e) {
       print('Failed to get player state: $e');
+      if (e.toString().contains('SpotifyDisconnectedException')) {
+        await _reconnectToSpotify();
+      }
+    }
+  }
+
+  Future<void> _reconnectToSpotify() async {
+    try {
+      await widget.spotifyService.connect();
+      print('Spotify 재연결 성공');
+    } catch (e) {
+      print('Spotify 재연결 실패: $e');
+    }
+  }
+
+  Future<Uint8List?> _loadAlbumArtwork(ImageUri imageUri) async {
+    try {
+      return await SpotifySdk.getImage(
+        imageUri: imageUri,
+        dimension: ImageDimension.medium,
+      );
+    } catch (e) {
+      print('Failed to load album artwork: $e');
+      return null;
     }
   }
 
@@ -108,7 +141,7 @@ class _MiniplayerState extends State<Miniplayer>
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         child: Container(
-          height: 100,
+          height: 110,
           padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
             color: Colors.grey[200],
@@ -118,6 +151,23 @@ class _MiniplayerState extends State<Miniplayer>
             children: [
               Row(
                 children: [
+                  _albumArtwork != null
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Image.memory(
+                            _albumArtwork!,
+                            width: 50,
+                            height: 50,
+                            fit: BoxFit.cover,
+                          ),
+                        )
+                      : Container(
+                          width: 50,
+                          height: 50,
+                          color: Colors.grey[300],
+                          child:
+                              Icon(Icons.music_note, color: Colors.grey[600]),
+                        ),
                   SizedBox(width: 12),
                   Expanded(
                     child: Column(
@@ -173,8 +223,8 @@ class _MiniplayerState extends State<Miniplayer>
                         onPressed: _togglePlayPause,
                       ),
                       IconButton(
-                        icon:
-                        Icon(Icons.skip_next, color: Colors.black, size: 24),
+                        icon: Icon(Icons.skip_next,
+                            color: Colors.black, size: 24),
                         onPressed: _playNextTrack,
                       ),
                     ],

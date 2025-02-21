@@ -233,22 +233,30 @@ class _PlaylistTracksScreenState extends State<PlaylistTracksScreen> {
         );
       },
     );
-    if (selectedPlaylist != null) {
+    if (widget._selectedTracks.isEmpty) {
       try {
         if (track != null) {
           String trackUri = track['uri'] ?? 'spotify:track:${track['id']}';
+          Navigator.of(context).pop();
+          setState(() {
+            widget._isEditing = false;
+          });
           await widget.spotifyService
-              .addTrackToPlaylist(selectedPlaylist['id'], [trackUri]);
+              .addTrackToPlaylist(selectedPlaylist?['id'], [trackUri]);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('곡이 플레이리스트에 추가되었습니다.')),
           );
         } else {
           // 여러 곡 추가
+          Navigator.of(context).pop();
+          setState(() {
+            widget._isEditing = false;
+          });
           List<String> trackUris = widget._selectedTracks.map((trackId) {
             return 'spotify:track:$trackId';
           }).toList();
           await widget.spotifyService.addTrackToPlaylist(
-            selectedPlaylist['id'],
+            selectedPlaylist?['id'],
             trackUris,
           );
           ScaffoldMessenger.of(context).showSnackBar(
@@ -295,10 +303,7 @@ class _PlaylistTracksScreenState extends State<PlaylistTracksScreen> {
               ),
               SizedBox(height: 10),
               ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  _showPlaylistOptions(_tracks, '내 플레이리스트');
-                },
+                onPressed: () => _showPlaylistOptions(null, '내 플레이리스트'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
                   shape: RoundedRectangleBorder(
@@ -313,7 +318,6 @@ class _PlaylistTracksScreenState extends State<PlaylistTracksScreen> {
       },
     );
   }
-
 
   @override
   Widget build(BuildContext context) {

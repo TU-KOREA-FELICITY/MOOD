@@ -75,6 +75,25 @@ class SpotifyService {
     }
   }
 
+  Future<bool> connect() async {
+    try {
+      bool result = await SpotifySdk.connectToSpotifyRemote(
+        clientId: clientId,
+        redirectUrl: redirectUri,
+      );
+      if (result) {
+        print('Spotify에 성공적으로 연결되었습니다.');
+        return true;
+      } else {
+        print('Spotify 연결에 실패했습니다.');
+        return false;
+      }
+    } catch (e) {
+      print('Spotify 연결 중 오류 발생: $e');
+      return false;
+    }
+  }
+
   Future<void> _refreshTokenIfNeeded() async {
     if (_accessToken.isNotEmpty && !_isTokenExpired()) return;
     if (_refreshToken.isNotEmpty) {
