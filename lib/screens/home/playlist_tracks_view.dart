@@ -235,28 +235,30 @@ class _PlaylistTracksViewState extends State<PlaylistTracksView> {
     );
     if (selectedPlaylist != null) {
       try {
-        if (track != null) {
-          String trackUri = track['uri'] ?? 'spotify:track:${track['id']}';
-          await widget.spotifyService
-              .addTrackToPlaylist(selectedPlaylist['id'], [trackUri]);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('곡이 플레이리스트에 추가되었습니다.')),
-          );
+        if(widget._selectedTracks.isEmpty){
+          if (track != null) {
+            String trackUri = track['uri'] ?? 'spotify:track:${track['id']}';
+            await widget.spotifyService
+                .addTrackToPlaylist(selectedPlaylist['id'], [trackUri]);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('곡이 플레이리스트에 추가되었습니다.')),
+            );
+          }
         } else {
-          // 여러 곡 추가
-          List<String> trackUris = widget._selectedTracks.map((trackId) {
-            return 'spotify:track:$trackId';
-          }).toList();
-          await widget.spotifyService.addTrackToPlaylist(
-            selectedPlaylist['id'],
-            trackUris,
-          );
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('선택한 곡들이 플레이리스트에 추가되었습니다.')),
-          );
-          await _loadTracks();
-          widget.onPlaylistUpdated(widget.playlistId, _tracks.length);
-          return; // 여러 곡 추가 후 함수 종료
+            // 여러 곡 추가
+            List<String> trackUris = widget._selectedTracks.map((trackId) {
+              return 'spotify:track:$trackId';
+            }).toList();
+            await widget.spotifyService.addTrackToPlaylist(
+              selectedPlaylist['id'],
+              trackUris,
+            );
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('선택한 곡들이 플레이리스트에 추가되었습니다.')),
+            );
+            await _loadTracks();
+            widget.onPlaylistUpdated(widget.playlistId, _tracks.length);
+            return; // 여러 곡 추가 후 함수 종료
         }
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -286,7 +288,7 @@ class _PlaylistTracksViewState extends State<PlaylistTracksView> {
               ElevatedButton(
                 onPressed: () {
                   Navigator.pop(context);
-                  _showPlaylistOptions(_tracks, '감정 카테고리');
+                  _showPlaylistOptions(null, '감정 카테고리');
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
@@ -300,7 +302,7 @@ class _PlaylistTracksViewState extends State<PlaylistTracksView> {
                   ElevatedButton(
                   onPressed: () {
                     Navigator.pop(context);
-                    _showPlaylistOptions(_tracks, '내 플레이리스트');
+                    _showPlaylistOptions(null, '내 플레이리스트');
                   },style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
                   shape: RoundedRectangleBorder(
