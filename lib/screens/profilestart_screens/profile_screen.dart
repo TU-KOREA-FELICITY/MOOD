@@ -19,11 +19,19 @@ class ProfileScreen extends StatelessWidget {
             SizedBox(height: 10),
             Icon(Icons.sentiment_satisfied_alt, size: 90, color: Colors.black),
             SizedBox(height: 5),
-            Text(userName, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black)),
+            Text(userName,
+                style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black)),
             SizedBox(height: 10),
             Divider(color: Colors.grey),
             ListTile(
-              title: Text('모니터링', style: TextStyle(fontSize: 20, color: Colors.black, fontWeight: FontWeight.bold)),
+              title: Text('모니터링',
+                  style: TextStyle(
+                      fontSize: 20,
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold)),
               subtitle: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -31,15 +39,20 @@ class ProfileScreen extends StatelessWidget {
                   TextButton(
                     child: Row(
                       children: [
-                        Icon(Icons.calendar_today, color: Colors.black, size: 20),
+                        Icon(Icons.calendar_today,
+                            color: Colors.black, size: 20),
                         SizedBox(width: 10),
-                        Text('날짜별 감정기록', style: TextStyle(fontSize: 17, color: Colors.black)),
+                        Text('날짜별 감정기록',
+                            style:
+                                TextStyle(fontSize: 17, color: Colors.black)),
                       ],
                     ),
                     onPressed: () {
-                      Navigator.push(context, MaterialPageRoute(
-                          builder: (context) => EmotionRecordScreen(userInfo: userInfo)
-                      ));
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  EmotionRecordScreen(userInfo: userInfo)));
                     },
                   ),
                   TextButton(
@@ -47,13 +60,17 @@ class ProfileScreen extends StatelessWidget {
                       children: [
                         Icon(Icons.warning, color: Colors.black, size: 20),
                         SizedBox(width: 10),
-                        Text('주행 중 경고기록', style: TextStyle(fontSize: 17, color: Colors.black)),
+                        Text('주행 중 경고기록',
+                            style:
+                                TextStyle(fontSize: 17, color: Colors.black)),
                       ],
                     ),
                     onPressed: () {
-                      Navigator.push(context, MaterialPageRoute(
-                          builder: (context) => WarningRecordScreen()
-                      ));
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  WarningRecordScreen(userInfo: userInfo)));
                     },
                   ),
                 ],
@@ -61,7 +78,11 @@ class ProfileScreen extends StatelessWidget {
             ),
             Divider(color: Colors.grey),
             ListTile(
-              title: Text('설정', style: TextStyle(fontSize: 20, color: Colors.black, fontWeight: FontWeight.bold)),
+              title: Text('설정',
+                  style: TextStyle(
+                      fontSize: 20,
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold)),
               subtitle: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -71,13 +92,17 @@ class ProfileScreen extends StatelessWidget {
                       children: [
                         Icon(Icons.edit, color: Colors.black, size: 20),
                         SizedBox(width: 10),
-                        Text('운전자 정보 수정', style: TextStyle(fontSize: 17, color: Colors.black)),
+                        Text('운전자 정보 수정',
+                            style:
+                                TextStyle(fontSize: 17, color: Colors.black)),
                       ],
                     ),
                     onPressed: () {
-                      Navigator.push(context, MaterialPageRoute(
-                          builder: (context) => EditProfileScreen(userInfo: userInfo)
-                      ));
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  EditProfileScreen(userInfo: userInfo)));
                     },
                   ),
                   TextButton(
@@ -85,7 +110,9 @@ class ProfileScreen extends StatelessWidget {
                       children: [
                         Icon(Icons.logout, color: Colors.black, size: 20),
                         SizedBox(width: 10),
-                        Text('로그아웃', style: TextStyle(fontSize: 17, color: Colors.black)),
+                        Text('로그아웃',
+                            style:
+                                TextStyle(fontSize: 17, color: Colors.black)),
                       ],
                     ),
                     onPressed: () {
@@ -101,7 +128,9 @@ class ProfileScreen extends StatelessWidget {
                             title: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text('로그아웃', style: TextStyle(fontWeight: FontWeight.bold)),
+                                Text('로그아웃',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold)),
                                 IconButton(
                                   icon: Icon(Icons.close),
                                   onPressed: () {
@@ -122,7 +151,9 @@ class ProfileScreen extends StatelessWidget {
                               TextButton(
                                 child: Text('YES'),
                                 onPressed: () {
-                                  Navigator.of(context).pushNamedAndRemoveUntil('/login', (Route<dynamic> route) => false);
+                                  Navigator.of(context).pushNamedAndRemoveUntil(
+                                      '/login',
+                                      (Route<dynamic> route) => false);
                                 },
                               ),
                             ],
@@ -136,13 +167,18 @@ class ProfileScreen extends StatelessWidget {
                       children: [
                         Icon(Icons.delete, color: Colors.black, size: 20),
                         SizedBox(width: 10),
-                        Text('회원탈퇴', style: TextStyle(fontSize: 17, color: Colors.black)),
+                        Text('회원탈퇴',
+                            style:
+                                TextStyle(fontSize: 17, color: Colors.black)),
                       ],
                     ),
                     onPressed: () {
-                      Navigator.push(context, MaterialPageRoute(
-                          builder: (context) => DeleteAccountScreen(userInfo: userInfo),
-                      ));
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                DeleteAccountScreen(userInfo: userInfo),
+                          ));
                     },
                   ),
                 ],
@@ -155,21 +191,26 @@ class ProfileScreen extends StatelessWidget {
                 children: [
                   SizedBox(height: 10),
                   TextButton(
-                    onPressed: () {  },
+                    onPressed: () {},
                     child: Row(
                       children: [
                         Icon(Icons.announcement, color: Colors.black, size: 20),
                         SizedBox(width: 10),
-                        Text('공지사항', style: TextStyle(fontSize: 17, color: Colors.black)),
+                        Text('공지사항',
+                            style:
+                                TextStyle(fontSize: 17, color: Colors.black)),
                       ],
                     ),
                   ),
                   TextButton(
                     child: Row(
                       children: [
-                        Icon(Icons.question_answer, color: Colors.black, size: 20),
+                        Icon(Icons.question_answer,
+                            color: Colors.black, size: 20),
                         SizedBox(width: 10),
-                        Text('1:1 문의', style: TextStyle(fontSize: 17, color: Colors.black)),
+                        Text('1:1 문의',
+                            style:
+                                TextStyle(fontSize: 17, color: Colors.black)),
                       ],
                     ),
                     onPressed: () {
@@ -181,9 +222,12 @@ class ProfileScreen extends StatelessWidget {
                       children: [
                         Icon(Icons.info, color: Colors.black, size: 20),
                         SizedBox(width: 10),
-                        Text('버전정보', style: TextStyle(fontSize: 17, color: Colors.black)),
+                        Text('버전정보',
+                            style:
+                                TextStyle(fontSize: 17, color: Colors.black)),
                         Spacer(),
-                        Text('1.0', style: TextStyle(fontSize: 17, color: Colors.grey)),
+                        Text('1.0',
+                            style: TextStyle(fontSize: 17, color: Colors.grey)),
                       ],
                     ),
                     onPressed: () {

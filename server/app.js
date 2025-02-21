@@ -513,4 +513,27 @@ app.post('/get_search_tag', async (req, res) => {
   }
 });
 
+// 새로운 경고 기록을 가져오는 엔드포인트 추가
+app.post('/get_warning', async (req, res) => {
+  const { user_id } = req.body;
+
+  try {
+    const [dbResult] = await pool.query(`
+      SELECT focus_level AS level, axis, created_at AS timestamp
+      FROM focus
+      WHERE user_id = ?
+      ORDER BY created_at DESC
+    `, [user_id]);
+
+    if (dbResult.length > 0) {
+      res.json({ success: true, warnings: dbResult });
+    } else {
+      res.status(404).json({ success: false, message: '경고 기록을 찾을 수 없습니다.' });
+    }
+  } catch (error) {
+    console.error('경고 기록을 가져오는 중 오류:', error);
+    res.status(500).json({ success: false, message: '서버 오류가 발생했습니다.' });
+  }
+});
+
 module.exports = app;
