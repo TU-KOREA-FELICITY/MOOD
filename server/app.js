@@ -114,6 +114,15 @@ app.post('/start_estimator', (req, res) => {
   }
 });
 
+app.post('/stop_estimator', async (req, res) => {
+  try {
+    await stopEstimator();
+    res.json({ message: 'estimator.py stopped successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to stop estimator.py', error: error.message });
+  }
+});
+
 app.post('/register', async (req, res) => {
   const { username } = req.body;
   if (!username) {
@@ -148,14 +157,19 @@ app.post('/register_complete', async (req, res) => {
       'INSERT INTO user (user_aws_id, user_name, car_type, fav_genre, fav_artist) VALUES (?, ?, ?, ?, ?)',
       [user_aws_id, username, car_type, fav_genre, fav_artist]
     );
+    var user_id = dbResult.insertId;
     if (dbResult.affectedRows === 1) {
-      res.json({ message: "사용자 정보 저장 완료" });
+      res.status(200).json({ message: "사용자 정보 저장 완료", user_id: user_id });
     } else {
       res.status(500).json({ error: "데이터베이스에 사용자 정보를 저장할 수 없습니다." });
     }
   } catch (error) {
-    console.error('사용자 정보 저장 중 오류:', error);
-    res.status(500).json({ error: error.message });
+    if (error.code === 'ER_DUP_ENTRY') {
+      res.status(400).json({ error: "중복된 user_aws_id입니다." });
+    } else {
+      console.error('사용자 정보 저장 중 오류:', error);
+      res.status(500).json({ error: error.message });
+    }
   }
 });
 
@@ -461,30 +475,6 @@ app.post('/get_emotion_tags', async (req, res) => {
   }
 });
 
-app.post('/get_search_tag', async (req, res) => {
-  try {
-    const [dbResult] = await pool.query('SELECT emotion_name, tag FROM emotion');
-
-    if (dbResult.length > 0) {
-      res.json({
-        success: true,
-        emotions: dbResult.map(emotion => ({
-          emotion: emotion.emotion_name,
-          tag: emotion.tag,
-      })),
-    });
-    } else {
-      res.json({
-        success: false,
-        message: '감정 태그를 찾을 수 없습니다.',
-      });
-    }
-  } catch (error) {
-    console.error('태그 가져오는 중 오류 발생:', error);
-    res.status(500).json({ success: false, message: '서버 오류가 발생했습니다.' });
-  }
-});
-
 app.post('/warning', async (req, res) => {
   console.log('Received warning:', req.body);
   const io = req.app.get('io'); // server.js에서 설정한 io 객체를 가져옴
@@ -510,6 +500,30 @@ app.post('/warning', async (req, res) => {
     }
   } else {
     res.status(400).json({ error: 'User ID is missing' });
+  }
+});
+
+app.post('/get_search_tag', async (req, res) => {
+  try {
+    const [dbResult] = await pool.query('SELECT emotion_name, tag FROM emotion');
+
+    if (dbResult.length > 0) {
+      res.json({
+        success: true,
+        emotions: dbResult.map(emotion => ({
+          emotion: emotion.emotion_name,
+          tag: emotion.tag,
+      })),
+    });
+    } else {
+      res.json({
+        success: false,
+        message: '감정 태그를 찾을 수 없습니다.',
+      });
+    }
+  } catch (error) {
+    console.error('태그 가져오는 중 오류 발생:', error);
+    res.status(500).json({ success: false, message: '서버 오류가 발생했습니다.' });
   }
 });
 

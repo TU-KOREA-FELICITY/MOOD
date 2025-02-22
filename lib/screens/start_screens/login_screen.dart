@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'dart:typed_data';
 import 'dart:convert';
+import '../bottom_navigation_widget.dart';
 import 'welcome_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -170,6 +171,52 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  Future<void> _saveUserInfoAndNavigate() async {
+    try {
+      final response = await http.post(
+        Uri.parse('http://10.0.2.2:3000/register_complete'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'user_aws_id': 'sun2',
+          'username': '장인선',
+          'car_type': 'bmw',
+          'fav_genre': '국내 발라드',
+          'fav_artist': '아이유',
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final responseBody = json.decode(response.body);
+        var user_id = responseBody['user_id'];
+
+        final userInfo = {
+          'user_id': user_id,
+          'user_aws_id': 'sun2',
+          'user_name': '장인선',
+          'car_type': 'bmw',
+          'fav_genre': '국내 발라드',
+          'fav_artist': '아이유',
+        };
+
+        // BottomNavigationWidget으로 이동
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => BottomNavigationWidget(userInfo: userInfo),
+          ),
+        );
+      } else {
+        setState(() {
+          _status = '사용자 정보 삽입 오류: ${response.statusCode}';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _status = '사용자 정보 삽입 오류: $e';
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -192,10 +239,10 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ),
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: Padding(
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -217,7 +264,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   GestureDetector(
                     // 임시 로그인 경로
                     onTap: () {
-                      Navigator.of(context).pushReplacementNamed('/home');
+                      _saveUserInfoAndNavigate();
                     },
                     child: SizedBox(
                       width: 260,
@@ -262,13 +309,15 @@ class _LoginScreenState extends State<LoginScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(
-                        _status,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF97BCF3),
+                      Expanded(
+                        child: Text(
+                          _status,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF97BCF3),
+                          ),
                         ),
                       ),
                     ],
@@ -276,64 +325,65 @@ class _LoginScreenState extends State<LoginScreen> {
                 ],
               ),
             ),
-          ),
-          Align(
-            alignment: Alignment.bottomRight,
-            child: Padding(
-              padding: const EdgeInsets.only(right: 50.0, bottom: 200.0),
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.pushNamed(
-                    context,
-                    '/signup',
-                    arguments: userId,
-                  );
-                },
-                child: Text(
-                  '회원가입',
-                  style: TextStyle(
-                    fontSize: 19.0,
-                    decoration: TextDecoration.underline,
-                  ),
-                ),
-              ),
-            ),
-          ),
-          if (!_authNotComplete)
-            Padding(
-    padding: EdgeInsets.only(bottom: 50.0),
-    child: Container(
-              width: MediaQuery.of(context).size.width * 0.7,
-              child: ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    _status = '다시 시도 중...';
-                    _authNotComplete = true;
-                  });
-                  _login();
-                },
-                style: ButtonStyle(
-                  backgroundColor: WidgetStateProperty.all(Color(0xFF0126FA)),
-                  foregroundColor: WidgetStateProperty.all(Colors.white),
-                  padding: WidgetStateProperty.all(
-                      EdgeInsets.symmetric(vertical: 12)),
-                  shape: WidgetStateProperty.all(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
+            Align(
+              alignment: Alignment.bottomRight,
+              child: Padding(
+                padding: const EdgeInsets.only(right: 50.0, bottom: 200.0),
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.pushNamed(
+                      context,
+                      '/signup',
+                      arguments: userId,
+                    );
+                  },
+                  child: Text(
+                    '회원가입',
+                    style: TextStyle(
+                      fontSize: 19.0,
+                      decoration: TextDecoration.underline,
                     ),
                   ),
                 ),
-                child: Text(
-                  '다시 시도하기',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+              ),
+            ),
+            if (!_authNotComplete)
+              Padding(
+                padding: EdgeInsets.only(bottom: 50.0),
+                child: Container(
+                  width: MediaQuery.of(context).size.width * 0.7,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        _status = '다시 시도 중...';
+                        _authNotComplete = true;
+                      });
+                      _login();
+                    },
+                    style: ButtonStyle(
+                      backgroundColor:
+                      MaterialStateProperty.all(Color(0xFF0126FA)),
+                      foregroundColor: MaterialStateProperty.all(Colors.white),
+                      padding: MaterialStateProperty.all(
+                          EdgeInsets.symmetric(vertical: 12)),
+                      shape: MaterialStateProperty.all(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                      ),
+                    ),
+                    child: Text(
+                      '다시 시도하기',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ),
               ),
-            ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }

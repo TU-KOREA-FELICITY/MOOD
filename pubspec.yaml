@@ -45,6 +45,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   table_calendar: ^3.0.9
   web_socket_channel: ^3.0.2
+  get: ^4.7.2
 
 dev_dependencies:
   flutter_test:
