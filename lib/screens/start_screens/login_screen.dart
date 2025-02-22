@@ -221,27 +221,22 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Padding(
-          padding: EdgeInsets.only(left: 10),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Icon(Icons.login),
-              SizedBox(width: 8),
-              Text(
-                '로그인',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 25,
-                ),
-              ),
-            ],
+        title: Align(
+          alignment: Alignment.centerLeft,
+          child: Text(
+            '로그인',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
+        titleSpacing: 0,
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
+            SizedBox(height: 40),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
               child: Column(
@@ -325,6 +320,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ],
               ),
             ),
+            SizedBox(height: 60),
             Align(
               alignment: Alignment.bottomRight,
               child: Padding(
