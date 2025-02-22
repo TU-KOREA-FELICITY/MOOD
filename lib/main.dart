@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mood/screens/start_screens/auth_choice_screen.dart';
 import 'screens/bottom_navigation_widget.dart';
 import 'screens/start_screens/face_recognition_screen.dart';
 import 'screens/start_screens/splash_screen.dart';
@@ -34,6 +35,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => SplashScreen(),
         // '/': (context) => BottomNavigationWidget(),
+        '/auth_choice': (context) => AuthChoiceScreen(),
         '/login': (context) => LoginScreen(),
         '/welcome': (context) {
           final args = ModalRoute.of(context)?.settings.arguments

@@ -37,7 +37,7 @@ class FaceRecognitionGuideScreen extends StatelessWidget {
                       SizedBox(width: 5),
                       Expanded(
                         child: Text(
-                          "사진은 버튼을 누르고 5초 뒤에 1장이 촬영됩니다.",
+                          "사진은 버튼을 누르고 3초 뒤에 1장이 촬영됩니다.",
                           style: TextStyle(
                             fontSize: 13,
                             color: Color(0xFF707070),

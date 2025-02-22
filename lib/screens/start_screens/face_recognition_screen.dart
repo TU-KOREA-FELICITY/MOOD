@@ -64,11 +64,11 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
       });
 
       socket!.onDisconnect((_) => print('서버와 연결이 끊어졌습니다.'));
-      socket!.onError((err) => print('에러 발생: $err'));
+      socket!.onError((err) => print('에러 발생: \n$err'));
 
       socket!.connect();
     } catch (e) {
-      print('서버 연결 중 오류 발생: $e');
+      print('서버 연결 중 오류 발생: \n$e');
     }
   }
 
@@ -91,7 +91,7 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
       } else {
         return {
           'success': false,
-          'message': '서버 오류: ${response.statusCode}',
+          'message': '서버 오류: \n${response.statusCode}',
           'isDuplicate': null,
           'user_aws_id': userAwsId,
         };
@@ -99,7 +99,7 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
     } catch (e) {
       return {
         'success': false,
-        'message': 'ID 중복 확인 중 오류 발생: $e',
+        'message': 'ID 중복 확인 중 오류 발생: \n$e',
         'isDuplicate': null,
         'user_aws_id': userAwsId,
       };
@@ -111,15 +111,23 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
     final username = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('얼굴 ID를 만들어주세요'),
-        content: TextField(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(30),
+        ),
+        title: Text('FACE ID 이름 설정하기'),
+        content: Container(
+          width: MediaQuery.of(context).size.width * 0.8,
+          height: 50,
+          child: TextField(
           controller: controller,
           autofocus: true,
-          decoration: InputDecoration(hintText: "영문으로 입력"),
+            decoration: InputDecoration(hintText: "영문으로 입력해 주세요"),
+          ),
         ),
         actions: [
           TextButton(
-            child: Text('확인'),
+            child: Text('다음', style: TextStyle(color: Color(0xFF0126FA))),
             onPressed: () => Navigator.of(context).pop(controller.text),
           ),
         ],
@@ -207,7 +215,7 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
       }
     } catch (e) {
       setState(() {
-        _status = '등록 시작 오류: $e';
+        _status = '등록 시작 오류: \n$e';
       });
     }
   }
@@ -220,7 +228,7 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
 
       if (result != null && result['registered'] == true) {
         setState(() {
-          _status = '${result['user_id']} ID로 얼굴 등록에 성공했어요.';
+          _status = '${result['user_id']} ID로 얼굴 등록에 성공했습니다.';
           _regNotComplete = false;
           userId = username;
           _buttonShow = false;
@@ -231,7 +239,7 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
       }
     } catch (e) {
       setState(() {
-        _status = '얼굴 등록에 실패했어요.';
+        _status = '얼굴 등록에 실패했습니다.';
         _buttonShow = true;
       });
     }
@@ -273,7 +281,7 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
                                 shape: BoxShape.circle,
                                 color: Color(0xFFF2F2F1),
                                 border: Border.all(
-                                    color: Color(0xFF2265F0), width: 6),
+                                    color: Color(0xFF0126FA), width: 6),
                               ),
                               child: ClipOval(
                                 child: imageBytes != null
@@ -289,8 +297,8 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
                                             width: 260,
                                             height: 260,
                                             child: CircularProgressIndicator(
-                                              strokeWidth: 10,
-                                              color: Color(0xFF2265F0),
+                                              strokeWidth: 6,
+                                              color: Color(0xFF0126FA),
                                             ),
                                           ),
                                           Icon(
@@ -310,6 +318,7 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
                           children: [
                             Text(
                               _status,
+                              textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
@@ -335,7 +344,7 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
                             child: ElevatedButton(
                               onPressed: () {
                                 setState(() {
-                                  _status = '얼굴 ID 등록 중...';
+                                  _status = 'FACE ID 등록 중...';
                                 });
                                 _promptForUserId();
                               },
@@ -400,7 +409,7 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
                             child: ElevatedButton(
                               onPressed: () {
                                 setState(() {
-                                  _status = '얼굴 ID 등록 중...';
+                                  _status = 'FACE ID 등록 중...';
                                 });
                                 _promptForUserId();
                               },
