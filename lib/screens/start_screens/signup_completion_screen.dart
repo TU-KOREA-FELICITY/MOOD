@@ -36,10 +36,10 @@ class SignUpCompletionScreen extends StatelessWidget {
           throw Exception(loginResult['message']);
         }
       } else {
-        throw Exception('Failed to complete sign up: ${response.statusCode}');
+        throw Exception('Failed to complete sign up: \n${response.statusCode}');
       }
     } catch (e) {
-      print('Error: $e');
+      print('Error: \n$e');
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
@@ -80,13 +80,13 @@ class SignUpCompletionScreen extends StatelessWidget {
       } else {
         return {
           'success': false,
-          'message': '서버 오류: ${response.statusCode}',
+          'message': '서버 오류: \n${response.statusCode}',
         };
       }
     } catch (e) {
       return {
         'success': false,
-        'message': '로그인 완료 중 오류 발생: $e',
+        'message': '로그인 완료 중 오류 발생: \n$e',
       };
     }
   }
@@ -99,7 +99,7 @@ class SignUpCompletionScreen extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              SizedBox(height: 120),
+              SizedBox(height: 150),
               RichText(
                 textAlign: TextAlign.center,
                 text: TextSpan(
@@ -121,11 +121,11 @@ class SignUpCompletionScreen extends StatelessWidget {
               ),
               const SizedBox(height: 50),
               const Icon(
-                Icons.check_circle,
-                color: Colors.black,
+                Icons.verified,
+                color: Color(0xFF0126FA),
                 size: 100,
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 50),
               const Text(
                 '회원가입 완료',
                 style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
@@ -136,9 +136,9 @@ class SignUpCompletionScreen extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: const TextStyle(fontSize: 16),
               ),
-              SizedBox(height: 300),
+              SizedBox(height: 230),
               Container(
-                width: MediaQuery.of(context).size.width * 0.7,
+                width: MediaQuery.of(context).size.width * 0.8,
                 child: ElevatedButton(
                   onPressed: () => _completeSignUp(context),
                   style: ElevatedButton.styleFrom(

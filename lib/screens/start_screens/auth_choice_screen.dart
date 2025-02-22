@@ -9,7 +9,7 @@ class AuthChoiceScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            SizedBox(height: 180),
+            SizedBox(height: 220),
             Center(
               child: Image.asset(
                 'assets/MOOD_logo_blue.png',
@@ -17,7 +17,7 @@ class AuthChoiceScreen extends StatelessWidget {
               ),
             ),
 
-            SizedBox(height: 70),
+            SizedBox(height: 280),
             SizedBox(
               width: MediaQuery.of(context).size.width * 0.8,
               child: ElevatedButton(

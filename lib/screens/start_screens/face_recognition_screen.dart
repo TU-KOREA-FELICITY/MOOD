@@ -258,7 +258,7 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        SizedBox(height: 100),
+                        SizedBox(height: 120),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
