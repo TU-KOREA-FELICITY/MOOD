@@ -332,9 +332,9 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
                   ),
                 ),
                 Align(
-                  alignment: Alignment.bottomCenter,
+                  alignment: Alignment(0, 0.8),
                   child: Padding(
-                    padding: const EdgeInsets.only(bottom: 20.0),
+                    padding: const EdgeInsets.only(bottom: 80.0),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
