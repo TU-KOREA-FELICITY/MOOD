@@ -14,21 +14,17 @@ class ProfileScreen extends StatelessWidget {
     final String userName = "${userInfo['user_name'] ?? null}";
     return Scaffold(
       appBar: AppBar(
-        title: Padding(
-          padding: EdgeInsets.only(left: 10),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Text(
-                '프로필',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 25,
-                ),
-              ),
-            ],
+        title: Align(
+          alignment: Alignment.centerLeft,
+          child: Text(
+            '프로필',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
+        titleSpacing: 0,
       ),
       body: SingleChildScrollView(
         child: Column(

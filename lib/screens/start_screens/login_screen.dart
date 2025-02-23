@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:mood/screens/homestart_screens/home_screen.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'dart:typed_data';
 import 'dart:convert';
@@ -171,7 +172,7 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  Future<void> _saveUserInfoAndNavigate() async {
+  Future<void> _tempLogin() async {
     try {
       final response = await http.post(
         Uri.parse('http://10.0.2.2:3000/register_complete'),
@@ -202,7 +203,7 @@ class _LoginScreenState extends State<LoginScreen> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => BottomNavigationWidget(userInfo: userInfo),
+            builder: (context) => HomeScreen(userInfo: userInfo),
           ),
         );
       } else {
@@ -226,7 +227,7 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Text(
             '로그인',
             style: TextStyle(
-              fontSize: 20,
+              fontSize: 25,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -258,9 +259,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   SizedBox(height: 40),
                   GestureDetector(
                     // 임시 로그인 경로
-                    onTap: () {
-                      _saveUserInfoAndNavigate();
-                    },
+                    onTap: _tempLogin,
                     child: SizedBox(
                       width: 260,
                       height: 260,
