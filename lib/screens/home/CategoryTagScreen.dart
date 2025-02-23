@@ -168,45 +168,46 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
       }
     }
 
-    Future<void> _deletePlaylist(String playlistId) async {
-      showDialog(
-          context: context,
-          builder: (BuildContext context) {
+  Future<bool> _deletePlaylist(String playlistId) async {
+    bool result = await showDialog(
+      context: context,
+      builder: (BuildContext context) {
         return AlertDialog(
-            title: Text('플레이리스트 삭제'),
-            content: Text('플레이리스트를 삭제하시겠습니까?'),
-            actions: <Widget>[
-              TextButton(
-                child: Text('취소'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  },
-              ),
-              TextButton(
-                child: Text('확인'),
-                onPressed: () async {
-                  try {
-                    await widget.spotifyService.deletePlaylist(playlistId);
-                    setState(() {
-                      _playlists.removeWhere((playlist) => playlist['id']== playlistId);
-                    });
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('플레이리스트가 삭제되었습니다.')),
-                    );
-                  } catch (e) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('플레이리스트 삭제 실패: $e')),
-                    );
-                  } finally  {
-                    Navigator.of(context).pop();
-                    _selectedPlaylistId = null;
-                  }
-                  },
-              ),
-            ],
+          title: Text('플레이리스트 삭제'),
+          content: Text('플레이리스트를 삭제하시겠습니까?'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('취소'),
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+            ),
+            TextButton(
+              child: Text('확인'),
+              onPressed: () async {
+                try {
+                  await widget.spotifyService.deletePlaylist(playlistId);
+                  setState(() {
+                    _playlists.removeWhere(
+                            (playlist) => playlist['id'] == playlistId);
+                  });
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('플레이리스트가 삭제되었습니다.')),
+                  );
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('플레이리스트 삭제 실패: $e')),
+                  );
+                  Navigator.of(context).pop(false);
+                }
+              },
+            ),
+          ],
         );
-        },
-      );
+      },
+    );
+    _selectedPlaylistId = null;
+    return result ?? false;
   }
 
     void _showEditPlaylistNameDialog(String playlistId, String currentName) {
@@ -396,130 +397,131 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
       );
     }
 
-    Widget _buildMyPlaylist() {
-      final myPlaylists = _playlists
-          .where((playlist) => !_emotionCategories.contains(playlist['name']))
-          .toList();
-      return Column(
-        children: [
-          SizedBox(height: 7),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              IconButton(
-                icon: Icon(Icons.edit),
-                onPressed: () {
-                  setState(() {
-                    _mode = (_mode == 'edit') ? 'normal' : 'edit';
-                    _selectedPlaylistId = null;
-                  });
-                },
-              ),
-              Expanded(
+  Widget _buildMyPlaylist() {
+    final myPlaylists = _playlists
+        .where((playlist) => !_emotionCategories.contains(playlist['name']))
+        .toList();
+    return Column(
+      children: [
+        SizedBox(height: 7),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            IconButton(
+              icon: Icon(Icons.edit),
+              onPressed: () {
+                setState(() {
+                  _mode = (_mode == 'edit') ? 'normal' : 'edit';
+                  _selectedPlaylistId = null;
+                });
+              },
+            ),
+            Expanded(
               child: Align(
                 alignment: Alignment.center,
-              child: _mode == 'normal'
-                  ? ElevatedButton(
-                onPressed: () => _showCreatePlaylistDialog(),
-                style: ElevatedButton.styleFrom(
+                child: _mode == 'normal'
+                    ? ElevatedButton(
+                  onPressed: () => _showCreatePlaylistDialog(),
+                  style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xFF2265F0),
                     foregroundColor: Colors.white,
                     minimumSize: Size(250, 45),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.add,
-                      size: 25,
-                      color: Colors.white,
-                    ),
-                    SizedBox(width: 8),
-                    Text(
-                      '새 플레이리스트',
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 19,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1.2),
-                    ),
-                  ],
-                ),
-              ): ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    _mode = 'normal';
-                    _selectedPlaylistId = null;
-                  });
-                  },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  foregroundColor: Colors.white,
-                  minimumSize: Size(250, 45),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
                   ),
-                ),
-                child: Text(
-                  '완료',
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 19,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1.2),
-                ),
-              ),
-              ),
-              ),
-              IconButton(
-                icon: Icon(Icons.close),
-                onPressed: () {
-                  setState(() {
-                    _mode = (_mode == 'delete') ? 'normal' : 'delete';
-                    _selectedPlaylistId = null;
-                  });
-                },
-              ),
-              ],
-          ),
-          SizedBox(height: 16),
-          Expanded(
-              child: _isLoading
-                  ? Center(child: CircularProgressIndicator())
-                  : RefreshIndicator(
-                color: Colors.blue,
-                backgroundColor: Colors.white,
-                strokeWidth: 3.0,
-                onRefresh: _loadPlaylists,
-                child: ReorderableListView.builder(
-                  itemCount: myPlaylists.length,
-                  onReorder: (oldIndex, newIndex) {
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.add,
+                        size: 25,
+                        color: Colors.white,
+                      ),
+                      SizedBox(width: 8),
+                      Text(
+                        '새 플레이리스트',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 19,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1.2),
+                      ),
+                    ],
+                  ),
+                )
+                    : ElevatedButton(
+                  onPressed: () {
                     setState(() {
-                      if (newIndex > oldIndex) {
-                        newIndex -= 1;
-                      }
-                      final item = myPlaylists.removeAt(oldIndex);
-                      myPlaylists.insert(newIndex, item);
-                      _playlists = myPlaylists;
-                      _savePlaylistsOrder();
+                      _mode = 'normal';
+                      _selectedPlaylistId = null;
                     });
                   },
-                  itemBuilder: (context, index) {
-                    final playlist = myPlaylists[index];
-                    IconData icon = Icons.drag_handle;
-                    if (_mode == 'edit') {
-                      icon = Icons.edit;
-                    } else if (_mode == 'delete') {
-                      icon = Icons.close;
-                    }
-                    return Padding(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    foregroundColor: Colors.white,
+                    minimumSize: Size(250, 45),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: Text(
+                    '완료',
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 19,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.2),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 16),
+        Expanded(
+          child: _isLoading
+              ? Center(child: CircularProgressIndicator())
+              : RefreshIndicator(
+            color: Colors.blue,
+            backgroundColor: Colors.white,
+            strokeWidth: 3.0,
+            onRefresh: _loadPlaylists,
+            child: ReorderableListView.builder(
+              itemCount: myPlaylists.length,
+              onReorder: (oldIndex, newIndex) {
+                setState(() {
+                  if (newIndex > oldIndex) {
+                    newIndex -= 1;
+                  }
+                  final item = myPlaylists.removeAt(oldIndex);
+                  myPlaylists.insert(newIndex, item);
+                  _playlists = myPlaylists;
+                  _savePlaylistsOrder();
+                });
+              },
+              itemBuilder: (context, index) {
+                final playlist = myPlaylists[index];
+                return Padding(
+                    key: Key(playlist['id']),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 8.0, horizontal: 8.0),
+                    child: Dismissible(
                       key: Key(playlist['id']),
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 8.0, horizontal: 8.0),
-                      child: Container(
+                      direction: DismissDirection.endToStart,
+                      background: Container(
+                        alignment: Alignment.centerRight,
+                        padding: EdgeInsets.only(right: 20.0),
+                        color: Colors.red,
+                        child: Icon(Icons.delete, color: Colors.white),
+                      ),
+                      confirmDismiss: (direction) async {
+                        bool? result = await _deletePlaylist(playlist['id']);
+                        return result ?? false;
+                      },
+                      onDismissed: (direction){
+                      },
+                      child : Container(
                         decoration: BoxDecoration(
                           color: Colors.grey[100],
                           borderRadius: BorderRadius.circular(20),
@@ -544,35 +546,26 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
                           leading: IconButton(
                             icon: Icon(Icons.play_arrow, color: Colors.black),
                             onPressed: () async {
-                              await SpotifySdk.play(spotifyUri: playlist['uri']);
+                              await SpotifySdk.play(
+                                  spotifyUri: playlist['uri']);
                             },
                           ),
-                          trailing: IconButton(
-                            icon: Icon(icon),
-                            onPressed: () {
-                              if (_mode == 'edit') {
-                                _showEditPlaylistNameDialog(playlist['id'], playlist['name']);
-                              } else if (_mode == 'delete') {
-                                _deletePlaylist(playlist['id']);
-                              }
-                              setState(() {
-                                _selectedPlaylistId = playlist['id'];
-                              });
-                            },
-                          ),
+                          trailing: Icon(Icons.drag_handle),
                           onTap: () {
-                            _showPlaylistTracks(playlist['id'], playlist['name']);
+                            _showPlaylistTracks(
+                                playlist['id'], playlist['name']);
                           },
                         ),
                       ),
-                    );
-                  },
-                ),
-              ),
+                    )
+                );
+              },
+            ),
           ),
-        ],
-      );
-    }
+        ),
+      ],
+    );
+  }
 
     void _showCreatePlaylistDialog() {
       TextEditingController _playlistNameController = TextEditingController();
