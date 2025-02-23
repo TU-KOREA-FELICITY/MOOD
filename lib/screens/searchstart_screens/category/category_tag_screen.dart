@@ -190,17 +190,24 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('플레이리스트 삭제'),
-          content: Text('플레이리스트를 삭제하시겠습니까?'),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(5.0),
+          ),
+          backgroundColor: Colors.white,
+          title: Text('플레이리스트 삭제', style: TextStyle(fontWeight: FontWeight.w800),
+          ),
+          content: Text('플레이리스트를 삭제하시겠습니까?', style: TextStyle(fontWeight: FontWeight.w600),
+          ),
           actions: <Widget>[
             TextButton(
-              child: Text('취소'),
+              child: Text('취소', style: TextStyle(fontWeight: FontWeight.w800, color: Colors.black38),
+              ),
               onPressed: () {
                 Navigator.of(context).pop(false);
               },
             ),
             TextButton(
-              child: Text('확인'),
+              child: Text('확인', style: TextStyle(fontWeight: FontWeight.w800, color: Colors.black)),
               onPressed: () async {
                 try {
                   await widget.spotifyService.deletePlaylist(playlistId);
@@ -645,15 +652,6 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            IconButton(
-              icon: Icon(Icons.edit),
-              onPressed: () {
-                setState(() {
-                  _mode = (_mode == 'edit') ? 'normal' : 'edit';
-                  _selectedPlaylistId = null;
-                });
-              },
-            ),
             Expanded(
               child: Align(
                 alignment: Alignment.center,
@@ -696,7 +694,7 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
                           });
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green,
+                          backgroundColor: Color(0xFF2265F0),
                           foregroundColor: Colors.white,
                           minimumSize: Size(250, 45),
                           shape: RoundedRectangleBorder(
@@ -714,6 +712,22 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
                       ),
               ),
             ),
+            PopupMenuButton<String>(
+              icon: Icon(Icons.more_horiz),
+              onSelected: (String result) {
+                if (result == 'edit') {
+                  setState(() {
+                    _mode = 'edit';
+                  });
+                }
+              },
+              itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                const PopupMenuItem<String>(
+                  value: 'edit',
+                  child: Text('수정하기'),
+                ),
+              ],
+            ),
           ],
         ),
         SizedBox(height: 16),
@@ -721,7 +735,7 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
           child: _isLoading
               ? Center(child: CircularProgressIndicator())
               : RefreshIndicator(
-                  color: Colors.blue,
+                  color: Color(0xFF2265F0),
                   backgroundColor: Colors.white,
                   strokeWidth: 3.0,
                   onRefresh: _loadPlaylists,
@@ -747,18 +761,19 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
                         child: Dismissible(
                           key: Key(playlist['id']),
                           direction: DismissDirection.endToStart,
-                          background: Container(
+                          dismissThresholds: {DismissDirection.endToStart: 0.7},
+                          background: Container(),
+                            secondaryBackground: Container(
                             alignment: Alignment.centerRight,
-                            padding: EdgeInsets.only(right: 20.0),
-                            color: Colors.red,
-                            child: Icon(Icons.delete, color: Colors.white),
-                          ),
+                              padding: EdgeInsets.only(right: 20.0),
+                              color: Colors.red,
+                              child: Icon(Icons.delete, color: Colors.white),
+                            ),
                           confirmDismiss: (direction) async {
                             bool? result = await _deletePlaylist(playlist['id']);
-                            return result ?? false;
+                            return false;
                           },
-                      onDismissed: (direction){
-                      },
+                          onDismissed: (direction) {},
                         child : Container(
                           decoration: BoxDecoration(
                             color: Colors.grey[100],
@@ -782,20 +797,32 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
                             ),
                             subtitle: Text('${playlist['tracks']['total']}곡'),
                             leading: IconButton(
-                              icon: Icon(Icons.play_arrow, color: Colors.black),
+                              icon: Icon(Icons.play_circle_fill, color: Colors.blueAccent),
                               onPressed: () async {
                                 await SpotifySdk.play(
                                     spotifyUri: playlist['uri']);
                               },
                             ),
-                            trailing: Icon(Icons.drag_handle),
+                            trailing: _mode == 'edit'
+                              ? ElevatedButton(onPressed: () => _showEditPlaylistNameDialog(playlist['id'], playlist['name']),
+                            child: Text('수정', style: TextStyle(color: Colors.blueAccent, fontWeight: FontWeight.w700),),
+                            style: ElevatedButton.styleFrom(
+                      minimumSize: Size(60, 36),
+                      padding: EdgeInsets.symmetric(horizontal: 8),
+                      ),
+                            )
+                            : Listener(
+                            child: Icon(Icons.drag_handle),
+                            onPointerDown: (PointerDownEvent event) {
+                      },
+                            ),
                             onTap: () {
                               _showPlaylistTracks(
                                   playlist['id'], playlist['name']);
                             },
                           ),
                         ),
-                      )
+                      ),
                       );
                     },
                   ),
@@ -821,7 +848,7 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
             TextButton(
               child: Text(
                 '취소',
-                style: TextStyle(color: Colors.blueAccent),
+                style: TextStyle(color: Color(0xFF2265F0),fontWeight: FontWeight.w800),
               ),
               onPressed: () {
                 Navigator.of(context).pop();
@@ -830,7 +857,7 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
             TextButton(
               child: Text(
                 '생성',
-                style: TextStyle(color: Colors.blueAccent),
+                style: TextStyle(color: Color(0xFF2265F0), fontWeight: FontWeight.w800),
               ),
               onPressed: () async {
                 if (_playlistNameController.text.isNotEmpty) {

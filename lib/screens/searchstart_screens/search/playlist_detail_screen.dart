@@ -221,7 +221,7 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                     child: ElevatedButton(
                       onPressed: () => _showAddDialog(),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
+                        backgroundColor: Color(0xFF2265F0),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
@@ -337,7 +337,7 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                         final playlist = filteredPlaylists[index];
                         return ListTile(
                           leading: Icon(Icons.playlist_play,
-                              color: Colors.blueAccent),
+                              color: Color(0xFF2265F0)),
                           title: Text(
                             playlist['name'] ?? '알 수 없는 플레이리스트',
                             style: TextStyle(
