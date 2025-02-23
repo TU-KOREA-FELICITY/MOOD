@@ -185,8 +185,8 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
     }
   }
 
-  Future<void> _deletePlaylist(String playlistId) async {
-    showDialog(
+  Future<bool> _deletePlaylist(String playlistId) async {
+    bool result = await showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
@@ -196,7 +196,7 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
             TextButton(
               child: Text('취소'),
               onPressed: () {
-                Navigator.of(context).pop();
+                Navigator.of(context).pop(false);
               },
             ),
             TextButton(
@@ -215,9 +215,7 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('플레이리스트 삭제 실패: $e')),
                   );
-                } finally {
-                  Navigator.of(context).pop();
-                  _selectedPlaylistId = null;
+                  Navigator.of(context).pop(false);
                 }
               },
             ),
@@ -225,6 +223,8 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
         );
       },
     );
+    _selectedPlaylistId = null;
+    return result ?? false;
   }
 
   Future<void> _addInitialTracks(
@@ -714,15 +714,6 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
                       ),
               ),
             ),
-            IconButton(
-              icon: Icon(Icons.close),
-              onPressed: () {
-                setState(() {
-                  _mode = (_mode == 'delete') ? 'normal' : 'delete';
-                  _selectedPlaylistId = null;
-                });
-              },
-            ),
           ],
         ),
         SizedBox(height: 16),
@@ -749,17 +740,26 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
                     },
                     itemBuilder: (context, index) {
                       final playlist = myPlaylists[index];
-                      IconData icon = Icons.drag_handle;
-                      if (_mode == 'edit') {
-                        icon = Icons.edit;
-                      } else if (_mode == 'delete') {
-                        icon = Icons.close;
-                      }
                       return Padding(
                         key: Key(playlist['id']),
                         padding: const EdgeInsets.symmetric(
                             vertical: 8.0, horizontal: 8.0),
-                        child: Container(
+                        child: Dismissible(
+                          key: Key(playlist['id']),
+                          direction: DismissDirection.endToStart,
+                          background: Container(
+                            alignment: Alignment.centerRight,
+                            padding: EdgeInsets.only(right: 20.0),
+                            color: Colors.red,
+                            child: Icon(Icons.delete, color: Colors.white),
+                          ),
+                          confirmDismiss: (direction) async {
+                            bool? result = await _deletePlaylist(playlist['id']);
+                            return result ?? false;
+                          },
+                      onDismissed: (direction){
+                      },
+                        child : Container(
                           decoration: BoxDecoration(
                             color: Colors.grey[100],
                             borderRadius: BorderRadius.circular(20),
@@ -788,26 +788,14 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
                                     spotifyUri: playlist['uri']);
                               },
                             ),
-                            trailing: IconButton(
-                              icon: Icon(icon),
-                              onPressed: () {
-                                if (_mode == 'edit') {
-                                  _showEditPlaylistNameDialog(
-                                      playlist['id'], playlist['name']);
-                                } else if (_mode == 'delete') {
-                                  _deletePlaylist(playlist['id']);
-                                }
-                                setState(() {
-                                  _selectedPlaylistId = playlist['id'];
-                                });
-                              },
-                            ),
+                            trailing: Icon(Icons.drag_handle),
                             onTap: () {
                               _showPlaylistTracks(
                                   playlist['id'], playlist['name']);
                             },
                           ),
                         ),
+                      )
                       );
                     },
                   ),
