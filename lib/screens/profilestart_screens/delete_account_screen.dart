@@ -98,7 +98,7 @@ class DeleteAccountScreen extends StatelessWidget {
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
-                    side: BorderSide(color: Colors.grey, width: 2.5),
+                    side: BorderSide(color: Colors.grey, width: 3),
                     padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                   ),
                 ),

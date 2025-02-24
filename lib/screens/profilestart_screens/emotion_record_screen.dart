@@ -20,14 +20,14 @@ class _EmotionRecordScreenState extends State<EmotionRecordScreen> {
   Map<int, String> _selectedDayEmotions = {};
 
   final List<Map<String, dynamic>> emotions = [
-    {'emotion': '행복', 'color': Color(0xFFFFFACD)},
-    {'emotion': '슬픔', 'color': Color(0xFFD8F2FE)},
-    {'emotion': '분노', 'color': Color(0xFFFEEAE5)},
-    {'emotion': '평온', 'color': Color(0xFFE0F7D4)},
-    {'emotion': '놀람', 'color': Color(0xFFFEF4E0)},
-    {'emotion': '혐오', 'color': Color(0xFFE6E6FA)},
-    {'emotion': '공포', 'color': Color(0xFFF5F5F5)},
-    {'emotion': '혼란', 'color': Color(0xFFF1FCF7)},
+    {'emotion': '행복', 'color': Colors.yellow[50]},
+    {'emotion': '슬픔', 'color': Colors.blue[50]},
+    {'emotion': '분노', 'color': Colors.red[50]},
+    {'emotion': '평온', 'color': Colors.green[50]},
+    {'emotion': '놀람', 'color': Colors.orange[50]},
+    {'emotion': '혐오', 'color': Colors.purple[50]},
+    {'emotion': '공포', 'color': Colors.grey[50]},
+    {'emotion': '혼란', 'color': Colors.teal[50]},
   ];
 
   final Map<String, String> emotionEmojis = {
