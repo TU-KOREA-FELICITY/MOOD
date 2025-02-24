@@ -459,9 +459,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: List.generate(
-                        4,
+                        6,
                             (index) {
-                          final minutes = index * 5;
+                          final minutes = index;
                           return Text(
                             '${minutes}분 전',
                             style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
@@ -507,7 +507,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
                       ),
                       borderData: FlBorderData(show: false),
-                      minX: DateTime.now().millisecondsSinceEpoch.toDouble() - (15 * 60 * 1000),
+                      minX: DateTime.now().millisecondsSinceEpoch.toDouble() - (5 * 60 * 1000),
                       maxX: DateTime.now().millisecondsSinceEpoch.toDouble(),
                       minY: 0,
                       maxY: 3,
@@ -541,17 +541,21 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildEmotionAnalysisResult() {
     return _emotionResult.isNotEmpty
-        ? Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: 20),
-                Text(
-                  '감정 분석 결과',
-                  style: TextStyle(fontSize: 23, fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.center,
-                ),
+        ? Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+        SizedBox(height: 20),
+    Padding(
+    padding: EdgeInsets.only(left: 20),
+    child: Text(
+      '감정 분석 결과',
+      style: TextStyle(
+        fontSize: 25,
+        fontWeight: FontWeight.bold,
+        color: Colors.black,
+      ),
+    ),
+    ),
                 SizedBox(height: 20),
                 Column(
                   children: _emotionResult
@@ -571,7 +575,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       padding: EdgeInsets.symmetric(vertical: 7),
                       child: Center(
                         child: Container(
-                          width: MediaQuery.of(context).size.width * 0.9,
+                          width: MediaQuery.of(context).size.width * 0.7,
                           padding: EdgeInsets.all(12),
                           decoration: BoxDecoration(
                             color: color,
@@ -597,8 +601,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 SizedBox(height: 10),
               ],
-            ),
-          )
+            )
         : SizedBox.shrink();
   }
 
