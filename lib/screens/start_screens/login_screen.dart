@@ -325,7 +325,7 @@ class _LoginScreenState extends State<LoginScreen> {
             Align(
               alignment: Alignment.bottomRight,
               child: Padding(
-                padding: const EdgeInsets.only(right: 50.0, bottom: 200.0),
+                padding: const EdgeInsets.only(right: 50.0, bottom: 150.0),
                 child: GestureDetector(
                   onTap: () {
                     Navigator.pushNamed(
@@ -344,10 +344,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
             ),
+            SizedBox(height: 5),
             if (!_authNotComplete)
-              Padding(
-                padding: EdgeInsets.only(bottom: 50.0),
-                child: Container(
+              Container(
                   width: MediaQuery.of(context).size.width * 0.7,
                   child: ElevatedButton(
                     onPressed: () {
@@ -359,11 +358,11 @@ class _LoginScreenState extends State<LoginScreen> {
                     },
                     style: ButtonStyle(
                       backgroundColor:
-                      MaterialStateProperty.all(Color(0xFF0126FA)),
-                      foregroundColor: MaterialStateProperty.all(Colors.white),
-                      padding: MaterialStateProperty.all(
+                      WidgetStateProperty.all(Color(0xFF0126FA)),
+                      foregroundColor: WidgetStateProperty.all(Colors.white),
+                      padding: WidgetStateProperty.all(
                           EdgeInsets.symmetric(vertical: 12)),
-                      shape: MaterialStateProperty.all(
+                      shape: WidgetStateProperty.all(
                         RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
                         ),
@@ -378,7 +377,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                 ),
-              ),
           ],
         ),
       ),
