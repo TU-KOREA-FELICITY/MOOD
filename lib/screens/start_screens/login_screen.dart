@@ -172,7 +172,7 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  Future<void> _tempLogin() async {
+  Future<void> _saveUserInfoAndNavigate() async {
     try {
       final response = await http.post(
         Uri.parse('http://10.0.2.2:3000/register_complete'),
@@ -203,7 +203,7 @@ class _LoginScreenState extends State<LoginScreen> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => HomeScreen(userInfo: userInfo),
+            builder: (context) => BottomNavigationWidget(userInfo: userInfo),
           ),
         );
       } else {
@@ -259,7 +259,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   SizedBox(height: 40),
                   GestureDetector(
                     // 임시 로그인 경로
-                    onTap: _tempLogin,
+                    onTap: () {
+                      _saveUserInfoAndNavigate();
+                    },
                     child: SizedBox(
                       width: 260,
                       height: 260,
