@@ -33,14 +33,14 @@ class _HomeScreenState extends State<HomeScreen> {
   String _status = '';
 
   final List<Map<String, dynamic>> emotions = [
-    {'name': 'ANGRY', 'color': Color(0xFFFFDBD6)},
-    {'name': 'HAPPY', 'color': Color(0xFFFEEFF2)},
-    {'name': 'SURPRISED', 'color': Color(0xFFFFFAD7)},
-    {'name': 'DISGUSTED', 'color': Color(0xFFFFFBF4)},
-    {'name': 'CALM', 'color': Color(0xFFE0F0E2)},
-    {'name': 'SAD', 'color': Color(0xFFE9F5FD)},
-    {'name': 'CONFUSED', 'color': Color(0xFFFBF4FB)},
-    {'name': 'FEAR', 'color': Color(0xFFEFEFEF)},
+    {'name': 'ANGRY', 'color': Colors.red[100]},
+    {'name': 'HAPPY', 'color': Colors.yellow[100]},
+    {'name': 'SURPRISED', 'color': Colors.orange[100]},
+    {'name': 'DISGUSTED', 'color': Colors.purple[100]},
+    {'name': 'CALM', 'color': Colors.green[100]},
+    {'name': 'SAD', 'color': Colors.blue[100]},
+    {'name': 'CONFUSED', 'color': Colors.teal[100]},
+    {'name': 'FEAR', 'color': Colors.grey[100]},
   ];
 
   List<FlSpot> generateRandomData(int count) {
@@ -85,17 +85,17 @@ class _HomeScreenState extends State<HomeScreen> {
       socket!.on('warning', (data) {
         setState(() {
           _warningMessage =
-              'Warning: ${data['level']} ${data['axis']} error ${data['error']}';
+              'Warning: ${data['level']} ${data['axis']} error \n${data['error']}';
           updateWarningData(_warningMessage);
         });
       });
 
       socket!.onDisconnect((_) => print('서버와 연결이 끊어졌습니다.'));
-      socket!.onError((err) => print('에러 발생: $err'));
+      socket!.onError((err) => print('에러 발생: \n$err'));
 
       socket!.connect();
     } catch (e) {
-      print('서버 연결 중 오류 발생: $e');
+      print('서버 연결 중 오류 발생: \n$e');
     }
   }
 
@@ -120,7 +120,7 @@ class _HomeScreenState extends State<HomeScreen> {
         print('estimator.py 시작 실패: ${response.statusCode}');
       }
     } catch (e) {
-      print('estimator.py 시작 중 오류 발생: $e');
+      print('estimator.py 시작 중 오류 발생: \n$e');
     }
   }
 
@@ -168,7 +168,7 @@ class _HomeScreenState extends State<HomeScreen> {
     } else if (warningMessage.contains('주의')) {
       warningLevel = 2;
       dialogTitle = '주의';
-      dialogContent = '주의 상태입니다! 집중해주세요\nn안정된 상태로 전환 시 자동으로 팝업이 종료됩니다.';
+      dialogContent = '주의 상태입니다! 집중해주세요\n안정된 상태로 전환 시 자동으로 팝업이 종료됩니다.';
       soundAsset = 'caution_sound.mp3';
     } else if (warningMessage.contains('위험')) {
       warningLevel = 3;
@@ -232,7 +232,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Text(
                 content,
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 17,
                   fontWeight: FontWeight.bold,
                 ),
               ),
