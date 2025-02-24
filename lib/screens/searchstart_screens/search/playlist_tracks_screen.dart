@@ -1,5 +1,5 @@
 // 검색 홈 (내 플레이리스트 탭에서 플레이리스트 클릭 시)
-
+// 0xFF0126FA 로고컬러 이거얌!
 import 'package:flutter/material.dart';
 import '../service/spotify_service.dart';
 
@@ -123,6 +123,7 @@ class _PlaylistTracksScreenState extends State<PlaylistTracksScreen> {
   void _showSortDialog() {
     showModalBottomSheet(
       context: context,
+      backgroundColor: Colors.white,
       builder: (BuildContext context) {
         return Container(
           padding: EdgeInsets.all(20),
@@ -134,27 +135,54 @@ class _PlaylistTracksScreenState extends State<PlaylistTracksScreen> {
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      _sortTracks('ABC');
-                      Navigator.of(context).pop();
-                    },
-                    child: Text('가나다 순'),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      _sortTracks('아티스트');
-                      Navigator.of(context).pop();
-                    },
-                    child: Text('아티스트 순'),
-                  ),
-                ],
-              ),
-            ],
+          Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+          Expanded(
+          child: ElevatedButton(
+          onPressed: () {
+        _sortTracks('ABC');
+        Navigator.of(context).pop();
+        },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Color(0xFF0126FA),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           ),
+          child: Text('가나다 순',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w800,
+              fontSize: 16,
+            ),
+          ),
+        ),
+        ),
+        SizedBox(width: 20),
+        Expanded(
+        child: ElevatedButton(
+        onPressed: () {
+        _sortTracks('아티스트');
+        Navigator.of(context).pop();
+        },
+        style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF0126FA),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10),
+        ),
+        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        ),
+        child: Text('아티스트 순',
+        style: TextStyle(
+        color: Colors.white,
+        fontWeight: FontWeight.w800,
+        fontSize: 16,
+        ),),
+        ),
+        ),],
+        ),
+        ],
+        ),
         );
       },
     );
@@ -186,7 +214,7 @@ class _PlaylistTracksScreenState extends State<PlaylistTracksScreen> {
                   Container(
                     width: double.infinity,
                     decoration: BoxDecoration(
-                      color: Colors.blueAccent,
+                      color: Color(0xFF0126FA),
                       borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(16.0),
                         topRight: Radius.circular(16.0),
@@ -210,7 +238,7 @@ class _PlaylistTracksScreenState extends State<PlaylistTracksScreen> {
                         final playlist = filteredPlaylists[index];
                         return ListTile(
                           leading: Icon(Icons.playlist_play,
-                              color: Colors.blueAccent),
+                            color: Color(0xFF0126FA)),
                           title: Text(
                             playlist['name'] ?? '알 수 없는 플레이리스트',
                             style: TextStyle(
@@ -275,42 +303,45 @@ class _PlaylistTracksScreenState extends State<PlaylistTracksScreen> {
   }
 
   void _showAddDialog() {
-    showModalBottomSheet(
+    showDialog(
       context: context,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
       builder: (BuildContext context) {
-        return Container(
-          padding: EdgeInsets.all(20),
-          child: Column(
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: Text(
+            '플레이리스트 선택',
+            style: TextStyle(fontSize: 23, fontWeight: FontWeight.w900),
+            textAlign: TextAlign.center,
+          ),
+          content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                '플레이리스트에 추가',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () => _showPlaylistOptions(null, '감정 카테고리'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
+                  backgroundColor: Colors.white30,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(10),
                   ),
+                    minimumSize: Size(double.infinity, 50,)
                 ),
-                child: Text('감정 카테고리'),
+                child: Text('감정 카테고리',style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold),),
               ),
-              SizedBox(height: 10),
+              SizedBox(height: 25),
               ElevatedButton(
                 onPressed: () => _showPlaylistOptions(null, '내 플레이리스트'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
+                  backgroundColor: Colors.white30,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(10),
                   ),
+                  minimumSize: Size(double.infinity, 50),
                 ),
-                child: Text('내 플레이리스트'),
+                child: Text('내 플레이리스트', style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold),),
               ),
             ],
           ),
@@ -340,7 +371,9 @@ class _PlaylistTracksScreenState extends State<PlaylistTracksScreen> {
                 widget._selectedTracks.clear();
               });
             },
-            child: Text(widget._isEditing ? '완료' : '선택'),
+            child: Text(widget._isEditing ? '완료' : '선택',
+              style: TextStyle(color: widget._isEditing ? Colors.black : Color(0xFF0126FA),
+                  fontWeight: FontWeight.bold),),
           ),
         ],
       ),
@@ -374,7 +407,8 @@ class _PlaylistTracksScreenState extends State<PlaylistTracksScreen> {
                           widget._selectedTracks.length == _tracks.length
                               ? '전체선택해제'
                               : '전체 선택',
-                          style: TextStyle(color: Colors.blueAccent),
+                          style: TextStyle(color: widget._selectedTracks.length == _tracks.length
+                              ? Colors.black45 : Colors.black),
                         ),
                       ),
                   ],
@@ -423,6 +457,8 @@ class _PlaylistTracksScreenState extends State<PlaylistTracksScreen> {
                                           }
                                         });
                                       },
+                                      activeColor: Color(0xFF0126FA),
+                                      checkColor: Colors.white,
                                     ),
                                   ),
                                 Expanded(
@@ -469,9 +505,23 @@ class _PlaylistTracksScreenState extends State<PlaylistTracksScreen> {
             Positioned(
               left: 20,
               right: 20,
-              bottom: 20,
+              bottom: 30,
               child: Row(
                 children: [
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () => _showAddDialog(),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFF0126FA),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        minimumSize: Size(double.infinity, 40),
+                      ),
+                      child: Text('추가', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                  SizedBox(width: 10),
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () => _deleteSelectedTracks(widget),
@@ -480,21 +530,9 @@ class _PlaylistTracksScreenState extends State<PlaylistTracksScreen> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
+                        minimumSize: Size(double.infinity, 40),
                       ),
-                      child: Text('삭제', style: TextStyle(color: Colors.white)),
-                    ),
-                  ),
-                  SizedBox(width: 10),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () => _showAddDialog(),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      child: Text('추가', style: TextStyle(color: Colors.white)),
+                      child: Text('삭제', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
                     ),
                   ),
                 ],
