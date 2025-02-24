@@ -437,7 +437,7 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
             TextButton(
               child: Text(
                 '취소',
-                style: TextStyle(color: Colors.blueAccent),
+                style: TextStyle(color: Color(0xFF2265F0)),
               ),
               onPressed: () {
                 Navigator.of(context).pop();
@@ -446,7 +446,7 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
             TextButton(
               child: Text(
                 '수정',
-                style: TextStyle(color: Colors.blueAccent),
+                style: TextStyle(color: Color(0xFF2265F0)),
               ),
               onPressed: () async {
                 if (_playlistNameController.text.isNotEmpty) {
@@ -650,7 +650,7 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
       children: [
         SizedBox(height: 7),
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Expanded(
               child: Align(
@@ -714,6 +714,7 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
             ),
             PopupMenuButton<String>(
               icon: Icon(Icons.more_horiz),
+              offset: Offset(0, 40),
               onSelected: (String result) {
                 if (result == 'edit') {
                   setState(() {
@@ -724,7 +725,9 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
               itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
                 const PopupMenuItem<String>(
                   value: 'edit',
-                  child: Text('수정하기'),
+                  child: Text('수정하기',
+                  style: TextStyle(color: Colors.black, backgroundColor: Colors.grey),
+                  ),
                 ),
               ],
             ),
@@ -797,7 +800,7 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
                             ),
                             subtitle: Text('${playlist['tracks']['total']}곡'),
                             leading: IconButton(
-                              icon: Icon(Icons.play_circle_fill, color: Colors.blueAccent),
+                              icon: Icon(Icons.play_circle_fill, color: Color(0xFF2265F0), size: 30,),
                               onPressed: () async {
                                 await SpotifySdk.play(
                                     spotifyUri: playlist['uri']);
@@ -805,10 +808,11 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
                             ),
                             trailing: _mode == 'edit'
                               ? ElevatedButton(onPressed: () => _showEditPlaylistNameDialog(playlist['id'], playlist['name']),
-                            child: Text('수정', style: TextStyle(color: Colors.blueAccent, fontWeight: FontWeight.w700),),
+                            child: Text('수정', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700),),
                             style: ElevatedButton.styleFrom(
                       minimumSize: Size(60, 36),
                       padding: EdgeInsets.symmetric(horizontal: 8),
+                              backgroundColor: Colors.white60
                       ),
                             )
                             : Listener(
