@@ -162,6 +162,23 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
     await prefs.setStringList('playlistOrder', playlistIds);
   }
 
+  Future<void> _shuffleAndPlayPlaylist(String playlistId) async {
+    try {
+      // 플레이리스트 셔플 설정
+      await SpotifySdk.setShuffle(shuffle: true);
+
+      // 플레이리스트 재생
+      await SpotifySdk.play(spotifyUri: 'spotify:playlist:$playlistId');
+
+      print('플레이리스트 $playlistId 셔플 재생 시작');
+    } catch (e) {
+      print('플레이리스트 셔플 재생 중 오류 발생: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('플레이리스트 재생 실패: $e')),
+      );
+    }
+  }
+
   Color _getColorForEmotion(String emotion) {
     switch (emotion) {
       case '행복':
@@ -191,7 +208,7 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
       builder: (BuildContext context) {
         return AlertDialog(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(5.0),
+            borderRadius: BorderRadius.circular(13.0),
           ),
           backgroundColor: Colors.white,
           title: Text('플레이리스트 삭제', style: TextStyle(fontWeight: FontWeight.w800),
@@ -386,7 +403,7 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text('$firstEmotion 플레이리스트를 재생합니다.')),
             );
-            await SpotifySdk.play(spotifyUri: playlist['uri']);
+            await _shuffleAndPlayPlaylist(playlist['id']);
           } else {
             print('$firstEmotion에 해당하는 플레이리스트를 찾을 수 없습니다.');
           }
@@ -427,17 +444,27 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(13.0),
+          ),
           backgroundColor: Colors.white,
-          title: Text('플레이리스트 이름 수정'),
+          title: Text('플레이리스트 이름 수정', style: TextStyle(fontWeight: FontWeight.w800),),
           content: TextField(
             controller: _playlistNameController,
-            decoration: InputDecoration(hintText: "새 플레이리스트 이름"),
+            decoration: InputDecoration(hintText: "새 플레이리스트 이름",
+            focusedBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: Color(0xFF0126FA), width: 2.0),
+            ),
+              enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: Color(0xFF0126FA), width: 2.0),
+              )
+            ),
           ),
           actions: <Widget>[
             TextButton(
               child: Text(
                 '취소',
-                style: TextStyle(color: Color(0xFF0126FA)),
+                style: TextStyle(color: Colors.black54, fontWeight: FontWeight.w800),
               ),
               onPressed: () {
                 Navigator.of(context).pop();
@@ -446,7 +473,7 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
             TextButton(
               child: Text(
                 '수정',
-                style: TextStyle(color: Color(0xFF0126FA)),
+                style: TextStyle(color: Colors.black, fontWeight: FontWeight.w800),
               ),
               onPressed: () async {
                 if (_playlistNameController.text.isNotEmpty) {
@@ -548,16 +575,14 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
                           color: _getColorForEmotion(emotion),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(6.0),
                           child: Stack(
                             children: [
-                              Column(
+                          Padding(
+                          padding: const EdgeInsets.all(16.0),
+                             child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Row(
-                                    children: [
                                       Text(
                                         'Playlist',
                                         style: TextStyle(
@@ -565,44 +590,7 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
                                           fontSize: 12,
                                         ),
                                       ),
-                                      IconButton(
-                                        icon: Icon(Icons.add,
-                                            color: Colors.grey[700], size: 12),
-                                        onPressed: () async {
-                                          List<String> emotionTags =
-                                          emotionInfoItem['tag'].split(',');
-                                          showDialog(
-                                            context: context,
-                                            builder: (BuildContext context) {
-                                              return AlertDialog(
-                                                title: Text('랜덤 추천 트랙 추가'),
-                                                content:
-                                                Text('이 감정에 대한 트랙을 추가하시겠습니까?'),
-                                                actions: <Widget>[
-                                                  TextButton(
-                                                    child: Text('취소'),
-                                                    onPressed: () {
-                                                      Navigator.of(context).pop();
-                                                    },
-                                                  ),
-                                                  TextButton(
-                                                    child: Text('확인'),
-                                                    onPressed: () async {
-                                                      Navigator.of(context).pop();
-                                                      await _addInitialTracks(
-                                                          emotion,
-                                                          playlist['id'],
-                                                          emotionTags);
-                                                    },
-                                                  ),
-                                                ],
-                                              );
-                                            },
-                                          );
-                                        },
-                                      ),
-                                    ],
-                                  ),
+                                      Spacer(),
                                   Text(
                                     emotion,
                                     style: const TextStyle(
@@ -611,6 +599,7 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
+                                  SizedBox(height: 3),
                                   Text(
                                     '${playlist['tracks']['total']}곡',
                                     style: TextStyle(
@@ -620,11 +609,75 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
                                   ),
                                 ],
                               ),
+                    ),
                               Positioned(
-                                right: 0,
-                                bottom: 0,
+                                right: 8,
+                                top: 2,
                                 child: IconButton(
-                                  icon: Icon(Icons.play_arrow, color: Colors.black),
+                                  icon: Icon(Icons.add,
+                                      color: Colors.grey[700], size: 15),
+                                  onPressed: () async {
+                                    List<String> emotionTags =
+                                    emotionInfoItem['tag'].split(',');
+                                    showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return AlertDialog(
+                                          backgroundColor: Colors.white,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(13),
+                                          ),
+                                          title: Text('랜덤 추천 트랙 추가',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w800,
+                                            color: Colors.black,
+                                          ),),
+                                          content:
+                                          Text('이 감정에 대한 트랙을 추가하시겠습니까?',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.black,
+                                          ),),
+                                          actions: <Widget>[
+                                            Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                            children: [
+                                            TextButton(
+                                              child: Text('취소',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.w800,
+                                                color: Colors.black38,
+                                              ),),
+                                              onPressed: () {
+                                                Navigator.of(context).pop();
+                                              },
+                                            ),
+                                            TextButton(
+                                              child: Text('확인',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.w800,
+                                                color: Colors.black,
+                                              ),),
+                                              onPressed: () async {
+                                                Navigator.of(context).pop();
+                                                await _addInitialTracks(
+                                                    emotion,
+                                                    playlist['id'],
+                                                    emotionTags);
+                                              },
+                                            ),
+                                        ],),],
+                                        );
+                                      },
+                                    );
+                                  },
+                                ),
+                              ),
+                              Positioned(
+                                right: 8,
+                                bottom: 8,
+                                child: IconButton(
+                                  icon: Icon(Icons.play_arrow, color: Colors.black, size: 30),
                                   onPressed: () async {
                                     await SpotifySdk.play(spotifyUri: playlist['uri']);
                                   },
@@ -633,8 +686,7 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
                             ],
                           ),
                         ),
-                      ),
-                    );
+                      );
                   },
                 ),
         ),
@@ -714,7 +766,10 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
             ),
             PopupMenuButton<String>(
               icon: Icon(Icons.more_horiz),
-              offset: Offset(4, 45),
+              offset: Offset(10, 50),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15),
+              ),
               onSelected: (String result) {
                 if (result == 'edit') {
                   setState(() {
@@ -722,15 +777,15 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
                   });
                 }
               },
-              color: Colors.white70,
+              color: Color(0xFFDEE7FF),
               itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
                 PopupMenuItem<String>(
                   value: 'edit',
-                  height: 30,
+                  height: 20,
                   padding: EdgeInsets.all(3),
                   child: Center(
                     child: Text('수정하기',
-                      style: TextStyle(color: Colors.black, fontSize: 15),
+                      style: TextStyle(color: Colors.black, fontSize: 15, fontWeight: FontWeight.w800),
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -846,17 +901,28 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(13.0),
+          ),
           backgroundColor: Colors.white,
-          title: Text('새 플레이리스트 생성'),
+          title: Text('새 플레이리스트 생성',
+          style: TextStyle(fontWeight: FontWeight.w800),),
           content: TextField(
             controller: _playlistNameController,
-            decoration: InputDecoration(hintText: "플레이리스트 이름"),
+            decoration: InputDecoration(hintText: "플레이리스트 이름",
+        focusedBorder: UnderlineInputBorder(
+        borderSide: BorderSide(color: Color(0xFF0126FA), width: 2.0),
+        ),
+        enabledBorder: UnderlineInputBorder(
+        borderSide: BorderSide(color: Color(0xFF0126FA), width: 2.0),
+            ),
+          ),
           ),
           actions: <Widget>[
             TextButton(
               child: Text(
                 '취소',
-                style: TextStyle(color: Color(0xFF0126FA),fontWeight: FontWeight.w800),
+                style: TextStyle(color: Colors.black38,fontWeight: FontWeight.w800),
               ),
               onPressed: () {
                 Navigator.of(context).pop();
@@ -865,7 +931,7 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
             TextButton(
               child: Text(
                 '생성',
-                style: TextStyle(color: Color(0xFF0126FA), fontWeight: FontWeight.w800),
+                style: TextStyle(color: Colors.black, fontWeight: FontWeight.w800),
               ),
               onPressed: () async {
                 if (_playlistNameController.text.isNotEmpty) {
