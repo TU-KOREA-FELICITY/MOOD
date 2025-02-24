@@ -211,9 +211,9 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
                   child: Column(
                     children: [
                       TabBar(
-                        labelColor: Color(0xFF2265F0),
+                        labelColor: Color(0xFF0126FA),
                         unselectedLabelColor: Colors.grey,
-                        indicatorColor: Color(0xFF2265F0),
+                        indicatorColor: Color(0xFF0126FA),
                         tabs: [
                           Tab(
                             text: '트랙',
@@ -326,7 +326,7 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
                       child: Text(
                         _selectionMode ? '해제' : '선택',
                         style: TextStyle(
-                          color: _selectionMode ? Colors.grey : Colors.blue,
+                          color: _selectionMode ? Colors.grey : Color(0xFF0126FA),
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -336,32 +336,38 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
               ),
               SizedBox(height: 8.0),
               Expanded(
-                child: Padding(
+              child: Stack(
+                children: [
+                Padding(
                   padding: EdgeInsets.symmetric(horizontal: 18.0),
                   child: ListView(
                     children: _buildTrackList(),
                   ),
                 ),
-              ),
               if (_selectedTracks.isNotEmpty)
                 Positioned(
                   bottom: 30.0,
-                  left: 20.0,
-                  right: 20.0,
+                  left: 30.0,
+                  right: 30.0,
+                  child: Container(
                   child: ElevatedButton(
                     onPressed: () => _showAddDialog(),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFF2265F0),
+                      backgroundColor: Color(0xFF0126FA),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      padding: EdgeInsets.symmetric(vertical: 13),
+                      padding: EdgeInsets.symmetric(vertical: 15),
                     ),
                     child: Text('선택한 곡 추가', style:
                     TextStyle(color: Colors.white,
-                        fontSize: 20, fontWeight: FontWeight.w900)),
+                        fontSize: 20, fontWeight: FontWeight.bold)
+    ),
                   ),
                 ),
+    ),
+    ], ),
+              ),
             ],
     );
   }
@@ -412,7 +418,7 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
                         child: ElevatedButton(
                           onPressed: () => _showAddDialogForPlaylists(),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xFF2265F0),
+                            backgroundColor: Color(0xFF0126FA),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
@@ -447,14 +453,12 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
                   ),
                 ],
               ),
-              child: ListTile(
-                contentPadding:
-                    EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                leading: Row(
-                  mainAxisSize: MainAxisSize.min,
+              child: Row(
                   children: [
                     if (_selectionMode)
-                      Checkbox(
+                      Padding(
+                      padding: EdgeInsets.only(left: 10),
+                      child: Checkbox(
                         value: _selectedTracks.contains(track),
                         onChanged: (bool? value) {
                           setState(() {
@@ -465,10 +469,13 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
                             }
                           });
                         },
+                        activeColor: Color(0xFF0126FA),
+                        checkColor: Colors.white,
                       ),
-                    _buildAlbumCover(track),
-                  ],
-                ),
+                      ),
+                Expanded(child: ListTile(
+                contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                leading: _buildAlbumCover(track),
                 title: Text(
                   track['name'] ?? '알 수 없는 트랙',
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
@@ -483,12 +490,13 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
                         await SpotifySdk.play(spotifyUri: track['uri']);
                         _updateCurrentTrack();
                       },
+                ),
+      ],),
                     ),
-                  ],
+                ),],
                 ),
               ),
             ),
-          ),
           if (_showButtons[trackId] ?? false)
             Container(
               margin: EdgeInsets.only(bottom: 8.0),
@@ -498,7 +506,7 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
                 children: [
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue[600],
+                      backgroundColor: Color(0xFF0126FA),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15),
                       ),
@@ -517,7 +525,7 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
                   ),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue[600],
+                      backgroundColor: Color(0xFF0126FA),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15),
                       ),
@@ -568,7 +576,7 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
                   Container(
                     width: double.infinity,
                     decoration: BoxDecoration(
-                      color: Colors.blueAccent,
+                      color: Color(0xFF0126FA),
                       borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(16.0),
                         topRight: Radius.circular(16.0),
@@ -592,7 +600,7 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
                         final playlist = filteredPlaylists[index];
                         return ListTile(
                           leading: Icon(Icons.playlist_play,
-                              color: Colors.blueAccent),
+                              color: Color(0xFF0126FA)),
                           title: Text(
                             playlist['name'] ?? '알 수 없는 플레이리스트',
                             style: TextStyle(
@@ -775,46 +783,45 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
   }
 
   void _showAddDialog() {
-    showModalBottomSheet(
+    showDialog(
       context: context,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
       builder: (BuildContext context) {
-        return Container(
-          padding: EdgeInsets.all(20),
-          child: Column(
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: Text(
+            '플레이리스트 선택',
+            style: TextStyle(fontSize: 23, fontWeight: FontWeight.w900),
+            textAlign: TextAlign.center,
+          ),
+          content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                '플레이리스트에 추가',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () => _showPlaylistOptions(_selectedTracks.toList(), '감정 카테고리'),
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white30,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    minimumSize: Size(double.infinity, 50,)
+                ),
+                child: Text('감정 카테고리',style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold),),
               ),
               SizedBox(height: 20),
               ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context); // 다이얼로그 닫기
-                  _showPlaylistOptions(_selectedTracks, '감정 카테고리');
-                },
+                onPressed: () => _showPlaylistOptions(_selectedTracks.toList(), '내 플레이리스트'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
+                  backgroundColor: Colors.white30,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(10),
                   ),
+                  minimumSize: Size(double.infinity, 50),
                 ),
-                child: Text('감정 카테고리'),
-              ),
-              SizedBox(height: 10),
-              ElevatedButton(
-                onPressed: () =>
-                    _showPlaylistOptions(_selectedTracks, '내 플레이리스트'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                ),
-                child: Text('내 플레이리스트'),
+                child: Text('내 플레이리스트', style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold),),
               ),
             ],
           ),

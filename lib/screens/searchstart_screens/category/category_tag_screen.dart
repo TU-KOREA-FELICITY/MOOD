@@ -437,7 +437,7 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
             TextButton(
               child: Text(
                 '취소',
-                style: TextStyle(color: Color(0xFF2265F0)),
+                style: TextStyle(color: Color(0xFF0126FA)),
               ),
               onPressed: () {
                 Navigator.of(context).pop();
@@ -446,7 +446,7 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
             TextButton(
               child: Text(
                 '수정',
-                style: TextStyle(color: Color(0xFF2265F0)),
+                style: TextStyle(color: Color(0xFF0126FA)),
               ),
               onPressed: () async {
                 if (_playlistNameController.text.isNotEmpty) {
@@ -490,9 +490,9 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               TabBar(
-                labelColor: Color(0xFF2265F0),
+                labelColor: Color(0xFF0126FA),
                 unselectedLabelColor: Colors.grey,
-                indicatorColor: Color(0xFF2265F0),
+                indicatorColor: Color(0xFF0126FA),
                 controller: _tabController,
                 tabs: [
                   Tab(text: '감정 카테고리'),
@@ -659,7 +659,7 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
                     ? ElevatedButton(
                         onPressed: () => _showCreatePlaylistDialog(),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFF2265F0),
+                          backgroundColor: Color(0xFF0126FA),
                           foregroundColor: Colors.white,
                           minimumSize: Size(250, 45),
                           shape: RoundedRectangleBorder(
@@ -694,7 +694,7 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
                           });
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFF2265F0),
+                          backgroundColor: Color(0xFF0126FA),
                           foregroundColor: Colors.white,
                           minimumSize: Size(250, 45),
                           shape: RoundedRectangleBorder(
@@ -714,7 +714,7 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
             ),
             PopupMenuButton<String>(
               icon: Icon(Icons.more_horiz),
-              offset: Offset(0, 40),
+              offset: Offset(4, 45),
               onSelected: (String result) {
                 if (result == 'edit') {
                   setState(() {
@@ -722,15 +722,19 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
                   });
                 }
               },
+              color: Colors.white70,
               itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                const PopupMenuItem<String>(
+                  PopupMenuItem<String>(
                   value: 'edit',
-                  child: Text('수정하기',
-                  style: TextStyle(color: Colors.black, backgroundColor: Colors.grey),
-                  ),
+                  height: 30,
+                  padding: EdgeInsets.all(3),
+                  child: Center(
+                    child: Text('수정하기',
+                  style: TextStyle(color: Colors.black, fontSize: 15),
+                    textAlign: TextAlign.center,
                 ),
-              ],
-            ),
+                ),
+                  ), ], ),
           ],
         ),
         SizedBox(height: 16),
@@ -738,7 +742,7 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
           child: _isLoading
               ? Center(child: CircularProgressIndicator())
               : RefreshIndicator(
-                  color: Color(0xFF2265F0),
+                  color: Color(0xFF0126FA),
                   backgroundColor: Colors.white,
                   strokeWidth: 3.0,
                   onRefresh: _loadPlaylists,
@@ -800,7 +804,7 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
                             ),
                             subtitle: Text('${playlist['tracks']['total']}곡'),
                             leading: IconButton(
-                              icon: Icon(Icons.play_circle_fill, color: Color(0xFF2265F0), size: 30,),
+                              icon: Icon(Icons.play_circle_fill, color: Color(0xFF0126FA), size: 30,),
                               onPressed: () async {
                                 await SpotifySdk.play(
                                     spotifyUri: playlist['uri']);
@@ -852,7 +856,7 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
             TextButton(
               child: Text(
                 '취소',
-                style: TextStyle(color: Color(0xFF2265F0),fontWeight: FontWeight.w800),
+                style: TextStyle(color: Color(0xFF0126FA),fontWeight: FontWeight.w800),
               ),
               onPressed: () {
                 Navigator.of(context).pop();
@@ -861,7 +865,7 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
             TextButton(
               child: Text(
                 '생성',
-                style: TextStyle(color: Color(0xFF2265F0), fontWeight: FontWeight.w800),
+                style: TextStyle(color: Color(0xFF0126FA), fontWeight: FontWeight.w800),
               ),
               onPressed: () async {
                 if (_playlistNameController.text.isNotEmpty) {

@@ -95,7 +95,7 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
               });
             },
             child: Text(_isEditing ? '완료' : '선택',
-                style: TextStyle(color: Colors.black)),
+                style: TextStyle(color: _isEditing ? Colors.black : Color(0xFF0126FA), fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -120,7 +120,7 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.bold,
-                          color: Colors.black38,
+                          color: Colors.black,
                         ),
                       ),
                       if (_isEditing)
@@ -139,14 +139,17 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                             _selectedTracks.length == tracks.length
                                 ? '전체선택해제'
                                 : '전체선택',
-                            style: TextStyle(color: Colors.black38),
+                            style: TextStyle(color: _selectedTracks.length == _tracks.length
+                                ? Colors.black45 : Colors.black),
                           ),
                         ),
                     ],
                   ),
                 ),
                 Expanded(
-                  child: ListView.builder(
+                  child: Stack(
+                    children: [
+                      ListView.builder(
                     itemCount: tracks.length,
                     itemBuilder: (context, index) {
                       final track = tracks[index]['track'];
@@ -182,6 +185,8 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                                         }
                                       });
                                     },
+                                    activeColor: Color(0xFF0126FA),
+                                    checkColor: Colors.white,
                                   ),
                                 ),
                               Expanded(
@@ -214,23 +219,39 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                       );
                     },
                   ),
-                ),
                 if (_selectedTracks.isNotEmpty && _isEditing)
-                  Padding(
-                    padding: EdgeInsets.all(16.0),
+                  Positioned(
+                    bottom: 30.0,
+                    left: 30.0,
+                    right: 30.0,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            spreadRadius: 1,
+                            blurRadius: 10,
+                            offset: Offset(0, 3),
+                          ),
+                        ],
+                      ),
                     child: ElevatedButton(
                       onPressed: () => _showAddDialog(),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFF2265F0),
+                        backgroundColor: Color(0xFF0126FA),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
+                        padding: EdgeInsets.symmetric(vertical: 15),
                       ),
-                      child: Text('추가', style: TextStyle(color: Colors.white)),
+                      child: Text('선택한 곡 추가',
+                          style: TextStyle(color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold)),
                     ),
-                  ),
-              ],
-            );
+                    ),
+                  )],
+                  ))]);
           }
           return Center(child: Text('플레이리스트가 비어 있습니다.'));
         },
@@ -239,46 +260,45 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
   }
 
   void _showAddDialog() {
-    showModalBottomSheet(
+    showDialog(
       context: context,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
       builder: (BuildContext context) {
-        return Container(
-          padding: EdgeInsets.all(20),
-          child: Column(
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: Text(
+            '플레이리스트 선택',
+            style: TextStyle(fontSize: 23, fontWeight: FontWeight.w900),
+            textAlign: TextAlign.center,
+          ),
+          content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                '플레이리스트에 추가',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () => _showPlaylistOptions(_selectedTracks.toList(), '감정 카테고리'),
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white30,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    minimumSize: Size(double.infinity, 50,)
+                ),
+                child: Text('감정 카테고리',style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold),),
               ),
               SizedBox(height: 20),
               ElevatedButton(
-                onPressed: () =>
-                    _showPlaylistOptions(_selectedTracks.toList(), '감정 카테고리'),
+                onPressed: () => _showPlaylistOptions(_selectedTracks.toList(), '내 플레이리스트'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
+                  backgroundColor: Colors.white30,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(10),
                   ),
+                  minimumSize: Size(double.infinity, 50),
                 ),
-                child: Text('감정 카테고리'),
-              ),
-              SizedBox(height: 10),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  _showPlaylistOptions(_selectedTracks.toList(), '내 플레이리스트');
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                ),
-                child: Text('내 플레이리스트'),
+                child: Text('내 플레이리스트', style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold),),
               ),
             ],
           ),
@@ -313,7 +333,7 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                   Container(
                     width: double.infinity,
                     decoration: BoxDecoration(
-                      color: Colors.blueAccent,
+                      color: Color(0xFF2265F0),
                       borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(16.0),
                         topRight: Radius.circular(16.0),
