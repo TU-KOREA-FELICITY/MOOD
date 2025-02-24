@@ -305,7 +305,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Padding(
       padding: EdgeInsets.only(top: 20, bottom: 20),
       child: Text(
-        '${widget.userInfo['user_name']}님의 감정/집중도 인식중',
+        '${widget.userInfo['user_name']}님의 감정/집중도 인식 중',
         style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
       ),
     );
@@ -362,10 +362,18 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildAnalysisButtons() {
     return Padding(
-      padding: EdgeInsets.only(top: 20, bottom: 10, left: 30, right: 30),
+      padding: EdgeInsets.only(top: 10, bottom: 10, left: 40, right: 40),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
+          GestureDetector(
+            onTap: _restartRecognition,
+            child: Icon(
+              Icons.refresh,
+              color: Colors.black,
+              size: 24,
+            ),
+          ),
           GestureDetector(
             onTap: _runEmotionAnalysis,
             child: Text(
@@ -374,19 +382,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
                 decoration: TextDecoration.underline,
-                color: Color(0xFF0126FA),
-              ),
-            ),
-          ),
-          GestureDetector(
-            onTap: _restartRecognition,
-            child: Text(
-              '다시 시도하기',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                decoration: TextDecoration.underline,
-                color: Color(0xFF0126FA),
+                color: Colors.black,
               ),
             ),
           ),
@@ -397,8 +393,21 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildConcentrationChart() {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(height: 20),
+        SizedBox(height: 10),
+        Padding(
+          padding: EdgeInsets.only(left: 20),
+          child: Text(
+          "나의 집중도",
+          style: TextStyle(
+            fontSize: 25,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+          ),
+        ),
+        SizedBox(height: 10),
         Stack(
           children: [
             Container(
@@ -427,10 +436,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('위험', style: TextStyle(fontSize: 12)),
-                    Text('주의', style: TextStyle(fontSize: 12)),
-                    Text('경고', style: TextStyle(fontSize: 12)),
-                    Text('안전', style: TextStyle(fontSize: 12)),
+                    Text('위험', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                    Text('주의', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                    Text('경고', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                    Text('안전', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                   ],
                 ),
               ),
@@ -455,7 +464,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           final minutes = index * 5;
                           return Text(
                             '${minutes}분 전',
-                            style: TextStyle(fontSize: 10),
+                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                           );
                         },
                       ).reversed.toList(),
@@ -476,14 +485,28 @@ class _HomeScreenState extends State<HomeScreen> {
                   width: MediaQuery.of(context).size.width,
                   child: LineChart(
                     LineChartData(
-                      gridData: FlGridData(show: false),
+                      gridData: FlGridData(show: true,
+                        drawVerticalLine: true,
+                        getDrawingHorizontalLine: (value) {
+                          return FlLine(
+                            color: Colors.grey.withValues(alpha: 0.25),
+                            strokeWidth: 1,
+                          );
+                        },
+                        getDrawingVerticalLine: (value) {
+                          return FlLine(
+                            color: Colors.grey.withValues(alpha: 0.25),
+                            strokeWidth: 1,
+                          );
+                        },
+                      ),
                       titlesData: FlTitlesData(
                         leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
                         topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
                         rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
                         bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
                       ),
-                      borderData: FlBorderData(show: true),
+                      borderData: FlBorderData(show: false),
                       minX: DateTime.now().millisecondsSinceEpoch.toDouble() - (15 * 60 * 1000),
                       maxX: DateTime.now().millisecondsSinceEpoch.toDouble(),
                       minY: 0,
@@ -500,7 +523,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           dotData: FlDotData(show: true),
                           belowBarData: BarAreaData(
                             show: true,
-                            color: Color(0xFF0126FA).withOpacity(0.1),
+                            color: Color(0xFF0126FA).withValues(alpha: 0.1),
                           ),
                         ),
                       ],
