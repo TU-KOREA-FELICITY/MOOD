@@ -334,7 +334,7 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
                   ],
                 ),
               ),
-              SizedBox(height: 8.0),
+
               Expanded(
               child: Stack(
     children: [
@@ -346,10 +346,20 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
                 ),
               if (_selectedTracks.isNotEmpty)
                 Positioned(
-                  bottom: 30.0,
+                  bottom: 25.0,
                   left: 30.0,
                   right: 30.0,
     child: Container(
+      decoration: BoxDecoration(
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            spreadRadius: 1,
+            blurRadius: 10,
+            offset: Offset(0, 3),
+          ),
+        ],
+      ),
                   child: ElevatedButton(
                     onPressed: () => _showAddDialog(),
                     style: ElevatedButton.styleFrom(
@@ -398,11 +408,10 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
                   ],
                 ),
               ),
-              SizedBox(height: 7.0),
               Expanded(
                 child: Padding(
                   padding:
-                      EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
+                      EdgeInsets.symmetric(horizontal: 18.0),
                   child: ListView(
                     children: _buildPlaylistList(),
                   ),
@@ -562,13 +571,13 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
         return Dialog(
           backgroundColor: Colors.white,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16.0),
+            borderRadius: BorderRadius.circular(20.0),
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(16.0),
             child: ConstrainedBox(
               constraints: BoxConstraints(
-                maxHeight: MediaQuery.of(context).size.height * 0.55,
+                maxHeight: MediaQuery.of(context).size.height * 0.5,
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -586,8 +595,8 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
                     child: Text(
                       option,
                       style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
+                        fontSize: 25,
+                        fontWeight: FontWeight.w900,
                         color: Colors.white,
                       ),
                       textAlign: TextAlign.center,
@@ -604,9 +613,9 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
                           title: Text(
                             playlist['name'] ?? '알 수 없는 플레이리스트',
                             style: TextStyle(
-                              fontSize: 19,
+                              fontSize: 20,
                               fontWeight: FontWeight.bold,
-                              letterSpacing: 1.2,
+                              letterSpacing: 1.5,
                             ),
                           ),
                           onTap: () {

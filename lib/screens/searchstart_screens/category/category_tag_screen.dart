@@ -208,7 +208,7 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
       builder: (BuildContext context) {
         return AlertDialog(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(13.0),
+            borderRadius: BorderRadius.circular(20),
           ),
           backgroundColor: Colors.white,
           title: Text('플레이리스트 삭제', style: TextStyle(fontWeight: FontWeight.w800),
@@ -445,7 +445,7 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
       builder: (BuildContext context) {
         return AlertDialog(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(13.0),
+            borderRadius: BorderRadius.circular(20),
           ),
           backgroundColor: Colors.white,
           title: Text('플레이리스트 이름 수정', style: TextStyle(fontWeight: FontWeight.w800),),
@@ -625,7 +625,7 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
                                         return AlertDialog(
                                           backgroundColor: Colors.white,
                                           shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(13),
+                                            borderRadius: BorderRadius.circular(20),
                                           ),
                                           title: Text('랜덤 추천 트랙 추가',
                                           style: TextStyle(
@@ -902,7 +902,7 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
       builder: (BuildContext context) {
         return AlertDialog(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(13.0),
+            borderRadius: BorderRadius.circular(20),
           ),
           backgroundColor: Colors.white,
           title: Text('새 플레이리스트 생성',

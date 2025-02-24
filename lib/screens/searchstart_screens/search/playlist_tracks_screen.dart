@@ -161,25 +161,25 @@ class _PlaylistTracksScreenState extends State<PlaylistTracksScreen> {
         ),
         ),
         SizedBox(width: 20),
-        Expanded(
-        child: ElevatedButton(
-        onPressed: () {
-        _sortTracks('아티스트');
-        Navigator.of(context).pop();
-        },
-        style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF0126FA),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10),
-        ),
-        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-        ),
-        child: Text('아티스트 순',
-        style: TextStyle(
-        color: Colors.white,
-        fontWeight: FontWeight.w800,
-        fontSize: 16,
-        ),),
-        ),
-        ),],
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      _sortTracks('아티스트');
+                      Navigator.of(context).pop();
+                    },
+                    style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF0126FA),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10),
+                      ),
+                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    ),
+                    child: Text('아티스트 순',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w800,
+                        fontSize: 16,
+                      ),),
+                  ),
+                ),],
         ),
         ],
         ),
@@ -200,13 +200,13 @@ class _PlaylistTracksScreenState extends State<PlaylistTracksScreen> {
         return Dialog(
           backgroundColor: Colors.white,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16.0),
+            borderRadius: BorderRadius.circular(20.0),
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(16.0),
             child: ConstrainedBox(
               constraints: BoxConstraints(
-                maxHeight: MediaQuery.of(context).size.height * 0.55,
+                maxHeight: MediaQuery.of(context).size.height * 0.5,
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -224,8 +224,8 @@ class _PlaylistTracksScreenState extends State<PlaylistTracksScreen> {
                     child: Text(
                       option,
                       style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
+                        fontSize: 25,
+                        fontWeight: FontWeight.w900,
                         color: Colors.white,
                       ),
                       textAlign: TextAlign.center,
@@ -242,9 +242,9 @@ class _PlaylistTracksScreenState extends State<PlaylistTracksScreen> {
                           title: Text(
                             playlist['name'] ?? '알 수 없는 플레이리스트',
                             style: TextStyle(
-                              fontSize: 19,
+                              fontSize: 20,
                               fontWeight: FontWeight.bold,
-                              letterSpacing: 1.2,
+                              letterSpacing: 1.5,
                             ),
                           ),
                           onTap: () {
@@ -261,8 +261,14 @@ class _PlaylistTracksScreenState extends State<PlaylistTracksScreen> {
         );
       },
     );
-    if (widget._selectedTracks.isEmpty) {
-      try {
+    if(selectedPlaylist == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('플레이리스트를 선택하지 않았습니다.')),
+      );
+      return;
+    }
+    try {
+      if(widget._selectedTracks.isEmpty) {
         if (track != null) {
           String trackUri = track['uri'] ?? 'spotify:track:${track['id']}';
           Navigator.of(context).pop();
@@ -274,6 +280,7 @@ class _PlaylistTracksScreenState extends State<PlaylistTracksScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('곡이 플레이리스트에 추가되었습니다.')),
           );
+        }
         } else {
           // 여러 곡 추가
           Navigator.of(context).pop();
@@ -300,7 +307,7 @@ class _PlaylistTracksScreenState extends State<PlaylistTracksScreen> {
         );
       }
     }
-  }
+
 
   void _showAddDialog() {
     showDialog(
@@ -313,13 +320,13 @@ class _PlaylistTracksScreenState extends State<PlaylistTracksScreen> {
           ),
           title: Text(
             '플레이리스트 선택',
-            style: TextStyle(fontSize: 23, fontWeight: FontWeight.w900),
+            style: TextStyle(fontSize: 27, fontWeight: FontWeight.w800),
             textAlign: TextAlign.center,
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              SizedBox(height: 20),
+              SizedBox(height: 15),
               ElevatedButton(
                 onPressed: () => _showPlaylistOptions(null, '감정 카테고리'),
                 style: ElevatedButton.styleFrom(
@@ -329,7 +336,7 @@ class _PlaylistTracksScreenState extends State<PlaylistTracksScreen> {
                   ),
                     minimumSize: Size(double.infinity, 50,)
                 ),
-                child: Text('감정 카테고리',style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold),),
+                child: Text('감정 카테고리',style: TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),),
               ),
               SizedBox(height: 25),
               ElevatedButton(
@@ -341,7 +348,7 @@ class _PlaylistTracksScreenState extends State<PlaylistTracksScreen> {
                   ),
                   minimumSize: Size(double.infinity, 50),
                 ),
-                child: Text('내 플레이리스트', style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold),),
+                child: Text('내 플레이리스트', style: TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),),
               ),
             ],
           ),
@@ -503,9 +510,9 @@ class _PlaylistTracksScreenState extends State<PlaylistTracksScreen> {
           ),
           if (widget._isEditing && widget._selectedTracks.isNotEmpty)
             Positioned(
-              left: 20,
-              right: 20,
-              bottom: 30,
+              left: 15,
+              right: 15,
+              bottom: 35,
               child: Row(
                 children: [
                   Expanded(
@@ -516,12 +523,12 @@ class _PlaylistTracksScreenState extends State<PlaylistTracksScreen> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        minimumSize: Size(double.infinity, 40),
+                        minimumSize: Size(double.infinity, 50),
                       ),
-                      child: Text('추가', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                      child: Text('추가', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
                     ),
                   ),
-                  SizedBox(width: 10),
+                  SizedBox(width: 13),
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () => _deleteSelectedTracks(widget),
@@ -530,9 +537,9 @@ class _PlaylistTracksScreenState extends State<PlaylistTracksScreen> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        minimumSize: Size(double.infinity, 40),
+                        minimumSize: Size(double.infinity, 50),
                       ),
-                      child: Text('삭제', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                      child: Text('삭제', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
                     ),
                   ),
                 ],

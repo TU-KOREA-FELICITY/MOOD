@@ -221,7 +221,7 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                   ),
                 if (_selectedTracks.isNotEmpty && _isEditing)
                   Positioned(
-                    bottom: 30.0,
+                    bottom: 25.0,
                     left: 30.0,
                     right: 30.0,
                     child: Container(
@@ -270,13 +270,13 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
           ),
           title: Text(
             '플레이리스트 선택',
-            style: TextStyle(fontSize: 23, fontWeight: FontWeight.w900),
+            style: TextStyle(fontSize: 27, fontWeight: FontWeight.w800),
             textAlign: TextAlign.center,
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              SizedBox(height: 20),
+              SizedBox(height: 15),
               ElevatedButton(
                 onPressed: () => _showPlaylistOptions(_selectedTracks.toList(), '감정 카테고리'),
                 style: ElevatedButton.styleFrom(
@@ -286,9 +286,9 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                     ),
                     minimumSize: Size(double.infinity, 50,)
                 ),
-                child: Text('감정 카테고리',style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold),),
+                child: Text('감정 카테고리',style: TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),),
               ),
-              SizedBox(height: 20),
+              SizedBox(height: 25),
               ElevatedButton(
                 onPressed: () => _showPlaylistOptions(_selectedTracks.toList(), '내 플레이리스트'),
                 style: ElevatedButton.styleFrom(
@@ -298,7 +298,7 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                   ),
                   minimumSize: Size(double.infinity, 50),
                 ),
-                child: Text('내 플레이리스트', style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold),),
+                child: Text('내 플레이리스트', style: TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),),
               ),
             ],
           ),
@@ -319,13 +319,13 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
         return Dialog(
           backgroundColor: Colors.white,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16.0),
+            borderRadius: BorderRadius.circular(20),
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(16.0),
             child: ConstrainedBox(
               constraints: BoxConstraints(
-                maxHeight: MediaQuery.of(context).size.height * 0.55,
+                maxHeight: MediaQuery.of(context).size.height * 0.5,
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -343,8 +343,8 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                     child: Text(
                       option,
                       style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
+                        fontSize: 25,
+                        fontWeight: FontWeight.w900,
                         color: Colors.white,
                       ),
                       textAlign: TextAlign.center,
@@ -361,9 +361,9 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                           title: Text(
                             playlist['name'] ?? '알 수 없는 플레이리스트',
                             style: TextStyle(
-                              fontSize: 19,
+                              fontSize: 20,
                               fontWeight: FontWeight.bold,
-                              letterSpacing: 1.2,
+                              letterSpacing: 1.5,
                             ),
                           ),
                           onTap: () {
