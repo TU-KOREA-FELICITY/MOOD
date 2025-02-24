@@ -54,7 +54,7 @@ class DeleteAccountScreen extends StatelessWidget {
           '회원탈퇴',
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            fontSize: 20,
+            fontSize: 25,
           ),
         ),
       ),
@@ -84,7 +84,7 @@ class DeleteAccountScreen extends StatelessWidget {
                 SizedBox(
                   width: 110,
                   height: 50,
-                  child: ElevatedButton(
+                  child: OutlinedButton(
                     child: Text(
                       'NO',
                       style: TextStyle(
@@ -97,8 +97,8 @@ class DeleteAccountScreen extends StatelessWidget {
                     Navigator.pop(context);
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.grey,
-                    foregroundColor: Colors.black,
+                    backgroundColor: Colors.white,
+                    side: BorderSide(color: Colors.grey, width: 2.5),
                     padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                   ),
                 ),

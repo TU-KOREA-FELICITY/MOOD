@@ -163,17 +163,17 @@ class _HomeScreenState extends State<HomeScreen> {
     } else if (warningMessage.contains('경고')) {
       warningLevel = 1;
       dialogTitle = '경고';
-      dialogContent = '경고 상태입니다. 주의해주세요.';
+      dialogContent = '경고 상태입니다! 주의해주세요\n안정된 상태로 전환 시 자동으로 팝업이 종료됩니다.';
       soundAsset = 'warning_sound.mp3';
     } else if (warningMessage.contains('주의')) {
       warningLevel = 2;
       dialogTitle = '주의';
-      dialogContent = '주의 상태입니다. 집중해주세요.';
+      dialogContent = '주의 상태입니다! 집중해주세요\nn안정된 상태로 전환 시 자동으로 팝업이 종료됩니다.';
       soundAsset = 'caution_sound.mp3';
     } else if (warningMessage.contains('위험')) {
       warningLevel = 3;
       dialogTitle = '위험';
-      dialogContent = '위험 상태입니다. 즉시 조치를 취해주세요.';
+      dialogContent = '위험 상태입니다! 즉시 조치를 취해주세요\n안정된 상태로 전환 시 자동으로 팝업이 종료됩니다.';
       soundAsset = 'danger_sound.mp3';
     }
 
@@ -197,18 +197,65 @@ class _HomeScreenState extends State<HomeScreen> {
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(title),
-          content: Text(content),
+        return Center(
+            child: Container(
+              width: 400,
+              height: 600,
+        child: AlertDialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          contentPadding: EdgeInsets.all(20),
+          title: Row(
+            children: [
+              Icon(
+                Icons.warning,
+                color: Colors.red,
+                size: 40,
+              ),
+              SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                content,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
           actions: <Widget>[
             TextButton(
-              child: Text('확인'),
+              child: Text(
+                '확인',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF0126FA),
+                ),
+              ),
               onPressed: () {
                 Navigator.of(context).pop();
                 _isDialogShowing = false;
               },
             ),
           ],
+        ),
+            ),
         );
       },
     );
@@ -291,7 +338,6 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           _buildHeader(),
           _buildWebcamView(),
-          _buildWarningMessage(),
           _buildAnalysisButtons(),
           _buildConcentrationChart(),
           _buildEmotionAnalysisResult(),
@@ -312,53 +358,60 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildWebcamView() {
-    return Column(
-      children: [
-        Center(
-          child: GestureDetector(
-            child: Container(
-              width: 350,
-              height: 200,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withAlpha(128),
-                    spreadRadius: 5,
-                    blurRadius: 7,
-                    offset: Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: _imageData != null
+    return Center(
+      child: Container(
+        width: 350,
+        height: 200,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withAlpha(128),
+              spreadRadius: 5,
+              blurRadius: 7,
+              offset: Offset(0, 3),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(10),
+          child: Stack(
+            children: [
+              _imageData != null
                   ? Image.memory(
                 _imageData!,
+                width: 350,
+                height: 200,
                 fit: BoxFit.cover,
                 gaplessPlayback: true,
               )
                   : Center(child: Text('카메라 화면이 여기에 표시됩니다')),
-            ),
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  color: Colors.black.withOpacity(0.5),
+                  child: Text(
+                    _warningMessage,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.red,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
-      ],
+      ),
     );
   }
 
-  Widget _buildWarningMessage() {
-    return _warningMessage.isNotEmpty
-        ? Center(
-            child: Text(
-              _warningMessage,
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.red,
-              ),
-            ),
-          )
-        : SizedBox.shrink();
-  }
 
   Widget _buildAnalysisButtons() {
     return Padding(
@@ -499,6 +552,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             strokeWidth: 1,
                           );
                         },
+                        verticalInterval: 30000,
                       ),
                       titlesData: FlTitlesData(
                         leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
@@ -545,63 +599,63 @@ class _HomeScreenState extends State<HomeScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
         SizedBox(height: 20),
-    Padding(
-    padding: EdgeInsets.only(left: 20),
-    child: Text(
-      '감정 분석 결과',
-      style: TextStyle(
-        fontSize: 25,
-        fontWeight: FontWeight.bold,
-        color: Colors.black,
-      ),
-    ),
-    ),
-                SizedBox(height: 20),
-                Column(
-                  children: _emotionResult
-                      .split('\n')
-                      .where((line) => line.contains(':'))
-                      .map((line) {
-                    final parts = line.split(': ');
-                    if (parts.length < 2) {
-                      return Container(); // 잘못된 데이터 처리
-                    }
-                    final emotion = parts[0].trim();
-                    final confidence = parts[1].trim();
-                    final color = emotions.firstWhere(
-                        (e) => e['name'] == emotion,
-                        orElse: () => {'color': Colors.white})['color'];
-                    return Padding(
-                      padding: EdgeInsets.symmetric(vertical: 7),
-                      child: Center(
-                        child: Container(
-                          width: MediaQuery.of(context).size.width * 0.7,
-                          padding: EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: color,
-                            borderRadius: BorderRadius.circular(8),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withAlpha(128),
-                                blurRadius: 5,
-                                spreadRadius: 1,
-                                offset: Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: Text(
-                            '$emotion: $confidence',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(fontSize: 20),
-                          ),
+          Padding(
+            padding: EdgeInsets.only(left: 40),
+            child: Text(
+              '감정 분석 결과',
+              style: TextStyle(
+                fontSize: 25,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+            ),
+          ),
+          SizedBox(height: 20),
+          Column(
+            children: _emotionResult
+                .split('\n')
+                .where((line) => line.contains(':'))
+                .map((line) {
+                  final parts = line.split(': ');
+                  if (parts.length < 2) {
+                    return Container(); // 잘못된 데이터 처리
+                  }
+                  final emotion = parts[0].trim();
+                  final confidence = parts[1].trim();
+                  final color = emotions.firstWhere(
+                          (e) => e['name'] == emotion,
+                      orElse: () => {'color': Colors.white})['color'];
+                  return Padding(
+                    padding: EdgeInsets.symmetric(vertical: 9),
+                    child: Center(
+                      child: Container(
+                        width: MediaQuery.of(context).size.width * 0.8,
+                        padding: EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: color,
+                          borderRadius: BorderRadius.circular(8),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withAlpha(128),
+                              blurRadius: 5,
+                              spreadRadius: 2,
+                              offset: Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: Text(
+                          '$emotion: $confidence',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,),
                         ),
                       ),
-                    );
-                  }).toList(),
-                ),
-                SizedBox(height: 10),
-              ],
-            )
+                    ),
+                  );
+                }).toList(),
+          ),
+          SizedBox(height: 10),
+        ],
+    )
         : SizedBox.shrink();
   }
 

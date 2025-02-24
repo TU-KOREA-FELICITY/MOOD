@@ -74,7 +74,7 @@ class _WarningRecordScreenState extends State<WarningRecordScreen> {
           '주행 중 경고기록',
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            fontSize: 20,
+            fontSize: 25,
           ),
         ),
       ),
@@ -110,8 +110,8 @@ class _WarningRecordScreenState extends State<WarningRecordScreen> {
 
             return Container(
               constraints: BoxConstraints(
-                minHeight: 120,
-                maxHeight: 180,
+                minHeight: 100,
+                maxHeight: 150,
               ),
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -127,8 +127,8 @@ class _WarningRecordScreenState extends State<WarningRecordScreen> {
               ),
               child: Padding(
                 padding: EdgeInsets.symmetric(
-                  vertical: 10.0,
-                  horizontal: 13.0,
+                  vertical: 15.0,
+                  horizontal: 15.0,
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -138,12 +138,12 @@ class _WarningRecordScreenState extends State<WarningRecordScreen> {
                       children: [
                         Row(
                           children: [
-                            Icon(Icons.warning, color: Colors.red, size: 24),
-                            SizedBox(width: 8),
+                            Icon(Icons.warning, color: Colors.red, size: 26),
+                            SizedBox(width: 15),
                             Text(
                               warning['level'],
                               style: TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold),
+                                  fontSize: 23, fontWeight: FontWeight.bold),
                             ),
                           ],
                         ),
@@ -152,7 +152,7 @@ class _WarningRecordScreenState extends State<WarningRecordScreen> {
                           children: [
                             Text(
                               warning['axis'],
-                              style: TextStyle(fontSize: 16),
+                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                             ),
                           ],
                         ),
@@ -161,7 +161,7 @@ class _WarningRecordScreenState extends State<WarningRecordScreen> {
                     SizedBox(height: 12),
                     Text(
                       formatTimestamp(warning['timestamp']),
-                      style: TextStyle(fontSize: 16),
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     SizedBox(height: 8),
                     if (duration.isNotEmpty)

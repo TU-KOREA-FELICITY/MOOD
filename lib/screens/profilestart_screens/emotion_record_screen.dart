@@ -20,14 +20,14 @@ class _EmotionRecordScreenState extends State<EmotionRecordScreen> {
   Map<int, String> _selectedDayEmotions = {};
 
   final List<Map<String, dynamic>> emotions = [
-    {'emotion': '행복', 'color': Color(0xFFFFD1DC)},
-    {'emotion': '슬픔', 'color': Color(0xFFADD8E6)},
-    {'emotion': '분노', 'color': Color(0xFFFFCCCB)},
-    {'emotion': '평온', 'color': Color(0xFFCCFFCC)},
-    {'emotion': '놀람', 'color': Color(0xFFFFFACD)},
-    {'emotion': '혐오', 'color': Color(0xFFFFDab9)},
-    {'emotion': '공포', 'color': Color(0xFFADD8E6)},
-    {'emotion': '혼란', 'color': Color(0xFFE6E6FA)},
+    {'emotion': '행복', 'color': Color(0xFFFFFACD)},
+    {'emotion': '슬픔', 'color': Color(0xFFD8F2FE)},
+    {'emotion': '분노', 'color': Color(0xFFFEEAE5)},
+    {'emotion': '평온', 'color': Color(0xFFE0F7D4)},
+    {'emotion': '놀람', 'color': Color(0xFFFEF4E0)},
+    {'emotion': '혐오', 'color': Color(0xFFE6E6FA)},
+    {'emotion': '공포', 'color': Color(0xFFF5F5F5)},
+    {'emotion': '혼란', 'color': Color(0xFFF1FCF7)},
   ];
 
   final Map<String, String> emotionEmojis = {
@@ -166,17 +166,58 @@ class _EmotionRecordScreenState extends State<EmotionRecordScreen> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('${date.year}년 ${date.month}월 ${date.day}일의 감정'),
-          content: Text('가장 빈도가 높은 감정: $emotion'),
+        return Container(
+            width: MediaQuery.of(context).size.width * 0.8, // 화면 너비의 80%
+        height: MediaQuery.of(context).size.height * 0.6, // 화면 높이의 60%
+        child: AlertDialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: Row(
+            children: [
+              Icon(Icons.event_note, size: 28, color: Colors.black),
+              SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  '${date.year}년 ${date.month}월 ${date.day}일의 감정',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 23,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          content: Container(
+            width: double.maxFinite,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  '가장 빈도가 높은 감정: $emotion',
+                  style: TextStyle(
+                    fontSize: 19,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
           actions: <Widget>[
             TextButton(
-              child: Text('확인'),
+              child: Text('확인', style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF0126FA),
+              ),
+              ),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
           ],
+        ),
         );
       },
     );
@@ -191,7 +232,7 @@ class _EmotionRecordScreenState extends State<EmotionRecordScreen> {
           '날짜별 감정 기록',
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            fontSize: 20,
+            fontSize: 25,
           ),
         ),
       ),
@@ -285,7 +326,7 @@ class _EmotionRecordScreenState extends State<EmotionRecordScreen> {
                 children: [
                   Text(
                     '시간대별 가장 빈도 높은 감정',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 10),
                   Expanded(
@@ -294,14 +335,28 @@ class _EmotionRecordScreenState extends State<EmotionRecordScreen> {
                       itemBuilder: (context, index) {
                         final hour = _selectedDayEmotions.keys.elementAt(index);
                         final emotion = _selectedDayEmotions[hour];
-                        return Card(
+                        final emotionText = emotion?.split(' ').last ?? '';
+                        final emotionColor = emotions.firstWhere(
+                              (e) => e['emotion'] == emotionText,
+                          orElse: () => {'color': Colors.white},
+                        )['color'] as Color;
+
+                        return Padding(
+                            padding: EdgeInsets.only(bottom: 10),
+                        child: Card(
+                        color: emotionColor,
+                        elevation: 3,
+                        shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        ),
                           child: ListTile(
-                            leading: Text('${hour}시', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                            leading: Text('${hour}시', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                             title: Align(
                               alignment: Alignment.centerRight,
-                              child: Text(emotion ?? '', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                              child: Text(emotion ?? '', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                             ),
                           ),
+                        ),
                         );
                       },
                     ),

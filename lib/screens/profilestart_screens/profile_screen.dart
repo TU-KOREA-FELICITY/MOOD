@@ -19,7 +19,7 @@ class ProfileScreen extends StatelessWidget {
           child: Text(
             '프로필',
             style: TextStyle(
-              fontSize: 20,
+              fontSize: 25,
               fontWeight: FontWeight.bold,
             ),
           ),
