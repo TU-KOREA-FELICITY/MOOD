@@ -317,8 +317,8 @@ class _HomeScreenState extends State<HomeScreen> {
         Center(
           child: GestureDetector(
             child: Container(
-              width: 300,
-              height: 400,
+              width: 350,
+              height: 200,
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(10),
@@ -361,19 +361,37 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildAnalysisButtons() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        ElevatedButton(
-          onPressed: _runEmotionAnalysis,
-          child: Text('감정 분석'),
-        ),
-        SizedBox(width: 16),
-        ElevatedButton(
-          onPressed: _restartRecognition,
-          child: Text('다시 시도하기'),
-        ),
-      ],
+    return Padding(
+      padding: EdgeInsets.only(top: 20, bottom: 10, left: 30, right: 30),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          GestureDetector(
+            onTap: _runEmotionAnalysis,
+            child: Text(
+              '감정 분석하기',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                decoration: TextDecoration.underline,
+                color: Color(0xFF0126FA),
+              ),
+            ),
+          ),
+          GestureDetector(
+            onTap: _restartRecognition,
+            child: Text(
+              '다시 시도하기',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                decoration: TextDecoration.underline,
+                color: Color(0xFF0126FA),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -385,7 +403,7 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             Container(
               height: 200,
-              width: 300,
+              width: 350,
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(10),
@@ -432,7 +450,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: List.generate(
-                        7,
+                        4,
                             (index) {
                           final minutes = index * 5;
                           return Text(
@@ -466,7 +484,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
                       ),
                       borderData: FlBorderData(show: true),
-                      minX: DateTime.now().millisecondsSinceEpoch.toDouble() - (30 * 60 * 1000),
+                      minX: DateTime.now().millisecondsSinceEpoch.toDouble() - (15 * 60 * 1000),
                       maxX: DateTime.now().millisecondsSinceEpoch.toDouble(),
                       minY: 0,
                       maxY: 3,
