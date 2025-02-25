@@ -179,15 +179,15 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
                             hintStyle: TextStyle(color: Colors.black),
                             suffixIcon: _showCancelIcon
                                 ? IconButton(
-                                    icon: Icon(Icons.cancel,
-                                        color: Colors.grey[600]),
-                                    onPressed: () {
-                                      _searchController.clear();
-                                      setState(() {
-                                        _showCancelIcon = false;
-                                      });
-                                    },
-                                  )
+                              icon: Icon(Icons.cancel,
+                                  color: Colors.grey[600]),
+                              onPressed: () {
+                                _searchController.clear();
+                                setState(() {
+                                  _showCancelIcon = false;
+                                });
+                              },
+                            )
                                 : null,
                             border: InputBorder.none,
                             contentPadding: EdgeInsets.symmetric(
@@ -299,86 +299,86 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
     return _isLoading
         ? Center(child: CircularProgressIndicator())
         : Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Padding(
-                padding: EdgeInsets.all(16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      '검색 결과',
-                      style: TextStyle(
-                        fontSize: 18.0,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        setState(() {
-                          _selectionMode = !_selectionMode;
-                          if (!_selectionMode) {
-                            _selectedTracks.clear();
-                          }
-                        });
-                      },
-                      child: Text(
-                        _selectionMode ? '해제' : '선택',
-                        style: TextStyle(
-                          color: _selectionMode ? Colors.grey : Color(0xFF0126FA),
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
+              Text(
+                '검색 결과',
+                style: TextStyle(
+                  fontSize: 18.0,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
                 ),
               ),
-
-              Expanded(
-              child: Stack(
-    children: [
-    Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 18.0),
-                  child: ListView(
-                    children: _buildTrackList(),
+              TextButton(
+                onPressed: () {
+                  setState(() {
+                    _selectionMode = !_selectionMode;
+                    if (!_selectionMode) {
+                      _selectedTracks.clear();
+                    }
+                  });
+                },
+                child: Text(
+                  _selectionMode ? '해제' : '선택',
+                  style: TextStyle(
+                    color: _selectionMode ? Colors.grey : Color(0xFF0126FA),
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
+              ),
+            ],
+          ),
+        ),
+
+        Expanded(
+          child: Stack(
+            children: [
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 18.0),
+                child: ListView(
+                  children: _buildTrackList(),
+                ),
+              ),
               if (_selectedTracks.isNotEmpty)
                 Positioned(
                   bottom: 25.0,
                   left: 30.0,
                   right: 30.0,
-    child: Container(
-      decoration: BoxDecoration(
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.2),
-            spreadRadius: 1,
-            blurRadius: 10,
-            offset: Offset(0, 3),
-          ),
-        ],
-      ),
-                  child: ElevatedButton(
-                    onPressed: () => _showAddDialog(),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFF0126FA),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      padding: EdgeInsets.symmetric(vertical: 15),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.2),
+                          spreadRadius: 1,
+                          blurRadius: 10,
+                          offset: Offset(0, 3),
+                        ),
+                      ],
                     ),
-                    child: Text('선택한 곡 추가', style:
-                    TextStyle(color: Colors.white,
-    fontSize: 20, fontWeight: FontWeight.bold)
-    ),
+                    child: ElevatedButton(
+                      onPressed: () => _showAddDialog(),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFF0126FA),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        padding: EdgeInsets.symmetric(vertical: 15),
+                      ),
+                      child: Text('선택한 곡 추가', style:
+                      TextStyle(color: Colors.white,
+                          fontSize: 20, fontWeight: FontWeight.bold)
+                      ),
+                    ),
                   ),
                 ),
-    ),
             ],),
-    ),
-    ],
+        ),
+      ],
     );
   }
 
@@ -390,56 +390,56 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
     return _isLoading
         ? Center(child: CircularProgressIndicator())
         : Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Padding(
-                padding: EdgeInsets.all(16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      '검색 결과',
-                      style: TextStyle(
-                        fontSize: 18.0,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
+              Text(
+                '검색 결과',
+                style: TextStyle(
+                  fontSize: 18.0,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: Padding(
+            padding:
+            EdgeInsets.symmetric(horizontal: 18.0),
+            child: ListView(
+              children: _buildPlaylistList(),
+            ),
+          ),
+        ),
+        SizedBox(height: 8.0),
+        if (_selectedPlaylists.isNotEmpty)
+          Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () => _showAddDialogForPlaylists(),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xFF0126FA),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 18.0),
-                  child: ListView(
-                    children: _buildPlaylistList(),
+                    child: Text('플레이리스트 곡 추가'),
                   ),
                 ),
-              ),
-              SizedBox(height: 8.0),
-              if (_selectedPlaylists.isNotEmpty)
-                Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () => _showAddDialogForPlaylists(),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xFF0126FA),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                          child: Text('플레이리스트 곡 추가'),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-            ],
-          );
+              ],
+            ),
+          ),
+      ],
+    );
   }
 
   List<Widget> _buildTrackList() {
@@ -462,12 +462,12 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
                   ),
                 ],
               ),
-      child: Row(
-                  children: [
-                    if (_selectionMode)
-      Padding(
-      padding: EdgeInsets.only(left: 10),
-      child: Checkbox(
+              child: Row(
+                children: [
+                  if (_selectionMode)
+                    Padding(
+                      padding: EdgeInsets.only(left: 10),
+                      child: Checkbox(
                         value: _selectedTracks.contains(track),
                         onChanged: (bool? value) {
                           setState(() {
@@ -478,34 +478,34 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
                             }
                           });
                         },
-      activeColor: Color(0xFF0126FA),
-      checkColor: Colors.white,
+                        activeColor: Color(0xFF0126FA),
+                        checkColor: Colors.white,
                       ),
-      ),
-      Expanded(child: ListTile(
-      contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      leading: _buildAlbumCover(track),
-                title: Text(
-                  track['name'] ?? '알 수 없는 트랙',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-                subtitle: Text(track['artists']?[0]?['name'] ?? '알 수 없는 아티스트'),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      icon: Icon(Icons.play_arrow, color: Colors.black),
-                      onPressed: () async {
-                        await SpotifySdk.play(spotifyUri: track['uri']);
-                        _updateCurrentTrack();
-                        },
                     ),
-                  ],),
-      ),
-      ),],
-      ),
-      ),
-      ),
+                  Expanded(child: ListTile(
+                    contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    leading: _buildAlbumCover(track),
+                    title: Text(
+                      track['name'] ?? '알 수 없는 트랙',
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    ),
+                    subtitle: Text(track['artists']?[0]?['name'] ?? '알 수 없는 아티스트'),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.play_arrow, color: Colors.black),
+                          onPressed: () async {
+                            await SpotifySdk.play(spotifyUri: track['uri']);
+                            _updateCurrentTrack();
+                          },
+                        ),
+                      ],),
+                  ),
+                  ),],
+              ),
+            ),
+          ),
           if (_showButtons[trackId] ?? false)
             Container(
               margin: EdgeInsets.only(bottom: 8.0),
@@ -521,7 +521,7 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
                       ),
                       elevation: 2,
                       padding:
-                          EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                     ),
                     onPressed: () => _showPlaylistOptions(track, '감정 카테고리'),
                     child: Text(
@@ -540,7 +540,7 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
                       ),
                       elevation: 2,
                       padding:
-                          EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                     ),
                     onPressed: () => _showPlaylistOptions(track, '내 플레이리스트'),
                     child: Text(

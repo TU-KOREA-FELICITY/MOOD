@@ -144,11 +144,11 @@ class _SearchScreenState extends State<SearchScreen>
         context,
         MaterialPageRoute(
           builder: (context) => SearchResultScreen(
-            spotifyService: widget.spotifyService,
-            searchResults: _searchResults,
-            searchQuery: query,
-            recentSearches: recentSearches,
-            userInfo: widget.userInfo
+              spotifyService: widget.spotifyService,
+              searchResults: _searchResults,
+              searchQuery: query,
+              recentSearches: recentSearches,
+              userInfo: widget.userInfo
           ),
         ),
       );
@@ -224,14 +224,14 @@ class _SearchScreenState extends State<SearchScreen>
               child: _isSearching
                   ? _buildRecentSearches()
                   : Column(
-                      children: [
-                        Miniplayer(spotifyService: widget.spotifyService, onTrackFinished: _onTrackFinished,),
-                        Expanded(
-                          child: CategoryTagScreen(
-                              spotifyService: widget.spotifyService, userInfo: widget.userInfo, emotionInfo: emotions, emotionAnalysisService: _emotionAnalysisService,),
-                        ),
-                      ],
-                    ),
+                children: [
+                  Miniplayer(spotifyService: widget.spotifyService, onTrackFinished: _onTrackFinished,),
+                  Expanded(
+                    child: CategoryTagScreen(
+                      spotifyService: widget.spotifyService, userInfo: widget.userInfo, emotionInfo: emotions, emotionAnalysisService: _emotionAnalysisService,),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -260,18 +260,18 @@ class _SearchScreenState extends State<SearchScreen>
                   prefixIcon: Icon(Icons.search, color: Colors.black),
                   suffixIcon: _showCancelIcon
                       ? IconButton(
-                          icon: Icon(Icons.cancel, color: Colors.grey[600]),
-                          onPressed: () {
-                            _searchController.clear();
-                            setState(() {
-                              _showCancelIcon = false;
-                            });
-                          },
-                        )
+                    icon: Icon(Icons.cancel, color: Colors.grey[600]),
+                    onPressed: () {
+                      _searchController.clear();
+                      setState(() {
+                        _showCancelIcon = false;
+                      });
+                    },
+                  )
                       : null,
                   border: InputBorder.none,
                   contentPadding:
-                      EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 ),
                 onSubmitted: (value) {
                   if (value.isNotEmpty) {
