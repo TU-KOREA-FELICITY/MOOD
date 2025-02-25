@@ -71,22 +71,6 @@ class _SpotifyAuthWebViewState extends State<SpotifyAuthWebView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Color(0xFF121212),
-        title: Align(
-          alignment: Alignment.centerLeft,
-          child: Text(
-            'Spotify 연동하기',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
-        ),
-        titleSpacing: 0,
-        iconTheme: IconThemeData(color: Colors.white),
-      ),
       body: WebViewWidget(controller: controller),
     );
   }

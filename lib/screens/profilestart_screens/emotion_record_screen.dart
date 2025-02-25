@@ -90,13 +90,13 @@ class _EmotionRecordScreenState extends State<EmotionRecordScreen> {
       } else {
         return {
           'success': false,
-          'message': '서버 오류: ${response.statusCode}',
+          'message': '서버 오류: \n${response.statusCode}',
         };
       }
     } catch (e) {
       return {
         'success': false,
-        'message': '감정 데이터 조회 중 오류 발생: $e',
+        'message': '감정 데이터 조회 중 오류 발생: \n$e',
       };
     }
   }
@@ -197,7 +197,7 @@ class _EmotionRecordScreenState extends State<EmotionRecordScreen> {
                 Text(
                   '가장 빈도가 높은 감정: $emotion',
                   style: TextStyle(
-                    fontSize: 19,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -326,7 +326,7 @@ class _EmotionRecordScreenState extends State<EmotionRecordScreen> {
                 children: [
                   Text(
                     '시간대별 가장 빈도 높은 감정',
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 21, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 10),
                   Expanded(

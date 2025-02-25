@@ -99,7 +99,7 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
     } catch (e) {
       return {
         'success': false,
-        'message': 'ID 중복 확인 중 오류 발생: \n$e',
+        'message': 'FACE ID 중복 확인 중 오류 발생: \n$e',
         'isDuplicate': null,
         'user_aws_id': userAwsId,
       };
@@ -143,7 +143,7 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
 
     setState(() {
       _isLoading = true;
-      _status = 'ID 중복 확인 중...';
+      _status = 'FACE ID 중복 확인 중...';
     });
 
     final result = await _checkIdDuplicate(username);
@@ -151,7 +151,7 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
     if (result['success'] && !result['isDuplicate']) {
       setState(() {
         userId = username;
-        _status = '얼굴 등록 중...';
+        _status = 'FACE ID를 등록 중 입니다.\n잠시만 기다려 주세요!';
         _isLoading = false;
       });
       _register(username);
@@ -172,7 +172,7 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
       );
       setState(() {
         _isLoading = true;
-        _status = '얼굴 등록 중...';
+        _status = 'FACE ID를 등록 중 입니다.\n잠시만 기다려 주세요!';
       });
     } else {
       showDialog(
@@ -209,7 +209,7 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
         _checkRegistrationStatus(username);
       } else {
         setState(() {
-          _status = '얼굴 등록을 다시 시도해주세요.';
+          _status = 'FACE ID 등록을 다시 시도해주세요.';
           _buttonShow = true;
         });
       }
@@ -239,7 +239,7 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
       }
     } catch (e) {
       setState(() {
-        _status = '얼굴 등록에 실패했습니다.';
+        _status = 'FACE ID 등록에 실패했습니다.';
         _buttonShow = true;
       });
     }
@@ -263,7 +263,7 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              '얼굴 등록을 시작합니다',
+                              'FACE ID 등록을 시작합니다',
                               style: TextStyle(
                                 fontSize: 26,
                                 fontWeight: FontWeight.bold,
@@ -344,7 +344,7 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
                             child: ElevatedButton(
                               onPressed: () {
                                 setState(() {
-                                  _status = 'FACE ID 등록 중...';
+                                  _status = 'FACE ID를 등록 중 입니다.\n잠시만 기다려 주세요!';
                                 });
                                 _promptForUserId();
                               },
@@ -362,7 +362,7 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
                                 ),
                               ),
                               child: const Text(
-                                '얼굴 등록하기',
+                                'FACE ID 등록하기',
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
@@ -395,7 +395,7 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
                                 ),
                               ),
                               child: const Text(
-                                '얼굴 등록 완료',
+                                'FACE ID 등록 완료',
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
@@ -409,7 +409,7 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
                             child: ElevatedButton(
                               onPressed: () {
                                 setState(() {
-                                  _status = 'FACE ID 등록 중...';
+                                  _status = 'FACE ID를 등록 중 입니다.\n잠시만 기다려 주세요!';
                                 });
                                 _promptForUserId();
                               },
@@ -427,7 +427,7 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
                                 ),
                               ),
                               child: const Text(
-                                'ID 다시 만들기',
+                                'FACE ID 다시 만들기',
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,

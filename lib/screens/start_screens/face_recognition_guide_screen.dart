@@ -112,7 +112,7 @@ class FaceRecognitionGuideScreen extends StatelessWidget {
                     ),
                   ),
                   child: Text(
-                    "얼굴 등록 시작",
+                    "FACE ID 등록 시작",
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ),

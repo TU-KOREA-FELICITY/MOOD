@@ -29,7 +29,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           child: Text(
             '로그인',
             style: TextStyle(
-              fontSize: 20,
+              fontSize: 25,
               fontWeight: FontWeight.bold,
             ),
           ),

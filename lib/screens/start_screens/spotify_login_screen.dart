@@ -18,7 +18,7 @@ class SpotifyLoginScreen extends StatelessWidget {
           child: Text(
             'Spotify 연동하기',
             style: TextStyle(
-              fontSize: 20,
+              fontSize: 25,
               fontWeight: FontWeight.bold,
             ),
           ),
