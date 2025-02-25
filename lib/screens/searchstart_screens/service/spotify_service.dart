@@ -250,6 +250,28 @@ class SpotifyService {
     }
   }
 
+  Future<void> playTracks(List<String> trackUris) async {
+    await _refreshTokenIfNeeded();
+    if (trackUris.isEmpty) {
+      print('재생할 트랙이 없습니다.');
+      return;
+    }
+    try {
+      // 첫 번째 트랙을 재생
+      await SpotifySdk.play(spotifyUri: trackUris[0]);
+
+      // 나머지 트랙을 큐에 추가
+      if (trackUris.length > 1) {
+        for (int i = 1; i < trackUris.length; i++) {
+          await SpotifySdk.queue(spotifyUri: trackUris[i]);
+        }
+      }
+    } catch (e) {
+      print('트랙 재생 중 오류 발생: $e');
+      throw e;
+    }
+  }
+
   Future<int> addTrackToPlaylist(
       String playlistId, List<String> trackUris) async {
     await _refreshTokenIfNeeded();

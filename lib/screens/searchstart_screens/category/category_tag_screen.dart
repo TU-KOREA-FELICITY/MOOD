@@ -162,23 +162,6 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
     await prefs.setStringList('playlistOrder', playlistIds);
   }
 
-  Future<void> _shuffleAndPlayPlaylist(String playlistId) async {
-    try {
-      // 플레이리스트 셔플 설정
-      await SpotifySdk.setShuffle(shuffle: true);
-
-      // 플레이리스트 재생
-      await SpotifySdk.play(spotifyUri: 'spotify:playlist:$playlistId');
-
-      print('플레이리스트 $playlistId 셔플 재생 시작');
-    } catch (e) {
-      print('플레이리스트 셔플 재생 중 오류 발생: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('플레이리스트 재생 실패: $e')),
-      );
-    }
-  }
-
   Color _getColorForEmotion(String emotion) {
     switch (emotion) {
       case '행복':
@@ -400,10 +383,21 @@ class _CategoryTagScreenState extends State<CategoryTagScreen>
           );
 
           if (playlist != null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('$firstEmotion 플레이리스트를 재생합니다.')),
-            );
-            await _shuffleAndPlayPlaylist(playlist['id']);
+            try {
+              List tracks = await widget.spotifyService.getPlaylistTracks(playlist['id']);
+              tracks.shuffle();
+              List<String> shuffledTrackUris = tracks.map((track) => track['track']['uri'] as String).toList();
+              await widget.spotifyService.playTracks(shuffledTrackUris);
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('$firstEmotion 플레이리스트를 셔플 재생합니다.')),
+              );
+            } catch (e) {
+              print('$firstEmotion 플레이리스트 셔플 재생 중 오류 발생: $e');
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('플레이리스트 재생 중 오류가 발생했습니다.')),
+              );
+            }
           } else {
             print('$firstEmotion에 해당하는 플레이리스트를 찾을 수 없습니다.');
           }
