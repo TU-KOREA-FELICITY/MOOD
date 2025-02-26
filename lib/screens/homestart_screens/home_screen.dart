@@ -23,6 +23,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final SpotifyService _spotifyService = SpotifyService();
   final EmotionAnalysisService _emotionAnalysisService = EmotionAnalysisService();
   final AudioPlayer _audioPlayer = AudioPlayer();
+  bool _wasMusicPlaying = false;
   bool _isDialogShowing = false;
   bool _isLoggedIn = false;
   int _currentIndex = 0;
@@ -159,6 +160,9 @@ class _HomeScreenState extends State<HomeScreen> {
         Navigator.of(context).pop();
         _isDialogShowing = false;
         _audioPlayer.stop();
+        if (_wasMusicPlaying) {
+          _spotifyService.resumePlayback();
+        }
       }
     } else if (warningMessage.contains('경고')) {
       warningLevel = 1;
@@ -251,6 +255,10 @@ class _HomeScreenState extends State<HomeScreen> {
               onPressed: () {
                 Navigator.of(context).pop();
                 _isDialogShowing = false;
+                _audioPlayer.stop();
+                if (_wasMusicPlaying) {
+                  _spotifyService.resumePlayback();
+                }
               },
             ),
           ],
@@ -262,6 +270,10 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _playWarningSound(String assetPath) async {
+    _wasMusicPlaying = await _spotifyService.isPlaying();
+    if (_wasMusicPlaying) {
+      await _spotifyService.pausePlayback();
+    }
     await _audioPlayer.play(AssetSource(assetPath));
   }
 

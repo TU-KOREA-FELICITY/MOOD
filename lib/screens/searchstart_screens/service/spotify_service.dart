@@ -272,6 +272,33 @@ class SpotifyService {
     }
   }
 
+  Future<bool> isPlaying() async {
+    try {
+      final playerState = await SpotifySdk.getPlayerState();
+      return playerState != null && playerState.isPaused != null && !playerState.isPaused;
+    } catch (e) {
+      print('isPlaying 확인 실패: $e');
+      return false;
+    }
+  }
+
+  Future<void> pausePlayback() async {
+    try {
+      await SpotifySdk.pause();
+    } catch (e) {
+      print('재생 일시 중지 실패: $e');
+    }
+  }
+
+  Future<void> resumePlayback() async {
+    try {
+      await SpotifySdk.resume();
+      print('재생이 재개되었습니다.');
+    } catch (e) {
+      print('재생 재개 중 오류 발생: $e');
+    }
+  }
+
   Future<int> addTrackToPlaylist(
       String playlistId, List<String> trackUris) async {
     await _refreshTokenIfNeeded();
