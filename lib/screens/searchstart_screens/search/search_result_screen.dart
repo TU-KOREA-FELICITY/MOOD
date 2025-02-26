@@ -15,6 +15,7 @@ class SearchResultScreen extends StatefulWidget {
   final String searchQuery;
   final List<String> recentSearches;
   final Map<String, dynamic> userInfo;
+  final Function(List<String>)? onRecentSearchesUpdated;
 
   const SearchResultScreen({
     Key? key,
@@ -23,6 +24,7 @@ class SearchResultScreen extends StatefulWidget {
     required this.searchQuery,
     required this.recentSearches,
     required this.userInfo,
+    this.onRecentSearchesUpdated,
   }) : super(key: key);
 
   @override
@@ -98,6 +100,7 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
         _isSearchFocused = false;
       });
       _addToRecentSearches(query);
+      widget.onRecentSearchesUpdated?.call(_recentSearches);
       setState(() {});
     } catch (e) {
       print('검색 중 오류 발생: $e');
@@ -142,6 +145,21 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
       length: 2,
       child: Scaffold(
         backgroundColor: Colors.white,
+        appBar: AppBar(
+          title: Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              '검색결과',
+                  style: TextStyle(
+                fontWeight: FontWeight.bold,
+              fontSize: 25,
+            ),
+          )
+        ),
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.black,
+          elevation: 0,
+      ),
         body: SafeArea(
           child: Column(
             children: [
@@ -154,14 +172,6 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
                       icon: Icon(Icons.arrow_back, color: Colors.black),
                       onPressed: () {
                         Navigator.pop(context, _recentSearches);
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => SearchScreen(
-                                spotifyService: widget.spotifyService,
-                                userInfo: widget.userInfo),
-                          ),
-                        );
                       },
                     ),
                     Expanded(
@@ -304,16 +314,8 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
         Padding(
           padding: EdgeInsets.all(16.0),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Text(
-                '검색 결과',
-                style: TextStyle(
-                  fontSize: 18.0,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-              ),
               TextButton(
                 onPressed: () {
                   setState(() {
@@ -323,18 +325,28 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
                     }
                   });
                 },
-                child: Text(
-                  _selectionMode ? '해제' : '선택',
-                  style: TextStyle(
-                    color: _selectionMode ? Colors.grey : Color(0xFF0126FA),
-                    fontWeight: FontWeight.bold,
-                  ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.music_note,
+                      size: 16,
+                      color: _selectionMode ? Colors.grey : Colors.black,
+                    ),
+                    SizedBox(width: 4),
+                    Text(
+                      _selectionMode ? '선택해제' : '트랙선택',
+                      style: TextStyle(
+                        color: _selectionMode ? Colors.grey : Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
         ),
-
         Expanded(
           child: Stack(
             children: [
@@ -390,23 +402,9 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
     return _isLoading
         ? Center(child: CircularProgressIndicator())
         : Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
           padding: EdgeInsets.all(16.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                '검색 결과',
-                style: TextStyle(
-                  fontSize: 18.0,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-              ),
-            ],
-          ),
         ),
         Expanded(
           child: Padding(

@@ -235,9 +235,9 @@ class _MiniplayerState extends State<Miniplayer>
               // 재생 바
               SliderTheme(
                 data: SliderThemeData(
-                  activeTrackColor: Colors.blue,
+                  activeTrackColor: Color(0xFF0126FA),
                   inactiveTrackColor: Colors.grey[300],
-                  thumbColor: Colors.blue,
+                  thumbColor: Color(0xFF0126FA),
                   trackHeight: 2.0,
                   thumbShape: RoundSliderThumbShape(enabledThumbRadius: 6.0),
                   overlayShape: RoundSliderOverlayShape(overlayRadius: 14.0),

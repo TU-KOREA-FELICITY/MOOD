@@ -13,8 +13,9 @@ import 'category/category_tag_screen.dart';
 class SearchScreen extends StatefulWidget {
   final SpotifyService spotifyService;
   final Map<String, dynamic> userInfo;
+  final List<String>? recentSearches;
 
-  SearchScreen({required this.spotifyService, required this.userInfo});
+  SearchScreen({required this.spotifyService, required this.userInfo, this.recentSearches,});
 
   @override
   _SearchScreenState createState() => _SearchScreenState();
@@ -29,13 +30,16 @@ class _SearchScreenState extends State<SearchScreen>
   bool _isConnected = false;
   bool _isSearching = false;
   bool _showCancelIcon = false;
-  List<String> recentSearches = [];
+  List<String> _recentSearches = [];
   Map<String, List> _searchResults = {'tracks': [], 'playlists': []};
   List<Map<String, dynamic>> emotions = [];
 
   @override
   void initState() {
     super.initState();
+    if (widget.recentSearches != null) {
+      _recentSearches = List.from(widget.recentSearches!);
+    }
     _spotifyService = widget.spotifyService;
     _emotionAnalysisService.setUserInfo(widget.userInfo['user_id']);
     _initializeApp();
@@ -111,21 +115,21 @@ class _SearchScreenState extends State<SearchScreen>
   Future<void> _loadRecentSearches() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      recentSearches = prefs.getStringList('recentSearches') ?? [];
+      _recentSearches = prefs.getStringList('recentSearches') ?? [];
     });
   }
 
   Future<void> _saveRecentSearches() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList('recentSearches', recentSearches);
+    await prefs.setStringList('recentSearches', _recentSearches);
   }
 
   void _addToRecentSearches(String query) {
     setState(() {
-      recentSearches.remove(query);
-      recentSearches.insert(0, query);
-      if (recentSearches.length > 5) {
-        recentSearches.removeLast();
+      _recentSearches.remove(query);
+      _recentSearches.insert(0, query);
+      if (_recentSearches.length > 5) {
+        _recentSearches.removeLast();
       }
     });
     _saveRecentSearches();
@@ -140,25 +144,27 @@ class _SearchScreenState extends State<SearchScreen>
         _searchResults = results;
       });
       _addToRecentSearches(query);
-      final updatedSearches = await Navigator.push(
+       await Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => SearchResultScreen(
               spotifyService: widget.spotifyService,
               searchResults: _searchResults,
               searchQuery: query,
-              recentSearches: recentSearches,
-              userInfo: widget.userInfo
-          ),
+              recentSearches: _recentSearches,
+              userInfo: widget.userInfo,
+              onRecentSearchesUpdated: (List<String> updatedSearches) { // 콜백 함수 전달
+                setState(() {
+                  _recentSearches = updatedSearches;
+                });
+                _saveRecentSearches();
+              },
         ),
-      );
-      if (updatedSearches != null) {
-        setState(() {
-          recentSearches = updatedSearches;
-        });
-        _saveRecentSearches();
-      }
-      setState(() {});
+      ),
+       ).then((_) {
+         _loadRecentSearches();
+       }
+    );
     } catch (e) {
       print('검색 중 오류 발생: $e');
     }
@@ -286,10 +292,22 @@ class _SearchScreenState extends State<SearchScreen>
                   contentPadding:
                   EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 ),
-                onSubmitted: (value) {
+                onSubmitted: (value) async {
                   if (value.isNotEmpty) {
-                    _performSearch();
-                  }
+                   await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            SearchResultScreen(
+                              spotifyService: widget.spotifyService,
+                              searchResults: _searchResults,
+                              searchQuery: value,
+                              recentSearches: _recentSearches,
+                              userInfo: widget.userInfo,
+                            ),
+                      ),
+                    );
+                }
                 },
               ),
             ),
@@ -335,7 +353,7 @@ class _SearchScreenState extends State<SearchScreen>
           SizedBox(height: 12),
           Expanded(
             child: ListView.builder(
-              itemCount: recentSearches.length,
+              itemCount: _recentSearches.length,
               itemBuilder: (context, index) {
                 return ListTile(
                   leading: CircleAvatar(
@@ -343,20 +361,20 @@ class _SearchScreenState extends State<SearchScreen>
                     child: Icon(Icons.history, color: Colors.grey[800]),
                   ),
                   title: Text(
-                    recentSearches[index],
+                    _recentSearches[index],
                     style: TextStyle(color: Colors.grey[800]),
                   ),
                   trailing: IconButton(
                     icon: Icon(Icons.close, color: Colors.grey[800]),
                     onPressed: () {
                       setState(() {
-                        recentSearches.removeAt(index);
+                        _recentSearches.removeAt(index);
                       });
                       _saveRecentSearches();
                     },
                   ),
                   onTap: () {
-                    _searchController.text = recentSearches[index];
+                    _searchController.text = _recentSearches[index];
                     _performSearch();
                   },
                 );

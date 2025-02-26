@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:mood/screens/searchstart_screens/search/search_result_screen.dart';
 
 import 'homestart_screens/home_screen.dart';
 import 'profilestart_screens/profile_screen.dart';
 import 'searchstart_screens/search_screen.dart';
 import 'searchstart_screens/service/spotify_service.dart';
+
 
 class BottomNavigationWidget extends StatefulWidget {
   late final Map<String, dynamic> userInfo;
@@ -17,7 +19,7 @@ class BottomNavigationWidget extends StatefulWidget {
 class _BottomNavigationWidgetState extends State<BottomNavigationWidget> {
   int _currentIndex = 0;
   final SpotifyService _spotifyService = SpotifyService();
-
+  List<String> _recentSearches = [];
   late List<Widget> _screens;
 
   @override
@@ -25,9 +27,17 @@ class _BottomNavigationWidgetState extends State<BottomNavigationWidget> {
     super.initState();
     _screens = [
       HomeScreen(userInfo: widget.userInfo),
-      SearchScreen(spotifyService: _spotifyService, userInfo: widget.userInfo),
+      SearchScreen(spotifyService: _spotifyService, userInfo: widget.userInfo, recentSearches: _recentSearches,),
       ProfileScreen(userInfo: widget.userInfo),
     ];
+  }
+
+  Widget _buildSearchScreen() {
+    return SearchScreen(
+      spotifyService: _spotifyService,
+      userInfo: widget.userInfo,
+      recentSearches: _recentSearches,
+    );
   }
 
   void _onTabTapped(int index) {
@@ -39,7 +49,10 @@ class _BottomNavigationWidgetState extends State<BottomNavigationWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _screens[_currentIndex],
+      body: IndexedStack(
+        index: _currentIndex,
+        children: _screens,
+      ),
       bottomNavigationBar: BottomNavigationBar(
         iconSize: 30,
         items: const [
