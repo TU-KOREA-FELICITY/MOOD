@@ -208,12 +208,12 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       } else {
         setState(() {
-          _status = '사용자 정보 삽입 오류: \n${response.statusCode}';
+          _status = '사용자 정보 삽입 오류';
         });
       }
     } catch (e) {
       setState(() {
-        _status = '사용자 정보 삽입 오류: \n$e';
+        _status = '사용자 정보 삽입 오류';
       });
     }
   }
