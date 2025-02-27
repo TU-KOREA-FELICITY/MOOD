@@ -29,6 +29,16 @@ class _BottomNavigationWidgetState extends State<BottomNavigationWidget> {
       HomeScreen(userInfo: widget.userInfo),
       SearchScreen(spotifyService: _spotifyService, userInfo: widget.userInfo, recentSearches: _recentSearches,),
       ProfileScreen(userInfo: widget.userInfo),
+      SearchResultScreen(spotifyService: _spotifyService, searchResults: {}, // 초기 검색 결과
+        searchQuery: '', // 초기 검색어
+        recentSearches: _recentSearches,
+        userInfo: widget.userInfo,
+        onRecentSearchesUpdated: (List<String> updatedSearches) {
+          setState(() {
+            _recentSearches = updatedSearches;
+          });
+        },
+      ),
     ];
   }
 
@@ -36,7 +46,6 @@ class _BottomNavigationWidgetState extends State<BottomNavigationWidget> {
     return SearchScreen(
       spotifyService: _spotifyService,
       userInfo: widget.userInfo,
-      recentSearches: _recentSearches,
     );
   }
 

@@ -86,6 +86,7 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
         _recentSearches.removeLast();
       }
     });
+    widget.onRecentSearchesUpdated?.call(_recentSearches);
   }
 
   Future _performSearch() async {
@@ -100,6 +101,7 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
         _isSearchFocused = false;
       });
       _addToRecentSearches(query);
+
       widget.onRecentSearchesUpdated?.call(_recentSearches);
       setState(() {});
     } catch (e) {
@@ -146,16 +148,19 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
-          title: Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
+          leading: IconButton(icon: Icon(Icons.arrow_back, color: Colors.blue),
+          onPressed: () {
+            Navigator.pop(context, _recentSearches);
+          },
+          ),
+          titleSpacing: 0,
+          title: Text(
               '검색결과',
                   style: TextStyle(
                 fontWeight: FontWeight.bold,
               fontSize: 25,
             ),
-          )
-        ),
+          ),
           backgroundColor: Colors.white,
           foregroundColor: Colors.black,
           elevation: 0,
@@ -168,12 +173,6 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
                 padding: EdgeInsets.all(16.0),
                 child: Row(
                   children: [
-                    IconButton(
-                      icon: Icon(Icons.arrow_back, color: Colors.black),
-                      onPressed: () {
-                        Navigator.pop(context, _recentSearches);
-                      },
-                    ),
                     Expanded(
                       child: Container(
                         decoration: BoxDecoration(
@@ -187,6 +186,7 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
                           decoration: InputDecoration(
                             hintText: '곡, 아티스트 검색',
                             hintStyle: TextStyle(color: Colors.black),
+                            prefixIcon: Icon(Icons.search, color: Colors.black),
                             suffixIcon: _showCancelIcon
                                 ? IconButton(
                               icon: Icon(Icons.cancel,

@@ -60,6 +60,9 @@ class _SearchScreenState extends State<SearchScreen>
       });
     });
     _loadRecentSearches();
+    _searchController.clear();
+    _searchResults = {'tracks': [], 'playlists': []};
+    _isSearching = false;
   }
 
   Future<void> _initializeApp() async {
@@ -144,27 +147,6 @@ class _SearchScreenState extends State<SearchScreen>
         _searchResults = results;
       });
       _addToRecentSearches(query);
-       await Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => SearchResultScreen(
-              spotifyService: widget.spotifyService,
-              searchResults: _searchResults,
-              searchQuery: query,
-              recentSearches: _recentSearches,
-              userInfo: widget.userInfo,
-              onRecentSearchesUpdated: (List<String> updatedSearches) { // 콜백 함수 전달
-                setState(() {
-                  _recentSearches = updatedSearches;
-                });
-                _saveRecentSearches();
-              },
-        ),
-      ),
-       ).then((_) {
-         _loadRecentSearches();
-       }
-    );
     } catch (e) {
       print('검색 중 오류 발생: $e');
     }
@@ -238,7 +220,89 @@ class _SearchScreenState extends State<SearchScreen>
       body: SafeArea(
         child: Column(
           children: [
-            _buildSearchHeader(),
+        Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Row(
+          children: [
+        Expanded(
+        child: Container(
+        decoration: BoxDecoration(
+          color: Colors.black12,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: TextField(
+          controller: _searchController,
+          focusNode: _focusNode,
+          style: TextStyle(color: Colors.black),
+          decoration: InputDecoration(
+            hintText: '곡, 아티스트 검색',
+            hintStyle: TextStyle(color: Colors.black),
+            prefixIcon: Icon(Icons.search, color: Colors.black),
+            suffixIcon: _showCancelIcon
+                ? IconButton(
+              icon: Icon(Icons.cancel, color: Colors.grey[600]),
+              onPressed: () {
+                _searchController.clear();
+                setState(() {
+                  _showCancelIcon = false;
+                  _isSearching = false;
+                });
+                _focusNode.unfocus();
+              },
+            )
+                : null,
+            border: InputBorder.none,
+            contentPadding:
+            EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          ),
+          onSubmitted: (value) async {
+            if (value.isNotEmpty) {
+              final result = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      SearchResultScreen(
+                        spotifyService: widget.spotifyService,
+                        searchResults: _searchResults,
+                        searchQuery: value,
+                        recentSearches: _recentSearches,
+                        userInfo: widget.userInfo,
+                      ),
+                ),
+              );
+              if (result != null && result is List<String>) {
+                setState(() {
+                  _recentSearches = result;
+                });
+                _saveRecentSearches();
+              }
+            }
+          }
+          ),
+        ),
+        ),
+            if (_isSearching)
+              Padding(
+                padding: EdgeInsets.only(left: 8.0),
+                child: GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _isSearching = false;
+                    });
+                    _focusNode.unfocus();
+                  },
+                  child: Text(
+                    '취소',
+                    style: TextStyle(
+                      color: Colors.grey[600],
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+        ),
             Expanded(
               child: _isSearching
                   ? _buildRecentSearches()
@@ -258,83 +322,6 @@ class _SearchScreenState extends State<SearchScreen>
     );
   }
 
-  Widget _buildSearchHeader() {
-    return Padding(
-      padding: EdgeInsets.all(16.0),
-      child: Row(
-        children: [
-          Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.black12,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: TextField(
-                controller: _searchController,
-                focusNode: _focusNode,
-                style: TextStyle(color: Colors.black),
-                decoration: InputDecoration(
-                  hintText: '곡, 아티스트 검색',
-                  hintStyle: TextStyle(color: Colors.black),
-                  prefixIcon: Icon(Icons.search, color: Colors.black),
-                  suffixIcon: _showCancelIcon
-                      ? IconButton(
-                    icon: Icon(Icons.cancel, color: Colors.grey[600]),
-                    onPressed: () {
-                      _searchController.clear();
-                      setState(() {
-                        _showCancelIcon = false;
-                      });
-                    },
-                  )
-                      : null,
-                  border: InputBorder.none,
-                  contentPadding:
-                  EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                ),
-                onSubmitted: (value) async {
-                  if (value.isNotEmpty) {
-                   await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            SearchResultScreen(
-                              spotifyService: widget.spotifyService,
-                              searchResults: _searchResults,
-                              searchQuery: value,
-                              recentSearches: _recentSearches,
-                              userInfo: widget.userInfo,
-                            ),
-                      ),
-                    );
-                }
-                },
-              ),
-            ),
-          ),
-          if (_isSearching)
-            Padding(
-              padding: EdgeInsets.only(left: 8.0),
-              child: GestureDetector(
-                onTap: () {
-                  setState(() {
-                    _isSearching = false;
-                  });
-                  _focusNode.unfocus();
-                },
-                child: Text(
-                  '취소',
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 16,
-                  ),
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildRecentSearches() {
     return Padding(
