@@ -47,8 +47,7 @@
 ----------------------------------------------------------
 
 ## :white_medium_square: 개발 환경
-<img scr="https://github.com/user-attachments/assets/5a1e9ab9-7c9e-46e2-bd45-38fbf126824e" width="200" height="400"/>
-
+![개발환경 표](https://github.com/user-attachments/assets/1b95fc89-2bb1-4515-be92-6f8c7e65aea6)
 
 
 ----------------------------------------------------------
