@@ -47,7 +47,7 @@
 ----------------------------------------------------------
 
 ## :white_medium_square: 개발 환경
-![개발환경 표](https://github.com/user-attachments/assets/5a1e9ab9-7c9e-46e2-bd45-38fbf126824e)
+<img scr="https://github.com/user-attachments/assets/5a1e9ab9-7c9e-46e2-bd45-38fbf126824e" width="200" height="400"/>
 
 
 
@@ -58,7 +58,7 @@
   <tr>
     <td align="center"><a href="https://github.com/dkk011"><img src="https://avatars.githubusercontent.com/u/171115956?v=4" width="100px;" alt=""/><br /><sub><b>공덕규</b></sub></a><br />Back-end</td>
     <td align="center"><a href="https://github.com/frondais"><img src="https://avatars.githubusercontent.com/u/192973311?v=4" width="100px;" alt=""/><br /><sub><b>정이슬</b></sub></a><br />Front-end</td>
-    <td align="center"><a href="https://github.com/IN-SUN02"><img src="https://avatars0.githubusercontent.com/u/19782958?s=400&v=4" width="100px;" alt=""/><br /><sub><b>장인선</b></sub></a><br />Front-end</td>
+    <td align="center"><a href="https://github.com/IN-SUN02"><img src="https://avatars.githubusercontent.com/u/120308825?v=4" width="100px;" alt=""/><br /><sub><b>장인선</b></sub></a><br />Front-end</td>
     <td align="center"><a href="https://github.com/GGeunit"><img src="https://avatars.githubusercontent.com/u/165870924?v=4" width="100px;" alt=""/><br /><sub><b>최민근</b></sub></a><br />Back-end</td>
   </tr>
 </table>
