@@ -36,6 +36,7 @@
 ----------------------------------------------------------
 # :white_medium_square: 기능
 ### 시스템 수행 시나리오
+![수행 시나리오](https://github.com/user-attachments/assets/8348422e-f26d-4a7e-af88-acc4c58dab89)
 
 ### 시스템 구성도
 ![시스템 구성도](https://github.com/user-attachments/assets/f91dfe63-3009-45e8-a1bc-4a55e15a32ef)
