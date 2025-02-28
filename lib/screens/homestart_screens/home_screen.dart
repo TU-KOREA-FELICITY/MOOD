@@ -329,15 +329,17 @@ class _HomeScreenState extends State<HomeScreen> {
         return Container();
     }
 
+
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, color: Colors.black, size: 32),
+        Icon(icon, color: Colors.black, size: 30),
         SizedBox(width: 12),
         Text(
           title,
           style: TextStyle(
-              color: Colors.black, fontWeight: FontWeight.bold, fontSize: 24),
+              color: Colors.black, fontWeight: FontWeight.bold, fontSize: 23),
         ),
       ],
     );
@@ -364,7 +366,7 @@ class _HomeScreenState extends State<HomeScreen> {
       padding: EdgeInsets.only(top: 20, bottom: 20),
       child: Text(
         '${widget.userInfo['user_name']}님의 감정/집중도 인식 중',
-        style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
       ),
     );
   }
@@ -466,7 +468,7 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Text(
           "나의 집중도",
           style: TextStyle(
-            fontSize: 25,
+            fontSize: 20,
             fontWeight: FontWeight.bold,
             color: Colors.black,
           ),
@@ -616,7 +618,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Text(
               '감정 분석 결과',
               style: TextStyle(
-                fontSize: 25,
+                fontSize: 20,
                 fontWeight: FontWeight.bold,
                 color: Colors.black,
               ),

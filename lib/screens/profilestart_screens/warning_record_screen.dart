@@ -74,7 +74,7 @@ class _WarningRecordScreenState extends State<WarningRecordScreen> {
           '주행 중 경고기록',
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            fontSize: 25,
+            fontSize: 23,
           ),
         ),
       ),

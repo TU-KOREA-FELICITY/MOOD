@@ -204,17 +204,21 @@ class _SearchScreenState extends State<SearchScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Align(
-          alignment: Alignment.centerLeft,
-          child: Text(
-            '검색',
-            style: TextStyle(
-              fontSize: 25,
-              fontWeight: FontWeight.bold,
+        automaticallyImplyLeading: false,
+        title: Row(
+            children: [
+            Icon(Icons.search, size: 30),
+        SizedBox(width: 10),
+        Text(
+          '검색',
+          style: TextStyle(
+            fontSize: 23,
+            fontWeight: FontWeight.bold,
             ),
           ),
-        ),
-        titleSpacing: 0,
+        ],
+    ),
+        titleSpacing: 16,
       ),
       backgroundColor: Colors.white,
       body: SafeArea(

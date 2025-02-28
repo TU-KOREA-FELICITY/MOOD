@@ -19,7 +19,7 @@ class AuthChoiceScreen extends StatelessWidget {
 
             SizedBox(height: 280),
             SizedBox(
-              width: MediaQuery.of(context).size.width * 0.8,
+              width: MediaQuery.of(context).size.width * 0.9,
               child: ElevatedButton(
                 onPressed: () => Navigator.pushNamed(context, '/login'),
                 style: ElevatedButton.styleFrom(
@@ -43,7 +43,7 @@ class AuthChoiceScreen extends StatelessWidget {
             SizedBox(height: 15),
 
             SizedBox(
-              width: MediaQuery.of(context).size.width * 0.8,
+              width: MediaQuery.of(context).size.width * 0.9,
               child: OutlinedButton(
                 onPressed: () {
                   showDialog(
@@ -53,7 +53,7 @@ class AuthChoiceScreen extends StatelessWidget {
                         backgroundColor: Colors.white,
                         title: Text("공지사항",
                           style: TextStyle(fontWeight: FontWeight.bold,
-                            fontSize: 26,
+                            fontSize: 23,
                           ),
                         ),
                         content: Container(

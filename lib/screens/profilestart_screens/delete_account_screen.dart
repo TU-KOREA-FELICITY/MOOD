@@ -54,7 +54,7 @@ class DeleteAccountScreen extends StatelessWidget {
           '회원탈퇴',
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            fontSize: 25,
+            fontSize: 23,
           ),
         ),
       ),

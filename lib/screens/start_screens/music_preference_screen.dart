@@ -150,6 +150,11 @@ class _MusicPreferenceScreenState extends State<MusicPreferenceScreen> {
     '국내 알앤비',
     '해외 알앤비',
     '해외 일렉트로닉',
+
+
+
+
+
     '국내 록/메탈',
     '해외 록',
     '재즈',
@@ -189,7 +194,7 @@ class _MusicPreferenceScreenState extends State<MusicPreferenceScreen> {
       appBar: AppBar(
         title: Text(
           '선호 장르 선택',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 23),
         ),
         titleSpacing: 0,
       ),

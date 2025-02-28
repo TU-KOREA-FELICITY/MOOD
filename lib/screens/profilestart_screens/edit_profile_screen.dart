@@ -96,7 +96,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           '운전자 정보 수정',
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            fontSize: 25,
+            fontSize: 23,
           ),
         ),
       ),

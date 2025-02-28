@@ -232,7 +232,7 @@ class _EmotionRecordScreenState extends State<EmotionRecordScreen> {
           '날짜별 감정 기록',
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            fontSize: 25,
+            fontSize: 23,
           ),
         ),
       ),
@@ -326,7 +326,7 @@ class _EmotionRecordScreenState extends State<EmotionRecordScreen> {
                 children: [
                   Text(
                     '시간대별 가장 빈도 높은 감정',
-                    style: TextStyle(fontSize: 21, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 10),
                   Expanded(
