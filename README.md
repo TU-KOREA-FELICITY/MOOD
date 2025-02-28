@@ -54,10 +54,10 @@
 ## :white_medium_square: 팀원 구성, 역할 분담
 <table>
   <tr>
-    <td align="center"><a href="https://github.com/dkk011"><img src="https://avatars1.githubusercontent.com/u/64491659?s=400&u=3c39d4f9b95c74c1474c8cc90706155d600f00b8&v=4" width="100px;" alt=""/><br /><sub><b>공덕규</b></sub></a><br />Back-end</td>
-    <td align="center"><a href="https://github.com/frondais"><img src="https://avatars3.githubusercontent.com/u/51106039?s=400&u=5c86308a2fa6e33b84bd1623658ffbb3cb19b960&v=4" width="100px;" alt=""/><br /><sub><b>정이슬</b></sub></a><br />Front-end</td>
+    <td align="center"><a href="https://github.com/dkk011"><img src="https://avatars.githubusercontent.com/u/171115956?v=4" width="100px;" alt=""/><br /><sub><b>공덕규</b></sub></a><br />Back-end</td>
+    <td align="center"><a href="https://github.com/frondais"><img src="https://avatars.githubusercontent.com/u/192973311?v=4" width="100px;" alt=""/><br /><sub><b>정이슬</b></sub></a><br />Front-end</td>
     <td align="center"><a href="https://github.com/IN-SUN02"><img src="https://avatars0.githubusercontent.com/u/19782958?s=400&v=4" width="100px;" alt=""/><br /><sub><b>장인선</b></sub></a><br />Front-end</td>
-    <td align="center"><a href="https://github.com/GGeunit"><img src="https://avatars1.githubusercontent.com/u/51106092?s=400&u=0e2a843114fc9ea40a85f702b4d56657bf4ea481&v=4" width="100px;" alt=""/><br /><sub><b>최민근</b></sub></a><br />Back-end</td>
+    <td align="center"><a href="https://github.com/GGeunit"><img src="https://avatars.githubusercontent.com/u/165870924?v=4" width="100px;" alt=""/><br /><sub><b>최민근</b></sub></a><br />Back-end</td>
   </tr>
 </table>
 
