@@ -26,7 +26,7 @@
  - 때문에 교통사고율 감소를 위한 방안으로 ‘음악’이라는 수단을 사용하고자함
 
 ### 연구 및 개발 목표
-운전자의 **감정 및 고개 움직임 데이터**를 ​<br>분류 • 분석한 후 안전한 운전을 지원하는 <br>​**운전 집중도 향상 및 맞춤형 음악 추천** 앱 서비스​ 개발하는 것을 목표로 함
+운전자의 **감정 및 고개 움직임 데이터**를 ​분류 • 분석한 후 안전한 운전을 지원하는 ​**운전 집중도 향상 및 맞춤형 음악 추천** 앱 서비스​ 개발하는 것을 목표로 함
 
 ### 연구 개발 효과
  - 운전자 감정 인식을 기반으로 그에 맞는 음악을 추천하여 **감정 상태 조절에 도움**을 주고자 함
@@ -52,7 +52,14 @@
 ----------------------------------------------------------
 
 ## :white_medium_square: 팀원 구성, 역할 분담
-...
+<table>
+  <tr>
+    <td align="center"><a href="https://github.com/dkk011"><img src="https://avatars1.githubusercontent.com/u/64491659?s=400&u=3c39d4f9b95c74c1474c8cc90706155d600f00b8&v=4" width="100px;" alt=""/><br /><sub><b>공덕규</b></sub></a><br />Back-end</td>
+    <td align="center"><a href="https://github.com/frondais"><img src="https://avatars3.githubusercontent.com/u/51106039?s=400&u=5c86308a2fa6e33b84bd1623658ffbb3cb19b960&v=4" width="100px;" alt=""/><br /><sub><b>정이슬</b></sub></a><br />Front-end</td>
+    <td align="center"><a href="https://github.com/IN-SUN02"><img src="https://avatars0.githubusercontent.com/u/19782958?s=400&v=4" width="100px;" alt=""/><br /><sub><b>장인선</b></sub></a><br />Front-end</td>
+    <td align="center"><a href="https://github.com/GGeunit"><img src="https://avatars1.githubusercontent.com/u/51106092?s=400&u=0e2a843114fc9ea40a85f702b4d56657bf4ea481&v=4" width="100px;" alt=""/><br /><sub><b>최민근</b></sub></a><br />Back-end</td>
+  </tr>
+</table>
 
 ----------------------------------------------------------
 
