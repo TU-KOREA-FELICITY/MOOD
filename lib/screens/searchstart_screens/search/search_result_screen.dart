@@ -211,6 +211,27 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
                         ),
                       ),
                     ),
+                    if (_isSearchFocused)
+                      Padding(
+                        padding: EdgeInsets.only(left: 8.0),
+                        child: GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              _isSearchFocused = false;
+                              _searchController.clear();
+                              _showCancelIcon = false;
+                            });
+                            _focusNode.unfocus();
+                          },
+                          child: Text(
+                            '취소',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                      ),
                   ],
                 ),
               ),
