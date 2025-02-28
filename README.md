@@ -1,4 +1,4 @@
-# :oncoming_automobile: MOOD
+# :musical_note: MOOD
 Music Optimized for On-road Driving
 주행 중 감정과 고개 움직임을 분석한 음악 최적화 시스템
 
