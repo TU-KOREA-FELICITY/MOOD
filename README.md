@@ -38,8 +38,10 @@
 ### 시스템 수행 시나리오
 
 ### 시스템 구성도
+![시스템 구성도](https://github.com/user-attachments/assets/f91dfe63-3009-45e8-a1bc-4a55e15a32ef)
 
 ### 시스템 모듈 구성도
+![SW 모듈 구성도](https://github.com/user-attachments/assets/a0ef9b2b-190d-44db-a852-fedadf3019d2)
 
 ### 모듈 상세 설계(기능별로)
 ...
