@@ -119,7 +119,6 @@
 - 눈, 코, 입 위치 기반으로 얼굴 위치 추적​
 - 눈의 높이 변화 분석​
 - 좌우 눈의 중심 좌표를 계산하여 y축 변화량 측정
-<br>
 ![집중도 분석 알고리즘](https://github.com/user-attachments/assets/6d0d24c0-f53c-49b4-bb36-23c5e86743c2)
 
 
@@ -188,12 +187,11 @@
 
 < 음악을 추천하는 시점 >​
 - 매 음악 재생이 끝나고 감정 분석이 이루어지는 시점
-- ![음악 추천 알고리즘](https://github.com/user-attachments/assets/e3746053-1a1d-4717-881e-0b0c3652a474)
+![음악 추천 알고리즘](https://github.com/user-attachments/assets/e3746053-1a1d-4717-881e-0b0c3652a474)
 
 
 #### :bulb: [ Phone ]
 <br>
-
 < 기능 >​
 - 사용자 인터페이스 제공​
 - 감정 분석 결과 출력​
