@@ -6,6 +6,7 @@ import 'dart:typed_data';
 import 'dart:convert';
 import '../bottom_navigation_widget.dart';
 import 'welcome_screen.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -227,7 +228,7 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Text(
             '로그인',
             style: TextStyle(
-              fontSize: 23,
+              fontSize: 24,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -250,7 +251,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       Text(
                         '얼굴인식을 진행합니다.',
                         style: TextStyle(
-                          fontSize: 26,
+                          fontSize: 24,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -268,9 +269,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Container(
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: Color(0xFFF2F2F1),
+                          color: Color(0xECEBFF),
                           border:
-                          Border.all(color: Color(0xFF0126FA), width: 6),
+                          Border.all(color: Color(0xFF8C88D5), width: 6),
                         ),
                         child: ClipOval(
                           child: imageBytes != null
@@ -287,13 +288,14 @@ class _LoginScreenState extends State<LoginScreen> {
                                 height: 260,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 6,
-                                  color: Color(0xFF0126FA),
+                                  color: Color(0xFF8C88D5),
                                 ),
                               ),
-                              Icon(
-                                Icons.person,
-                                size: 170,
-                                color: Colors.black,
+                              SvgPicture.asset(
+                                'assets/mooding/mooding_main.svg',
+                                width: 80,
+                                height: 80,
+                                fit: BoxFit.contain,
                               ),
                             ],
                           ),
@@ -312,7 +314,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF97BCF3),
+                            color: Color(0xFF6A698C),
                           ),
                         ),
                       ),
@@ -337,7 +339,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Text(
                     '회원가입',
                     style: TextStyle(
-                      fontSize: 19.0,
+                      fontSize: 20,
                       decoration: TextDecoration.underline,
                     ),
                   ),
@@ -358,7 +360,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     },
                     style: ButtonStyle(
                       backgroundColor:
-                      WidgetStateProperty.all(Color(0xFF0126FA)),
+                      WidgetStateProperty.all(Color(0xFF8C88D5)),
                       foregroundColor: WidgetStateProperty.all(Colors.white),
                       padding: WidgetStateProperty.all(
                           EdgeInsets.symmetric(vertical: 12)),
