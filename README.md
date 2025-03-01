@@ -45,7 +45,7 @@
 ![SW 모듈 구성도](https://github.com/user-attachments/assets/a0ef9b2b-190d-44db-a852-fedadf3019d2)
 
 ### 모듈 상세 설계(기능별로)
-#### [ Jetson Nano & 카메라 인터페이스 ] - 운전자 얼굴 인식/분석
+#### :flashlight: [ Jetson Nano & 카메라 인터페이스 ] - 운전자 얼굴 인식/분석
 < 기능 > ​
 ㆍ이미지 캡처 후 입력받은 ID로 Amazon S3 버킷에 등록​
  - Amazon S3 버킷 : "felicity-mood/faces/입력받은 ID/" 경로에 저장​
@@ -61,7 +61,7 @@
 < 시점 >​
 ㆍ얼굴 인식: 로그인 및 회원가입 시
 
-#### [ Jetson Nano & 카메라 인터페이스 ] - 감정 인식/분석
+#### :high_brightness: [ Jetson Nano & 카메라 인터페이스 ] - 감정 인식/분석
 < 기능 >​
 ㆍ캡처한 이미지를 AWS Rekognition SDK 호출하여 감정 분석​
 ㆍAWS boto3 기반의 감정 인식/분석 알고리즘을 활용
