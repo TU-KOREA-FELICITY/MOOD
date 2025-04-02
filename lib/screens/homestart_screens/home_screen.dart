@@ -21,7 +21,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final SpotifyService _spotifyService = SpotifyService();
-  final EmotionAnalysisService _emotionAnalysisService = EmotionAnalysisService();
+  final EmotionAnalysisService _emotionAnalysisService =
+      EmotionAnalysisService();
   final AudioPlayer _audioPlayer = AudioPlayer();
   bool _wasMusicPlaying = false;
   bool _isDialogShowing = false;
@@ -125,6 +126,23 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  Future<void> _stopEstimator() async {
+    final url = Uri.parse('http://10.0.2.2:3000/stop_estimator');
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+      );
+      if (response.statusCode == 200) {
+        print('estimator.py가 성공적으로 종료되었습니다.');
+      } else {
+        print('estimator.py 종료 실패: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('estimator.py 종료 중 오류 발생: \n$e');
+    }
+  }
+
   Future<void> _runEmotionAnalysis() async {
     setState(() {
       _status = '감정 분석 중...';
@@ -182,9 +200,11 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     DateTime now = DateTime.now();
-    warningData.add(FlSpot(now.millisecondsSinceEpoch.toDouble(), warningLevel));
+    warningData
+        .add(FlSpot(now.millisecondsSinceEpoch.toDouble(), warningLevel));
 
-    double tenMinutesAgo = now.millisecondsSinceEpoch.toDouble() - (30 * 60 * 1000);
+    double tenMinutesAgo =
+        now.millisecondsSinceEpoch.toDouble() - (30 * 60 * 1000);
     warningData.removeWhere((spot) => spot.x < tenMinutesAgo);
 
     if (warningLevel > 0 && !_isDialogShowing) {
@@ -202,68 +222,68 @@ class _HomeScreenState extends State<HomeScreen> {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return Center(
-            child: Container(
-              width: 400,
-              height: 600,
-        child: AlertDialog(
-          backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          contentPadding: EdgeInsets.all(20),
-          title: Row(
-            children: [
-              Icon(
-                Icons.warning,
-                color: Colors.red,
-                size: 40,
+          child: Container(
+            width: 400,
+            height: 600,
+            child: AlertDialog(
+              backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
               ),
-              SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.bold,
+              contentPadding: EdgeInsets.all(20),
+              title: Row(
+                children: [
+                  Icon(
+                    Icons.warning,
+                    color: Colors.red,
+                    size: 40,
                   ),
-                ),
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                content,
-                style: TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.bold,
-                ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    content,
+                    style: TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: Text(
-                '확인',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF0126FA),
+              actions: <Widget>[
+                TextButton(
+                  child: Text(
+                    '확인',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF0126FA),
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    _isDialogShowing = false;
+                    _audioPlayer.stop();
+                    if (_wasMusicPlaying) {
+                      _spotifyService.resumePlayback();
+                    }
+                  },
                 ),
-              ),
-              onPressed: () {
-                Navigator.of(context).pop();
-                _isDialogShowing = false;
-                _audioPlayer.stop();
-                if (_wasMusicPlaying) {
-                  _spotifyService.resumePlayback();
-                }
-              },
+              ],
             ),
-          ],
-        ),
-            ),
+          ),
         );
       },
     );
@@ -279,6 +299,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
+    _stopEstimator();
+    print('estimator.py 종료됨');
     socket?.dispose();
     super.dispose();
   }
@@ -328,8 +350,6 @@ class _HomeScreenState extends State<HomeScreen> {
       default:
         return Container();
     }
-
-
 
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -394,12 +414,12 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               _imageData != null
                   ? Image.memory(
-                _imageData!,
-                width: 350,
-                height: 200,
-                fit: BoxFit.cover,
-                gaplessPlayback: true,
-              )
+                      _imageData!,
+                      width: 350,
+                      height: 200,
+                      fit: BoxFit.cover,
+                      gaplessPlayback: true,
+                    )
                   : Center(child: Text('카메라 화면이 여기에 표시됩니다')),
               Positioned(
                 top: 0,
@@ -425,7 +445,6 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-
 
   Widget _buildAnalysisButtons() {
     return Padding(
@@ -466,12 +485,12 @@ class _HomeScreenState extends State<HomeScreen> {
         Padding(
           padding: EdgeInsets.only(left: 20),
           child: Text(
-          "나의 집중도",
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
+            "나의 집중도",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
           ),
         ),
         SizedBox(height: 10),
@@ -503,10 +522,18 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('위험', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                    Text('주의', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                    Text('경고', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                    Text('안전', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                    Text('위험',
+                        style: TextStyle(
+                            fontSize: 12, fontWeight: FontWeight.bold)),
+                    Text('주의',
+                        style: TextStyle(
+                            fontSize: 12, fontWeight: FontWeight.bold)),
+                    Text('경고',
+                        style: TextStyle(
+                            fontSize: 12, fontWeight: FontWeight.bold)),
+                    Text('안전',
+                        style: TextStyle(
+                            fontSize: 12, fontWeight: FontWeight.bold)),
                   ],
                 ),
               ),
@@ -517,7 +544,8 @@ class _HomeScreenState extends State<HomeScreen> {
               bottom: 0,
               height: 20,
               child: StreamBuilder(
-                stream: Stream.periodic(Duration(seconds: 1), (i) => DateTime.now()),
+                stream: Stream.periodic(
+                    Duration(seconds: 1), (i) => DateTime.now()),
                 builder: (context, snapshot) {
                   if (!snapshot.hasData) return Container();
                   final now = snapshot.data!;
@@ -527,11 +555,12 @@ class _HomeScreenState extends State<HomeScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: List.generate(
                         6,
-                            (index) {
+                        (index) {
                           final minutes = index;
                           return Text(
                             '${minutes}분 전',
-                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                                fontSize: 12, fontWeight: FontWeight.bold),
                           );
                         },
                       ).reversed.toList(),
@@ -552,7 +581,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   width: MediaQuery.of(context).size.width,
                   child: LineChart(
                     LineChartData(
-                      gridData: FlGridData(show: true,
+                      gridData: FlGridData(
+                        show: true,
                         drawVerticalLine: true,
                         getDrawingHorizontalLine: (value) {
                           return FlLine(
@@ -569,13 +599,18 @@ class _HomeScreenState extends State<HomeScreen> {
                         verticalInterval: 30000,
                       ),
                       titlesData: FlTitlesData(
-                        leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                        topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                        rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                        bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                        leftTitles: AxisTitles(
+                            sideTitles: SideTitles(showTitles: false)),
+                        topTitles: AxisTitles(
+                            sideTitles: SideTitles(showTitles: false)),
+                        rightTitles: AxisTitles(
+                            sideTitles: SideTitles(showTitles: false)),
+                        bottomTitles: AxisTitles(
+                            sideTitles: SideTitles(showTitles: false)),
                       ),
                       borderData: FlBorderData(show: false),
-                      minX: DateTime.now().millisecondsSinceEpoch.toDouble() - (5 * 60 * 1000),
+                      minX: DateTime.now().millisecondsSinceEpoch.toDouble() -
+                          (5 * 60 * 1000),
                       maxX: DateTime.now().millisecondsSinceEpoch.toDouble(),
                       minY: 0,
                       maxY: 3,
@@ -610,34 +645,33 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildEmotionAnalysisResult() {
     return _emotionResult.isNotEmpty
         ? Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-        SizedBox(height: 20),
-          Padding(
-            padding: EdgeInsets.only(left: 40),
-            child: Text(
-              '감정 분석 결과',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: 20),
+              Padding(
+                padding: EdgeInsets.only(left: 40),
+                child: Text(
+                  '감정 분석 결과',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
               ),
-            ),
-          ),
-          SizedBox(height: 20),
-          Column(
-            children: _emotionResult
-                .split('\n')
-                .where((line) => line.contains(':'))
-                .map((line) {
+              SizedBox(height: 20),
+              Column(
+                children: _emotionResult
+                    .split('\n')
+                    .where((line) => line.contains(':'))
+                    .map((line) {
                   final parts = line.split(': ');
                   if (parts.length < 2) {
                     return Container(); // 잘못된 데이터 처리
                   }
                   final emotion = parts[0].trim();
                   final confidence = parts[1].trim();
-                  final color = emotions.firstWhere(
-                          (e) => e['name'] == emotion,
+                  final color = emotions.firstWhere((e) => e['name'] == emotion,
                       orElse: () => {'color': Colors.white})['color'];
                   return Padding(
                     padding: EdgeInsets.symmetric(vertical: 9),
@@ -660,16 +694,19 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Text(
                           '$emotion: $confidence',
                           textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,),
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
                   );
                 }).toList(),
-          ),
-          SizedBox(height: 10),
-        ],
-    )
+              ),
+              SizedBox(height: 10),
+            ],
+          )
         : SizedBox.shrink();
   }
 
