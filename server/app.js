@@ -2,7 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const session = require('express-session');
-const { spawn } = require('child_process');
+const { exec } = require('child_process');
 const path = require('path');
 const pool = require('./database');
 
@@ -25,77 +25,64 @@ let estimatorProcess = null;
 let webcamProcess = null;
 let userInfo = null;
 
+const JETSON_USER = 'session4';
+const JETSON_IP = '192.168.204.30';
+const JETSON_SCRIPT_PATH = '/home/session4/CAM/';
+
 function runPythonScript(scriptName, args = []) {
   return new Promise((resolve, reject) => {
-    const scriptPath = path.join(__dirname, '..', 'CAM', scriptName);
-    const python = spawn('python', [scriptPath, ...args]);
-    let result = '';
-
-    python.stdout.on('data', (data) => {
-      result += data.toString('utf8');
+      const command = `ssh ${JETSON_USER}@${JETSON_IP} python3 ${JETSON_SCRIPT_PATH}${scriptName} ${args.join(' ')}`;
+      exec(command, (error, stdout, stderr) => {
+        if (error) {
+          console.error(`SSH 실행 오류: ${stderr}`);
+          reject(error);
+        } else {
+          resolve(stdout);
+        }
+      });
     });
-
-    python.stderr.on('data', (data) => {
-      console.error('Python 스크립트 오류:', data.toString());
-    });
-
-    python.on('close', (code) => {
-      console.log(`Python 스크립트 종료 코드: ${code}`);
-      if (code === 0) {
-        resolve(result);
-      } else {
-        reject(new Error(`Python 스크립트 실행 실패: ${code}`));
-      }
-    });
-  });
 }
 
 function startWebcam() {
-  const scriptPath = path.join(__dirname, '..', 'CAM', 'webcam.py');
-  webcamProcess = spawn('python', [scriptPath]);
-  webcamProcess.stdout.on('data', (data) => {
-    console.log('webcam.py 실행');
+  const command = `ssh ${JETSON_USER}@${JETSON_IP} nohup python3 ${JETSON_SCRIPT_PATH}webcam.py &`;
+  exec(command, (error, stdout, stderr) => {
+    if (error) {
+      console.error(`webcam.py 실행 오류: ${stderr}`);
+    } else {
+      console.log('webcam.py 실행 시작');
+    }
   });
 }
 
 function stopWebcam() {
-  if (webcamProcess) {
-    webcamProcess.kill();
-    console.log('webcam.py 종료');
-  }
+  const command = `ssh ${JETSON_USER}@${JETSON_IP} pkill -f webcam.py`;
+  exec(command, (error, stdout, stderr) => {
+    if (error) {
+      console.error(`webcam.py 종료 오류: ${stderr}`);
+    } else {
+      console.log('webcam.py 종료됨');
+    }
+  });
 }
 
 function startEstimator() {
-  if (!estimatorProcess) {
-    const scriptPath = path.join(__dirname, '..', 'CAM', 'estimator.py');
-    estimatorProcess = spawn('python', [scriptPath]);
-
-    estimatorProcess.stdin.write(JSON.stringify(userInfo) + '\n');
-    estimatorProcess.stdout.on('data', (data) => {
-      console.log(`estimator.py: ${data}`);
-    });
-    estimatorProcess.stderr.on('data', (data) => {
-      console.error(`estimator.py 오류: ${data}`);
-    });
-    estimatorProcess.on('close', (code) => {
-      console.log(`estimator.py 종료 코드: ${code}`);
-      estimatorProcess = null;
-    });
-  } else {
-    estimatorProcess.stdin.write(JSON.stringify(userInfo) + '\n');
-  }
+  const command = `ssh ${JETSON_USER}@${JETSON_IP} nohup python3 ${JETSON_SCRIPT_PATH}estimator.py &`;
+  exec(command, (error, stdout, stderr) => {
+    if (error) {
+      console.error(`estimator.py 실행 오류: ${stderr}`);
+    } else {
+      console.log('estimator.py 실행 시작');
+    }
+  });
 }
 
 function stopEstimator() {
-  return new Promise((resolve, reject) => {
-    if (estimatorProcess) {
-      estimatorProcess.on('close', () => {
-        estimatorProcess = null;
-        resolve();
-      });
-      estimatorProcess.kill();
+  const command = `ssh ${JETSON_USER}@${JETSON_IP} pkill -f estimator.py`;
+  exec(command, (error, stdout, stderr) => {
+    if (error) {
+      console.error(`estimator.py 종료 오류: ${stderr}`);
     } else {
-      resolve();
+      console.log('estimator.py 종료됨');
     }
   });
 }
