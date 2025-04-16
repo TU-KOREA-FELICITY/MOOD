@@ -26,7 +26,7 @@ let webcamProcess = null;
 let userInfo = null;
 
 const JETSON_USER = 'session4';
-const JETSON_IP = '192.168.204.30';
+const JETSON_IP = '192.168.60.30';
 const JETSON_SCRIPT_PATH = '/home/session4/CAM/';
 
 function runPythonScript(scriptName, args = []) {
@@ -66,12 +66,17 @@ function stopWebcam() {
 }
 
 function startEstimator() {
-  const command = `ssh ${JETSON_USER}@${JETSON_IP} nohup python3 ${JETSON_SCRIPT_PATH}estimator.py &`;
+  const userInfoString = JSON.stringify(userInfo)
+    .replace(/"/g, '\\"')
+    .replace(/'/g, "\\'");
+
+  const command = `ssh ${JETSON_USER}@${JETSON_IP} "echo '${userInfoString}' | xvfb-run -a python3 ${JETSON_SCRIPT_PATH}estimator.py"`;
   exec(command, (error, stdout, stderr) => {
     if (error) {
       console.error(`estimator.py 실행 오류: ${stderr}`);
     } else {
       console.log('estimator.py 실행 시작');
+      console.log(stdout);
     }
   });
 }

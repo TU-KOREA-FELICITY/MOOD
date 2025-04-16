@@ -42,7 +42,7 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
 
   void connectToServer() {
     try {
-      socket = IO.io('http://10.0.2.2:3000', <String, dynamic>{
+      socket = IO.io('http://192.168.60.219:3000', <String, dynamic>{
         'transports': ['websocket'],
         'autoConnect': true,
       });
@@ -75,7 +75,7 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
   Future<Map<String, dynamic>> _checkIdDuplicate(String userAwsId) async {
     try {
       final response = await http.post(
-        Uri.parse('http://10.0.2.2:3000/check_id_duplicate'),
+        Uri.parse('http://192.168.60.219:3000/check_id_duplicate'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({'user_aws_id': userAwsId}),
       );
@@ -198,7 +198,7 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
   void _register(String username) async {
     try {
       final response = await http.post(
-        Uri.parse('http://10.0.2.2:3000/register'),
+        Uri.parse('http://192.168.60.219:3000/register'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({'username': username}),
       );
@@ -223,7 +223,7 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
   void _checkRegistrationStatus(String username) async {
     try {
       final response =
-          await http.get(Uri.parse('http://10.0.2.2:3000/check_registration'));
+          await http.get(Uri.parse('http://192.168.60.219:3000/check_registration'));
       final result = json.decode(response.body);
 
       if (result != null && result['registered'] == true) {

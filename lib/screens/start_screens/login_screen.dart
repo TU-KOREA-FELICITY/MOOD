@@ -40,7 +40,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void connectToServer() {
     try {
-      socket = IO.io('http://10.0.2.2:3000', <String, dynamic>{
+      socket = IO.io('http://192.168.60.219:3000', <String, dynamic>{
         'transports': ['websocket'],
         'autoConnect': true,
       });
@@ -75,7 +75,7 @@ class _LoginScreenState extends State<LoginScreen> {
       _status = '마스크 또는 선글라스를 벗고\n카메라를 응시해주세요.';
     });
     try {
-      await http.post(Uri.parse('http://10.0.2.2:3000/login'));
+      await http.post(Uri.parse('http://192.168.60.219:3000/login'));
       _checkAuthStatus();
     } catch (e) {
       setState(() {
@@ -87,7 +87,7 @@ class _LoginScreenState extends State<LoginScreen> {
   void _checkAuthStatus() async {
     try {
       final response =
-      await http.get(Uri.parse('http://10.0.2.2:3000/check_auth'));
+      await http.get(Uri.parse('http://192.168.60.219:3000/check_auth'));
       final result = json.decode(response.body);
 
       if (!mounted) return;
@@ -140,7 +140,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<Map<String, dynamic>> _loginComplete(String userAwsId) async {
     try {
       final response = await http.post(
-        Uri.parse('http://10.0.2.2:3000/login_complete'),
+        Uri.parse('http://192.168.60.219:3000/login_complete'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({'user_aws_id': userAwsId}),
       );
@@ -175,7 +175,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _saveUserInfoAndNavigate() async {
     try {
       final response = await http.post(
-        Uri.parse('http://10.0.2.2:3000/register_complete'),
+        Uri.parse('http://192.168.60.219:3000/register_complete'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'user_aws_id': 'sun2',
