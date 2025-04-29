@@ -83,7 +83,7 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text(widget.playlistName, style: TextStyle(color: Colors.black)),
+        title: Text(widget.playlistName, style: TextStyle(color: Colors.black, fontWeight: FontWeight.w900, fontSize: 24)),
         backgroundColor: Colors.white,
         elevation: 0,
         actions: [
@@ -95,7 +95,7 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
               });
             },
             child: Text(_isEditing ? '완료' : '선택',
-                style: TextStyle(color: _isEditing ? Colors.black : Color(0xFF0126FA), fontWeight: FontWeight.bold)),
+                style: TextStyle(color: _isEditing ? Colors.black : Color(0xFF8C88D5), fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -185,7 +185,7 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                                         }
                                       });
                                     },
-                                    activeColor: Color(0xFF0126FA),
+                                    activeColor: Color(0xFF8C88D5),
                                     checkColor: Colors.white,
                                   ),
                                 ),
@@ -238,7 +238,7 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                       child: ElevatedButton(
                         onPressed: () => _showAddDialog(),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFF0126FA),
+                          backgroundColor: Color(0xFF8C88D5),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),
@@ -280,7 +280,7 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
               ElevatedButton(
                 onPressed: () => _showPlaylistOptions(_selectedTracks.toList(), '감정 카테고리'),
                 style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white30,
+                    backgroundColor: Color(0xFFECEBFF),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
@@ -292,7 +292,7 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
               ElevatedButton(
                 onPressed: () => _showPlaylistOptions(_selectedTracks.toList(), '내 플레이리스트'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white30,
+                  backgroundColor: Color(0xFFD2D0FF),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -310,33 +310,36 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
   void _showPlaylistOptions(List<String> trackUris, String option) async {
     final playlists = await _getPlaylists();
     final List<Map<String, dynamic>> typedPlaylists =
-        List<Map<String, dynamic>>.from(playlists);
+    List<Map<String, dynamic>>.from(playlists);
     final filteredPlaylists =
-        filterPlaylists(typedPlaylists, option == '감정 카테고리');
-    final selectedPlaylist = await showDialog<Map<String, dynamic>>(
+    filterPlaylists(typedPlaylists, option == '감정 카테고리');
+
+    final selectedPlaylist = await showModalBottomSheet<Map<String, dynamic>>(
       context: context,
+      backgroundColor: Colors.transparent,
       builder: (BuildContext context) {
-        return Dialog(
-          backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
           ),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(16.0),
-            child: ConstrainedBox(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            child: Container(
+              color: Colors.white,
               constraints: BoxConstraints(
                 maxHeight: MediaQuery.of(context).size.height * 0.5,
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  // 헤더 부분
                   Container(
                     width: double.infinity,
                     decoration: BoxDecoration(
-                      color: Color(0xFF0126FA),
+                      color: Color(0xFF8C88D5),
                       borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(16.0),
-                        topRight: Radius.circular(16.0),
+                        topLeft: Radius.circular(20),
+                        topRight: Radius.circular(20),
                       ),
                     ),
                     padding: EdgeInsets.symmetric(vertical: 16.0),
@@ -350,19 +353,30 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                       textAlign: TextAlign.center,
                     ),
                   ),
-                  Flexible(
-                    child: ListView.builder(
+
+                  Expanded(
+                    child: ListView.separated(
                       itemCount: filteredPlaylists.length,
+                      separatorBuilder: (context, index) => Divider(
+                        height: 1,
+                        thickness: 1,
+                        color: Colors.grey[300],
+                        indent: 16,
+                        endIndent: 16,
+                      ),
                       itemBuilder: (context, index) {
                         final playlist = filteredPlaylists[index];
                         return ListTile(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14.0),
+                          ),
                           leading: Icon(Icons.playlist_play,
-                              color: Color(0xFF2265F0)),
+                              color: Color(0xFF8C88D5)),
                           title: Text(
                             playlist['name'] ?? '알 수 없는 플레이리스트',
                             style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
+                              fontSize: 22,
+                              fontWeight: FontWeight.w700,
                               letterSpacing: 1.5,
                             ),
                           ),
@@ -380,6 +394,7 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
         );
       },
     );
+
     if (selectedPlaylist != null) {
       try {
         const batchSize = 100;
@@ -408,6 +423,8 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
       }
     }
   }
+
+
 
   Widget _buildAlbumCover(dynamic track) {
     final images = track['album']?['images'] as List?;
