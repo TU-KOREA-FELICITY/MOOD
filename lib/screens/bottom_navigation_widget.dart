@@ -72,7 +72,7 @@ class _BottomNavigationWidgetState extends State<BottomNavigationWidget> {
         currentIndex: _currentIndex,
         onTap: _onTabTapped,
         backgroundColor: Colors.white,
-        selectedItemColor: Color(0xFF0126FA),
+        selectedItemColor: Color(0xFF8C88D5),
         unselectedItemColor: Colors.grey,
         type: BottomNavigationBarType.fixed,
         elevation: 8,

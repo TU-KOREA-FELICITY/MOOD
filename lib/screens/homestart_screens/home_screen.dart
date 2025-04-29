@@ -34,15 +34,35 @@ class _HomeScreenState extends State<HomeScreen> {
   String _status = '';
 
   final List<Map<String, dynamic>> emotions = [
-    {'name': 'ANGRY', 'color': Colors.red[100]},
-    {'name': 'HAPPY', 'color': Colors.yellow[100]},
-    {'name': 'SURPRISED', 'color': Colors.orange[100]},
-    {'name': 'DISGUSTED', 'color': Colors.purple[100]},
-    {'name': 'CALM', 'color': Colors.green[100]},
-    {'name': 'SAD', 'color': Colors.blue[100]},
-    {'name': 'CONFUSED', 'color': Colors.teal[100]},
-    {'name': 'FEAR', 'color': Colors.grey[100]},
+    {'name': 'ANGRY', 'color': Color(0xFFFFBDBD)},
+    {'name': 'HAPPY', 'color': Color(0xFFFFF09A)},
+    {'name': 'SURPRISED', 'color': Color(0xFFFFCDB6)},
+    {'name': 'DISGUSTED', 'color': Color(0xFFE3C4E5)},
+    {'name': 'CALM', 'color': Color(0xFFE1F0A0)},
+    {'name': 'SAD', 'color': Color(0xFFC9E4F1)},
+    {'name': 'CONFUSED', 'color': Color(0xFFCBEBE0)},
+    {'name': 'FEAR', 'color': Color(0xFFEBEBEB)},
   ];
+
+  List<Map<String, dynamic>> parseAndSortEmotionResults(String result, List<Map<String, dynamic>> emotions) {
+    final lines = result
+        .split('\n')
+        .where((line) => line.contains(':'))
+        .map((line) {
+      final parts = line.split(':');
+      if (parts.length < 2) return null;
+      final name = parts[0].trim();
+      final valueStr = parts[1].replaceAll('%', '').trim();
+      final value = double.tryParse(valueStr) ?? 0.0;
+      final color = emotions.firstWhere((e) => e['name'] == name, orElse: () => {'color': Colors.grey})['color'];
+      return {'name': name, 'value': value, 'color': color};
+    })
+        .where((e) => e != null)
+        .toList();
+
+    lines.sort((a, b) => (b!['value'] as double).compareTo(a!['value'] as double));
+    return lines.cast<Map<String, dynamic>>();
+  }
 
   List<FlSpot> generateRandomData(int count) {
     final random = Random();
@@ -247,9 +267,9 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Text(
                 '확인',
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF0126FA),
+                  color: Color(0xFF8C88D5),
                 ),
               ),
               onPressed: () {
@@ -339,7 +359,7 @@ class _HomeScreenState extends State<HomeScreen> {
         Text(
           title,
           style: TextStyle(
-              color: Colors.black, fontWeight: FontWeight.bold, fontSize: 23),
+              color: Colors.black, fontWeight: FontWeight.bold, fontSize: 20),
         ),
       ],
     );
@@ -396,11 +416,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   ? Image.memory(
                 _imageData!,
                 width: 350,
-                height: 200,
+                height: 150,
                 fit: BoxFit.cover,
                 gaplessPlayback: true,
               )
-                  : Center(child: Text('카메라 화면이 여기에 표시됩니다')),
+                  : Center(child: Text('카메라 화면이 여기에 표시됩니다', style: TextStyle(
+        fontSize: 12,),),),
               Positioned(
                 top: 0,
                 left: 0,
@@ -438,7 +459,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Icon(
               Icons.refresh,
               color: Colors.black,
-              size: 24,
+              size: 17,
             ),
           ),
           GestureDetector(
@@ -446,7 +467,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Text(
               '감정 분석하기',
               style: TextStyle(
-                fontSize: 16,
+                fontSize: 12,
                 fontWeight: FontWeight.bold,
                 decoration: TextDecoration.underline,
                 color: Colors.black,
@@ -462,7 +483,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(height: 10),
+        SizedBox(height: 5),
         Padding(
           padding: EdgeInsets.only(left: 20),
           child: Text(
@@ -478,7 +499,7 @@ class _HomeScreenState extends State<HomeScreen> {
         Stack(
           children: [
             Container(
-              height: 200,
+              height: 150,
               width: 350,
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -585,13 +606,13 @@ class _HomeScreenState extends State<HomeScreen> {
                               ? warningData
                               : [FlSpot(0, 0)],
                           isCurved: true,
-                          color: Color(0xFF0126FA),
+                          color: Color(0xFF8C88D5),
                           barWidth: 3,
                           isStrokeCapRound: true,
                           dotData: FlDotData(show: true),
                           belowBarData: BarAreaData(
                             show: true,
-                            color: Color(0xFF0126FA).withValues(alpha: 0.1),
+                            color: Color(0xFF8C88D5).withValues(alpha: 0.1),
                           ),
                         ),
                       ],
@@ -607,71 +628,77 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildEmotionAnalysisResult() {
-    return _emotionResult.isNotEmpty
-        ? Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-        SizedBox(height: 20),
-          Padding(
-            padding: EdgeInsets.only(left: 40),
-            child: Text(
-              '감정 분석 결과',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
+  Widget _buildEmotionBar(List<Map<String, dynamic>> sortedEmotions) {
+    final total = sortedEmotions.fold<double>(0, (sum, e) => sum + (e['value'] as double));
+    return Row(
+      children: sortedEmotions.map((e) {
+        final percent = total > 0 ? (e['value'] as double) / total : 0.0;
+        return Expanded(
+          flex: (percent * 1000).round(),
+          child: Container(
+            height: 28,
+            color: e['color'] as Color,
+            child: percent > 0.05
+                ? Center(
+              child: Text(
+                '${(percent * 100).toStringAsFixed(1)}%',
+                style: TextStyle(
+                  fontSize: 8,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
               ),
+            )
+                : SizedBox.shrink(),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildEmotionAnalysisResult() {
+    if (_emotionResult.isEmpty) return SizedBox.shrink();
+
+    final sortedEmotions = parseAndSortEmotionResults(_emotionResult, emotions);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(height: 10),
+        Padding(
+          padding: EdgeInsets.only(left: 40),
+          child: Text(
+            '감정 분석 결과',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
             ),
           ),
-          SizedBox(height: 20),
-          Column(
-            children: _emotionResult
-                .split('\n')
-                .where((line) => line.contains(':'))
-                .map((line) {
-                  final parts = line.split(': ');
-                  if (parts.length < 2) {
-                    return Container(); // 잘못된 데이터 처리
-                  }
-                  final emotion = parts[0].trim();
-                  final confidence = parts[1].trim();
-                  final color = emotions.firstWhere(
-                          (e) => e['name'] == emotion,
-                      orElse: () => {'color': Colors.white})['color'];
-                  return Padding(
-                    padding: EdgeInsets.symmetric(vertical: 9),
-                    child: Center(
-                      child: Container(
-                        width: MediaQuery.of(context).size.width * 0.8,
-                        padding: EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: color,
-                          borderRadius: BorderRadius.circular(8),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withAlpha(128),
-                              blurRadius: 5,
-                              spreadRadius: 2,
-                              offset: Offset(0, 3),
-                            ),
-                          ],
-                        ),
-                        child: Text(
-                          '$emotion: $confidence',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,),
-                        ),
-                      ),
-                    ),
-                  );
-                }).toList(),
+        ),
+        SizedBox(height: 20),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 40),
+          child: _buildEmotionBar(sortedEmotions),
+        ),
+        SizedBox(height: 10),
+        // 필요시 감정별 텍스트 라벨 추가
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 40, vertical: 6),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: sortedEmotions.map((e) =>
+                Text(
+                  e['name'],
+                  style: TextStyle(fontSize: 10, color: Colors.black87),
+                )
+            ).toList(),
           ),
-          SizedBox(height: 10),
-        ],
-    )
-        : SizedBox.shrink();
+        ),
+      ],
+    );
   }
+
 
   Widget _buildHiddenMiniplayer() {
     return Offstage(

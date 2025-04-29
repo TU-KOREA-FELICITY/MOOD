@@ -209,7 +209,7 @@ class _EmotionRecordScreenState extends State<EmotionRecordScreen> {
               child: Text('확인', style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF0126FA),
+                color: Color(0xFF8C88D5),
               ),
               ),
               onPressed: () {

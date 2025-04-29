@@ -119,7 +119,7 @@ class DeleteAccountScreen extends StatelessWidget {
                     deleteAccount(context);
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF0126FA),
+                    backgroundColor: Color(0xFF8C88D5),
                     foregroundColor: Colors.white,
                     padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                   ),
