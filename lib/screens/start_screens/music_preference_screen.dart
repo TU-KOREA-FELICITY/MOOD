@@ -194,7 +194,7 @@ class _MusicPreferenceScreenState extends State<MusicPreferenceScreen> {
       appBar: AppBar(
         title: Text(
           '선호 장르 선택',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 23),
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
         ),
         titleSpacing: 0,
       ),
@@ -204,12 +204,12 @@ class _MusicPreferenceScreenState extends State<MusicPreferenceScreen> {
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
-                SizedBox(height: 15),
+                SizedBox(height: 10),
                 Text(
                   '어떤 음악을 좋아하세요?',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: 26,
+                    fontSize: 24,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -218,7 +218,7 @@ class _MusicPreferenceScreenState extends State<MusicPreferenceScreen> {
                   '취향을 선택하고 나에게 맞는 추천을 받아보세요',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 14,
                     color: Colors.grey[600],
                   ),
                 ),
@@ -262,14 +262,14 @@ class _MusicPreferenceScreenState extends State<MusicPreferenceScreen> {
                         }
                       : null,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF0126FA),
+                    backgroundColor: Color(0xFF8C88D5),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
                   child: Text('다음으로',
                       style: TextStyle(
-                          fontSize: 18,
+                          fontSize: 16,
                           fontWeight: FontWeight.bold,
                           color: Colors.white)),
                 ),
@@ -295,7 +295,7 @@ class _MusicPreferenceScreenState extends State<MusicPreferenceScreen> {
           ),
         ),
         style: ElevatedButton.styleFrom(
-          backgroundColor: isSelected ? Color(0xFF4B48FF) : Colors.grey[200],
+          backgroundColor: isSelected ? Color(0xFF6A698C) : Colors.grey[200],
           elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
@@ -341,13 +341,13 @@ class _MusicPreferenceScreenState extends State<MusicPreferenceScreen> {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: isSelected
-                    ? Color(0xFF4B48FF)
-                    : Color(0xFF4B48FF).withOpacity(0.1),
+                    ? Color(0xFF8C88D5)
+                    : Color(0xFF8C88D5).withOpacity(0.1),
               ),
               child: Center(
                 child: Icon(
                   Icons.music_note,
-                  color: isSelected ? Colors.white : Color(0xFF4B48FF),
+                  color: isSelected ? Colors.white : Color(0xFF6A698C),
                   size: 30,
                 ),
               ),
@@ -356,9 +356,9 @@ class _MusicPreferenceScreenState extends State<MusicPreferenceScreen> {
             Text(
               genre,
               style: TextStyle(
-                fontSize: 14,
+                fontSize: 12,
                 fontWeight: FontWeight.bold,
-                color: isSelected ? Color(0xFF4B48FF) : Colors.black,
+                color: isSelected ? Color(0xFF8C88D5) : Colors.black,
               ),
               textAlign: TextAlign.center,
               maxLines: 2,
@@ -383,7 +383,7 @@ class _MusicPreferenceScreenState extends State<MusicPreferenceScreen> {
               child: Text(
                 genre,
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 14,
                   fontWeight: FontWeight.bold,
                   color: Colors.grey[600],
                 ),
@@ -419,12 +419,12 @@ class _MusicPreferenceScreenState extends State<MusicPreferenceScreen> {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: isSelected
-                    ? Color(0xFF4B48FF)
-                    : Color(0xFF4B48FF).withOpacity(0.1),
+                    ? Color(0xFF8C88D5)
+                    : Color(0xFF8C88D5).withOpacity(0.1),
               ),
               child: Icon(
                 Icons.person,
-                color: isSelected ? Colors.white : Color(0xFF4B48FF),
+                color: isSelected ? Colors.white : Color(0xFF6A698C),
                 size: 30,
               ),
             ),
@@ -432,9 +432,9 @@ class _MusicPreferenceScreenState extends State<MusicPreferenceScreen> {
             Text(
               artist['name']!,
               style: TextStyle(
-                fontSize: 14,
+                fontSize: 12,
                 fontWeight: FontWeight.bold,
-                color: isSelected ? Color(0xFF4B48FF) : Colors.black,
+                color: isSelected ? Color(0xFF8C88D5) : Colors.black,
               ),
               textAlign: TextAlign.center,
               maxLines: 2,
