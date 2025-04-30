@@ -241,7 +241,7 @@ class _SearchScreenState extends State<SearchScreen>
           decoration: InputDecoration(
             hintText: '곡, 아티스트 검색',
             hintStyle: TextStyle(color: Colors.black),
-            prefixIcon: Icon(Icons.search, color: Colors.black),
+            prefixIcon: Icon(Icons.headphones, color: Colors.black),
             suffixIcon: _showCancelIcon
                 ? IconButton(
               icon: Icon(Icons.cancel, color: Colors.grey[600]),
