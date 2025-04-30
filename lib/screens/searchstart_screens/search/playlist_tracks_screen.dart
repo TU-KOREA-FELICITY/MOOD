@@ -547,13 +547,17 @@ class _PlaylistTracksScreenState extends State<PlaylistTracksScreen> {
                     child: ElevatedButton(
                       onPressed: () => _deleteSelectedTracks(widget),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
+                        backgroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
+                          side: BorderSide(
+                            color: Colors.black,
+                            width: 1.0),
                         ),
                         minimumSize: Size(double.infinity, 50),
                       ),
-                      child: Text('삭제', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                      child: Text('삭제', style: TextStyle(
+                          color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold)),
                     ),
                   ),
                 ],
