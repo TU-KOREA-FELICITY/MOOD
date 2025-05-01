@@ -13,6 +13,7 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', () => {
     console.log('클라이언트 연결이 끊어졌습니다.');
+    app.stopEstimator(); // 연결이 끊어지면 집중도 측정 금지
   });
 });
 

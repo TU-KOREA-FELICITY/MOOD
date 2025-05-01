@@ -114,6 +114,8 @@ app.post('/start_estimator', (req, res) => {
   }
 });
 
+app.stopEstimator = stopEstimator;
+
 app.post('/stop_estimator', async (req, res) => {
   try {
     await stopEstimator();

@@ -21,7 +21,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final SpotifyService _spotifyService = SpotifyService();
-  final EmotionAnalysisService _emotionAnalysisService = EmotionAnalysisService();
+  final EmotionAnalysisService _emotionAnalysisService =
+  EmotionAnalysisService();
   final AudioPlayer _audioPlayer = AudioPlayer();
   bool _wasMusicPlaying = false;
   bool _isDialogShowing = false;
@@ -43,26 +44,6 @@ class _HomeScreenState extends State<HomeScreen> {
     {'name': 'CONFUSED', 'color': Color(0xFFCBEBE0)},
     {'name': 'FEAR', 'color': Color(0xFFEBEBEB)},
   ];
-
-  List<Map<String, dynamic>> parseAndSortEmotionResults(String result, List<Map<String, dynamic>> emotions) {
-    final lines = result
-        .split('\n')
-        .where((line) => line.contains(':'))
-        .map((line) {
-      final parts = line.split(':');
-      if (parts.length < 2) return null;
-      final name = parts[0].trim();
-      final valueStr = parts[1].replaceAll('%', '').trim();
-      final value = double.tryParse(valueStr) ?? 0.0;
-      final color = emotions.firstWhere((e) => e['name'] == name, orElse: () => {'color': Colors.grey})['color'];
-      return {'name': name, 'value': value, 'color': color};
-    })
-        .where((e) => e != null)
-        .toList();
-
-    lines.sort((a, b) => (b!['value'] as double).compareTo(a!['value'] as double));
-    return lines.cast<Map<String, dynamic>>();
-  }
 
   List<FlSpot> generateRandomData(int count) {
     final random = Random();
@@ -145,6 +126,23 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  Future<void> _stopEstimator() async {
+    final url = Uri.parse('http://10.0.2.2:3000/stop_estimator');
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+      );
+      if (response.statusCode == 200) {
+        print('estimator.py가 성공적으로 종료되었습니다.');
+      } else {
+        print('estimator.py 종료 실패: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('estimator.py 종료 중 오류 발생: \n$e');
+    }
+  }
+
   Future<void> _runEmotionAnalysis() async {
     setState(() {
       _status = '감정 분석 중...';
@@ -202,9 +200,11 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     DateTime now = DateTime.now();
-    warningData.add(FlSpot(now.millisecondsSinceEpoch.toDouble(), warningLevel));
+    warningData
+        .add(FlSpot(now.millisecondsSinceEpoch.toDouble(), warningLevel));
 
-    double tenMinutesAgo = now.millisecondsSinceEpoch.toDouble() - (30 * 60 * 1000);
+    double tenMinutesAgo =
+        now.millisecondsSinceEpoch.toDouble() - (30 * 60 * 1000);
     warningData.removeWhere((spot) => spot.x < tenMinutesAgo);
 
     if (warningLevel > 0 && !_isDialogShowing) {
@@ -222,68 +222,68 @@ class _HomeScreenState extends State<HomeScreen> {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return Center(
-            child: Container(
-              width: 400,
-              height: 600,
-        child: AlertDialog(
-          backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          contentPadding: EdgeInsets.all(20),
-          title: Row(
-            children: [
-              Icon(
+          child: Container(
+            width: 400,
+            height: 600,
+            child: AlertDialog(
+              backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              contentPadding: EdgeInsets.all(20),
+              title: Row(
+                children: [
+                Icon(
                 Icons.warning,
                 color: Colors.red,
                 size: 40,
-              ),
-              SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.bold,
                   ),
-                ),
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                content,
-                style: TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.bold,
-                ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    content,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-          actions: <Widget>[
+              actions: <Widget>[
             TextButton(
-              child: Text(
-                '확인',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF8C88D5),
-                ),
+            child: Text(
+              '확인',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF8C88D5),
               ),
-              onPressed: () {
-                Navigator.of(context).pop();
-                _isDialogShowing = false;
-                _audioPlayer.stop();
-                if (_wasMusicPlaying) {
-                  _spotifyService.resumePlayback();
-                }
-              },
             ),
+            onPressed: () {
+              Navigator.of(context).pop();
+              _isDialogShowing = false;
+              _audioPlayer.stop();
+              if (_wasMusicPlaying) {
+                _spotifyService.resumePlayback();
+              }
+            },
+                ),
           ],
-        ),
             ),
+          ),
         );
       },
     );
@@ -299,6 +299,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
+    _stopEstimator();
+    print('estimator.py 종료됨');
     socket?.dispose();
     super.dispose();
   }
@@ -348,8 +350,6 @@ class _HomeScreenState extends State<HomeScreen> {
       default:
         return Container();
     }
-
-
 
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -416,7 +416,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ? Image.memory(
                 _imageData!,
                 width: 350,
-                height: 150,
+                height: 200,
                 fit: BoxFit.cover,
                 gaplessPlayback: true,
               )
@@ -446,7 +446,6 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-
 
   Widget _buildAnalysisButtons() {
     return Padding(
@@ -483,23 +482,23 @@ class _HomeScreenState extends State<HomeScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(height: 5),
+        SizedBox(height: 10),
         Padding(
           padding: EdgeInsets.only(left: 20),
           child: Text(
-          "나의 집중도",
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
+            "나의 집중도",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
           ),
         ),
         SizedBox(height: 10),
         Stack(
           children: [
             Container(
-              height: 150,
+              height: 200,
               width: 350,
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -524,11 +523,19 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('위험', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                    Text('주의', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                    Text('경고', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                    Text('안전', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                  ],
+                    Text('위험',
+                        style: TextStyle(
+                            fontSize: 12, fontWeight: FontWeight.bold)),
+                    Text('주의',
+                        style: TextStyle(
+                            fontSize: 12, fontWeight: FontWeight.bold)),
+                    Text('경고',
+                        style: TextStyle(
+                            fontSize: 12, fontWeight: FontWeight.bold)),
+                    Text('안전',
+                        style: TextStyle(
+                            fontSize: 12, fontWeight: FontWeight.bold)),
+                    ],
                 ),
               ),
             ),
@@ -538,7 +545,8 @@ class _HomeScreenState extends State<HomeScreen> {
               bottom: 0,
               height: 20,
               child: StreamBuilder(
-                stream: Stream.periodic(Duration(seconds: 1), (i) => DateTime.now()),
+                stream: Stream.periodic(
+                    Duration(seconds: 1), (i) => DateTime.now()),
                 builder: (context, snapshot) {
                   if (!snapshot.hasData) return Container();
                   final now = snapshot.data!;
@@ -552,7 +560,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           final minutes = index;
                           return Text(
                             '${minutes}분 전',
-                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                                fontSize: 12, fontWeight: FontWeight.bold),
                           );
                         },
                       ).reversed.toList(),
@@ -573,7 +582,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   width: MediaQuery.of(context).size.width,
                   child: LineChart(
                     LineChartData(
-                      gridData: FlGridData(show: true,
+                      gridData: FlGridData(
+                        show: true,
                         drawVerticalLine: true,
                         getDrawingHorizontalLine: (value) {
                           return FlLine(
@@ -590,13 +600,18 @@ class _HomeScreenState extends State<HomeScreen> {
                         verticalInterval: 30000,
                       ),
                       titlesData: FlTitlesData(
-                        leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                        topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                        rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                        bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                        leftTitles: AxisTitles(
+                            sideTitles: SideTitles(showTitles: false)),
+                        topTitles: AxisTitles(
+                            sideTitles: SideTitles(showTitles: false)),
+                        rightTitles: AxisTitles(
+                            sideTitles: SideTitles(showTitles: false)),
+                        bottomTitles: AxisTitles(
+                            sideTitles: SideTitles(showTitles: false)),
                       ),
                       borderData: FlBorderData(show: false),
-                      minX: DateTime.now().millisecondsSinceEpoch.toDouble() - (5 * 60 * 1000),
+                      minX: DateTime.now().millisecondsSinceEpoch.toDouble() -
+                          (5 * 60 * 1000),
                       maxX: DateTime.now().millisecondsSinceEpoch.toDouble(),
                       minY: 0,
                       maxY: 3,
@@ -628,77 +643,72 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildEmotionBar(List<Map<String, dynamic>> sortedEmotions) {
-    final total = sortedEmotions.fold<double>(0, (sum, e) => sum + (e['value'] as double));
-    return Row(
-      children: sortedEmotions.map((e) {
-        final percent = total > 0 ? (e['value'] as double) / total : 0.0;
-        return Expanded(
-          flex: (percent * 1000).round(),
-          child: Container(
-            height: 28,
-            color: e['color'] as Color,
-            child: percent > 0.05
-                ? Center(
-              child: Text(
-                '${(percent * 100).toStringAsFixed(1)}%',
-                style: TextStyle(
-                  fontSize: 8,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-              ),
-            )
-                : SizedBox.shrink(),
-          ),
-        );
-      }).toList(),
-    );
-  }
-
   Widget _buildEmotionAnalysisResult() {
-    if (_emotionResult.isEmpty) return SizedBox.shrink();
-
-    final sortedEmotions = parseAndSortEmotionResults(_emotionResult, emotions);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(height: 10),
-        Padding(
-          padding: EdgeInsets.only(left: 40),
-          child: Text(
-            '감정 분석 결과',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
+    return _emotionResult.isNotEmpty
+        ? Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(height: 20),
+          Padding(
+            padding: EdgeInsets.only(left: 40),
+            child: Text(
+              '감정 분석 결과',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
             ),
           ),
-        ),
-        SizedBox(height: 20),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 40),
-          child: _buildEmotionBar(sortedEmotions),
-        ),
-        SizedBox(height: 10),
-        // 필요시 감정별 텍스트 라벨 추가
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 40, vertical: 6),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: sortedEmotions.map((e) =>
-                Text(
-                  e['name'],
-                  style: TextStyle(fontSize: 10, color: Colors.black87),
-                )
-            ).toList(),
-          ),
-        ),
-      ],
-    );
-  }
 
+          SizedBox(height: 20),
+          Column(
+            children: _emotionResult
+                .split('\n')
+                .where((line) => line.contains(':'))
+                .map((line) {
+                  final parts = line.split(': ');
+                  if (parts.length < 2) {
+                    return Container(); // 잘못된 에러 처리
+                  }
+                  final emotion = parts[0].trim();
+                  final confidence = parts[1].trim();
+                  final color = emotions.firstWhere(
+                          (e) => e['name'] == emotion,
+                      orElse: () => {'color': Colors.white})['color'];
+                  return Padding(
+                    padding: EdgeInsets.symmetric(vertical: 9),
+                    child: Center(
+                      child: Container(
+                        width: MediaQuery.of(context).size.width * 0.8,
+                        padding: EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: color,
+                          borderRadius: BorderRadius.circular(8),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withAlpha(128),
+                              blurRadius: 5,
+                              spreadRadius: 2,
+                              offset: Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: Text(
+                          '$emotion: $confidence',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,),
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
+          ),
+          SizedBox(height: 10),
+        ],
+    )
+        : SizedBox.shrink();
+  }
 
   Widget _buildHiddenMiniplayer() {
     return Offstage(
