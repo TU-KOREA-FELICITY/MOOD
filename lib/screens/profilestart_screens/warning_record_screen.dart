@@ -22,7 +22,7 @@ class _WarningRecordScreenState extends State<WarningRecordScreen> {
 
   Future<void> fetchWarnings() async {
     final response = await http.post(
-      Uri.parse('http://10.0.2.2:3000/get_warning'),
+      Uri.parse('http://192.168.60.219:3000/get_warning'),
       body: jsonEncode({'user_id': widget.userInfo['user_id']}),
       headers: {'Content-Type': 'application/json'},
     );

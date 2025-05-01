@@ -13,7 +13,7 @@ class SignUpCompletionScreen extends StatelessWidget {
   Future _completeSignUp(BuildContext context) async {
     try {
       final response = await http.post(
-        Uri.parse('http://10.0.2.2:3000/register_complete'),
+        Uri.parse('http://192.168.60.219:3000/register_complete'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'user_aws_id': userInfo['userId'],
@@ -60,7 +60,7 @@ class SignUpCompletionScreen extends StatelessWidget {
   Future<Map<String, dynamic>> _loginComplete(String userAwsId) async {
     try {
       final response = await http.post(
-        Uri.parse('http://10.0.2.2:3000/login_complete'),
+        Uri.parse('http://192.168.60.219:3000/login_complete'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({'user_aws_id': userAwsId}),
       );
