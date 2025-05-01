@@ -22,7 +22,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final SpotifyService _spotifyService = SpotifyService();
   final EmotionAnalysisService _emotionAnalysisService =
-      EmotionAnalysisService();
+  EmotionAnalysisService();
   final AudioPlayer _audioPlayer = AudioPlayer();
   bool _wasMusicPlaying = false;
   bool _isDialogShowing = false;
@@ -35,14 +35,14 @@ class _HomeScreenState extends State<HomeScreen> {
   String _status = '';
 
   final List<Map<String, dynamic>> emotions = [
-    {'name': 'ANGRY', 'color': Colors.red[100]},
-    {'name': 'HAPPY', 'color': Colors.yellow[100]},
-    {'name': 'SURPRISED', 'color': Colors.orange[100]},
-    {'name': 'DISGUSTED', 'color': Colors.purple[100]},
-    {'name': 'CALM', 'color': Colors.green[100]},
-    {'name': 'SAD', 'color': Colors.blue[100]},
-    {'name': 'CONFUSED', 'color': Colors.teal[100]},
-    {'name': 'FEAR', 'color': Colors.grey[100]},
+    {'name': 'ANGRY', 'color': Color(0xFFFFBDBD)},
+    {'name': 'HAPPY', 'color': Color(0xFFFFF09A)},
+    {'name': 'SURPRISED', 'color': Color(0xFFFFCDB6)},
+    {'name': 'DISGUSTED', 'color': Color(0xFFE3C4E5)},
+    {'name': 'CALM', 'color': Color(0xFFE1F0A0)},
+    {'name': 'SAD', 'color': Color(0xFFC9E4F1)},
+    {'name': 'CONFUSED', 'color': Color(0xFFCBEBE0)},
+    {'name': 'FEAR', 'color': Color(0xFFEBEBEB)},
   ];
 
   List<FlSpot> generateRandomData(int count) {
@@ -67,7 +67,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void connectToServer() {
     try {
-      socket = IO.io('http://192.168.60.219:3000', <String, dynamic>{
+      socket = IO.io('http://10.0.2.2:3000', <String, dynamic>{
         'transports': ['websocket'],
         'autoConnect': true,
       });
@@ -109,7 +109,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _startEstimator() async {
-    final url = Uri.parse('http://192.168.60.219:3000/start_estimator');
+    final url = Uri.parse('http://10.0.2.2:3000/start_estimator');
     try {
       final response = await http.post(
         url,
@@ -127,7 +127,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _stopEstimator() async {
-    final url = Uri.parse('http://192.168.60.219:3000/stop_estimator');
+    final url = Uri.parse('http://10.0.2.2:3000/stop_estimator');
     try {
       final response = await http.post(
         url,
@@ -233,17 +233,17 @@ class _HomeScreenState extends State<HomeScreen> {
               contentPadding: EdgeInsets.all(20),
               title: Row(
                 children: [
-                  Icon(
-                    Icons.warning,
-                    color: Colors.red,
-                    size: 40,
+                Icon(
+                Icons.warning,
+                color: Colors.red,
+                size: 40,
                   ),
                   SizedBox(width: 10),
                   Expanded(
                     child: Text(
                       title,
                       style: TextStyle(
-                        fontSize: 26,
+                        fontSize: 24,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -256,32 +256,32 @@ class _HomeScreenState extends State<HomeScreen> {
                   Text(
                     content,
                     style: TextStyle(
-                      fontSize: 17,
+                      fontSize: 15,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ],
               ),
               actions: <Widget>[
-                TextButton(
-                  child: Text(
-                    '확인',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF0126FA),
-                    ),
-                  ),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    _isDialogShowing = false;
-                    _audioPlayer.stop();
-                    if (_wasMusicPlaying) {
-                      _spotifyService.resumePlayback();
-                    }
-                  },
+            TextButton(
+            child: Text(
+              '확인',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF8C88D5),
+              ),
+            ),
+            onPressed: () {
+              Navigator.of(context).pop();
+              _isDialogShowing = false;
+              _audioPlayer.stop();
+              if (_wasMusicPlaying) {
+                _spotifyService.resumePlayback();
+              }
+            },
                 ),
-              ],
+          ],
             ),
           ),
         );
@@ -359,7 +359,7 @@ class _HomeScreenState extends State<HomeScreen> {
         Text(
           title,
           style: TextStyle(
-              color: Colors.black, fontWeight: FontWeight.bold, fontSize: 23),
+              color: Colors.black, fontWeight: FontWeight.bold, fontSize: 20),
         ),
       ],
     );
@@ -414,13 +414,14 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               _imageData != null
                   ? Image.memory(
-                      _imageData!,
-                      width: 350,
-                      height: 200,
-                      fit: BoxFit.cover,
-                      gaplessPlayback: true,
-                    )
-                  : Center(child: Text('카메라 화면이 여기에 표시됩니다')),
+                _imageData!,
+                width: 350,
+                height: 200,
+                fit: BoxFit.cover,
+                gaplessPlayback: true,
+              )
+                  : Center(child: Text('카메라 화면이 여기에 표시됩니다', style: TextStyle(
+        fontSize: 12,),),),
               Positioned(
                 top: 0,
                 left: 0,
@@ -457,7 +458,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Icon(
               Icons.refresh,
               color: Colors.black,
-              size: 24,
+              size: 17,
             ),
           ),
           GestureDetector(
@@ -465,7 +466,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Text(
               '감정 분석하기',
               style: TextStyle(
-                fontSize: 16,
+                fontSize: 12,
                 fontWeight: FontWeight.bold,
                 decoration: TextDecoration.underline,
                 color: Colors.black,
@@ -534,7 +535,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     Text('안전',
                         style: TextStyle(
                             fontSize: 12, fontWeight: FontWeight.bold)),
-                  ],
+                    ],
                 ),
               ),
             ),
@@ -555,7 +556,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: List.generate(
                         6,
-                        (index) {
+                            (index) {
                           final minutes = index;
                           return Text(
                             '${minutes}분 전',
@@ -620,13 +621,13 @@ class _HomeScreenState extends State<HomeScreen> {
                               ? warningData
                               : [FlSpot(0, 0)],
                           isCurved: true,
-                          color: Color(0xFF0126FA),
+                          color: Color(0xFF8C88D5),
                           barWidth: 3,
                           isStrokeCapRound: true,
                           dotData: FlDotData(show: true),
                           belowBarData: BarAreaData(
                             show: true,
-                            color: Color(0xFF0126FA).withValues(alpha: 0.1),
+                            color: Color(0xFF8C88D5).withValues(alpha: 0.1),
                           ),
                         ),
                       ],
@@ -645,33 +646,35 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildEmotionAnalysisResult() {
     return _emotionResult.isNotEmpty
         ? Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(height: 20),
-              Padding(
-                padding: EdgeInsets.only(left: 40),
-                child: Text(
-                  '감정 분석 결과',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(height: 20),
+          Padding(
+            padding: EdgeInsets.only(left: 40),
+            child: Text(
+              '감정 분석 결과',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
               ),
-              SizedBox(height: 20),
-              Column(
-                children: _emotionResult
-                    .split('\n')
-                    .where((line) => line.contains(':'))
-                    .map((line) {
+            ),
+          ),
+
+          SizedBox(height: 20),
+          Column(
+            children: _emotionResult
+                .split('\n')
+                .where((line) => line.contains(':'))
+                .map((line) {
                   final parts = line.split(': ');
                   if (parts.length < 2) {
-                    return Container(); // 잘못된 데이터 처리
+                    return Container(); // 잘못된 에러 처리
                   }
                   final emotion = parts[0].trim();
                   final confidence = parts[1].trim();
-                  final color = emotions.firstWhere((e) => e['name'] == emotion,
+                  final color = emotions.firstWhere(
+                          (e) => e['name'] == emotion,
                       orElse: () => {'color': Colors.white})['color'];
                   return Padding(
                     padding: EdgeInsets.symmetric(vertical: 9),
@@ -694,19 +697,16 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Text(
                           '$emotion: $confidence',
                           textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,),
                         ),
                       ),
                     ),
                   );
                 }).toList(),
-              ),
-              SizedBox(height: 10),
-            ],
-          )
+          ),
+          SizedBox(height: 10),
+        ],
+    )
         : SizedBox.shrink();
   }
 

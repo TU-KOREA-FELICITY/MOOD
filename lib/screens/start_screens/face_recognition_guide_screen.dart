@@ -9,18 +9,23 @@ class FaceRecognitionGuideScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.all(30.0),
-          child: Column(
+      body: Stack(
+        children: [
+          ListView(
+            padding: EdgeInsets.all(30.0),
             children: [
-              SizedBox(height: 90),
-              Icon(Icons.sentiment_satisfied_alt,
-                  size: 90, color: Colors.black87),
+              SizedBox(height: 70),
+              Image.asset(
+                'assets/mooding/mooding_main.png',
+                width: 170,
+                height: 170,
+                fit: BoxFit.contain,
+              ),
               SizedBox(height: 5),
               Text(
                 "얼굴 인식",
                 style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
               ),
               SizedBox(height: 90),
               Column(
@@ -90,8 +95,15 @@ class FaceRecognitionGuideScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              SizedBox(height: 250),
-              Container(
+              SizedBox(height: 30),
+            ],
+          ),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 80,
+            child: Center(
+              child: Container(
                 width: MediaQuery.of(context).size.width * 0.8,
                 child: ElevatedButton(
                   onPressed: () {
@@ -104,7 +116,7 @@ class FaceRecognitionGuideScreen extends StatelessWidget {
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF0126FA),
+                    backgroundColor: Color(0xFF8C88D5),
                     foregroundColor: Colors.white,
                     padding: EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(
@@ -113,13 +125,13 @@ class FaceRecognitionGuideScreen extends StatelessWidget {
                   ),
                   child: Text(
                     "FACE ID 등록 시작",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

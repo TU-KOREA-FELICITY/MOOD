@@ -219,6 +219,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -227,126 +228,135 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Text(
             '로그인',
             style: TextStyle(
-              fontSize: 23,
+              fontSize: 24,
               fontWeight: FontWeight.bold,
             ),
           ),
         ),
         titleSpacing: 0,
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            SizedBox(height: 40),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(height: 10),
-                  Row(
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            child: Column(
+              children: [
+                SizedBox(height: 40),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(
-                        '얼굴인식을 진행합니다.',
+                      SizedBox(height: 10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            '얼굴인식을 진행합니다.',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 40),
+                      GestureDetector(
+                        // 임시 로그인 경로
+                        onTap: () {
+                          _saveUserInfoAndNavigate();
+                        },
+                        child: SizedBox(
+                          width: 260,
+                          height: 260,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Color(0xFFF6F5FF),
+                              border: Border.all(color: Color(0xFF8C88D5), width: 6),
+                            ),
+                            child: ClipOval(
+                              child: imageBytes != null
+                                  ? Image.memory(
+                                imageBytes!,
+                                fit: BoxFit.cover,
+                                gaplessPlayback: true,
+                              )
+                                  : Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  SizedBox(
+                                    width: 260,
+                                    height: 260,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 6,
+                                      color: Color(0xFF8C88D5),
+                                    ),
+                                  ),
+                                  Icon(
+                                    Icons.person,
+                                    size: 170,
+                                    color: Color(0xFF6A698C),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 40),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              _status,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF6A698C),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 40),
+                Align(
+                  alignment: Alignment.bottomRight,
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 50.0, bottom: 150.0),
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.pushNamed(
+                          context,
+                          '/signup',
+                          arguments: userId,
+                        );
+                      },
+                      child: Text(
+                        '회원가입',
                         style: TextStyle(
-                          fontSize: 26,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                          decoration: TextDecoration.underline,
                         ),
                       ),
-                    ],
-                  ),
-                  SizedBox(height: 40),
-                  GestureDetector(
-                    // 임시 로그인 경로
-                    onTap: () {
-                      _saveUserInfoAndNavigate();
-                    },
-                    child: SizedBox(
-                      width: 260,
-                      height: 260,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Color(0xFFF2F2F1),
-                          border:
-                          Border.all(color: Color(0xFF0126FA), width: 6),
-                        ),
-                        child: ClipOval(
-                          child: imageBytes != null
-                              ? Image.memory(
-                            imageBytes!,
-                            fit: BoxFit.cover,
-                            gaplessPlayback: true,
-                          )
-                              : Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              SizedBox(
-                                width: 260,
-                                height: 260,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 6,
-                                  color: Color(0xFF0126FA),
-                                ),
-                              ),
-                              Icon(
-                                Icons.person,
-                                size: 170,
-                                color: Colors.black,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 40),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          _status,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF97BCF3),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: 40),
-            Align(
-              alignment: Alignment.bottomRight,
-              child: Padding(
-                padding: const EdgeInsets.only(right: 50.0, bottom: 150.0),
-                child: GestureDetector(
-                  onTap: () {
-                    Navigator.pushNamed(
-                      context,
-                      '/signup',
-                      arguments: userId,
-                    );
-                  },
-                  child: Text(
-                    '회원가입',
-                    style: TextStyle(
-                      fontSize: 19.0,
-                      decoration: TextDecoration.underline,
                     ),
                   ),
                 ),
-              ),
+                SizedBox(height: 30),
+              ],
             ),
-            SizedBox(height: 5),
-            if (!_authNotComplete)
-              Container(
+          ),
+          if (!_authNotComplete)
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 80,
+              child: Center(
+                child: Container(
                   width: MediaQuery.of(context).size.width * 0.7,
                   child: ElevatedButton(
                     onPressed: () {
@@ -357,8 +367,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       _login();
                     },
                     style: ButtonStyle(
-                      backgroundColor:
-                      WidgetStateProperty.all(Color(0xFF0126FA)),
+                      backgroundColor: WidgetStateProperty.all(Color(0xFF8C88D5)),
                       foregroundColor: WidgetStateProperty.all(Colors.white),
                       padding: WidgetStateProperty.all(
                           EdgeInsets.symmetric(vertical: 12)),
@@ -371,14 +380,15 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Text(
                       '다시 시도하기',
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
                 ),
-          ],
-        ),
+              ),
+            ),
+        ],
       ),
     );
   }

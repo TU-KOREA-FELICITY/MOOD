@@ -29,7 +29,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           child: Text(
             '로그인',
             style: TextStyle(
-              fontSize: 23,
+              fontSize: 24,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -47,7 +47,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 textAlign: TextAlign.center,
                 text: TextSpan(
                   style: TextStyle(
-                    fontSize: 35,
+                    fontSize: 28,
                     fontWeight: FontWeight.bold,
                     fontStyle: FontStyle.italic,
                     color: Colors.black,
@@ -56,7 +56,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     TextSpan(text: 'Welcome to '),
                     TextSpan(
                       text: 'MOOD',
-                      style: TextStyle(color: Color(0xFF0126FA)),
+                      style: TextStyle(color: Color(0xFF8C88D5)),
                     ),
                     TextSpan(text: '!'),
                   ],
@@ -66,21 +66,22 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               Center(
                 child: Text(
                   '${widget.userInfo['user_name']}님 어서오세요',
-                  style: TextStyle(fontSize: 18),
+                  style: TextStyle(fontSize: 16),
                   textAlign: TextAlign.center,
                 ),
               ),
               SizedBox(height: 100),
-              Icon(
-                Icons.directions_car,
-                size: 150,
-                color: Color(0xFF423EFF),
+              Image.asset(
+                'assets/mooding/mooding_main.png',
+                width: 170,
+                height: 170,
+                fit: BoxFit.contain,
               ),
               SizedBox(height: 100),
               Center(
                 child: Text(
                   '이름 : ${widget.userInfo['user_name']}',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -88,7 +89,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               Center(
                 child: Text(
                   '차종 : ${widget.userInfo['car_type']}',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   textAlign: TextAlign.center,
                 ),
               ),

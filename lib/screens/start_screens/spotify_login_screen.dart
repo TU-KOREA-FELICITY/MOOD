@@ -18,53 +18,55 @@ class SpotifyLoginScreen extends StatelessWidget {
           child: Text(
             'Spotify 연동하기',
             style: TextStyle(
-              fontSize: 23,
+              fontSize: 22,
               fontWeight: FontWeight.bold,
             ),
           ),
         ),
         titleSpacing: 0,
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            SizedBox(height: 300),
-            Padding(
+      body: Stack(
+        children: [
+          // 메인 내용
+          Center(
+            child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Text(
                 '스포티파이 계정으로\n로그인하여 음악을 감상하세요.',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
             ),
-            SizedBox(height: 300),
-            Container(
-              width: MediaQuery.of(context).size.width * 0.7,
-              child: ElevatedButton(
-                onPressed: () => _navigateToSpotifyLogin(context),
-                child: Text(
-                  'Spotify 로그인하기',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                style: ButtonStyle(
-                  backgroundColor: WidgetStateProperty.all(Color(0xFF0126FA)),
-                  foregroundColor: WidgetStateProperty.all(Colors.white),
-                  padding: WidgetStateProperty.all(
-                      EdgeInsets.symmetric(vertical: 12)),
-                  shape: WidgetStateProperty.all(
-                    RoundedRectangleBorder(
+          ),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 80,
+            child: Center(
+              child: Container(
+                width: MediaQuery.of(context).size.width * 0.8,
+                child: ElevatedButton(
+                  onPressed: () => _navigateToSpotifyLogin(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFF8C88D5),
+                    foregroundColor: Colors.white,
+                    padding: EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
+                    ),
+                  ),
+                  child: Text(
+                    'Spotify 로그인하기',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

@@ -9,21 +9,21 @@ class AuthChoiceScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            SizedBox(height: 220),
+            SizedBox(height: 180),
             Center(
               child: Image.asset(
-                'assets/MOOD_logo_blue.png',
-                height: 100,
+                'assets/logo/MOOD_logo_head.png',
+                height: 190,
               ),
             ),
 
-            SizedBox(height: 280),
+            SizedBox(height: 220),
             SizedBox(
               width: MediaQuery.of(context).size.width * 0.9,
               child: ElevatedButton(
                 onPressed: () => Navigator.pushNamed(context, '/login'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFF0126FA),
+                  backgroundColor: Color(0xFF8C88D5),
                   padding: EdgeInsets.symmetric(vertical: 13),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
@@ -34,7 +34,7 @@ class AuthChoiceScreen extends StatelessWidget {
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
-                    fontSize: 20,
+                    fontSize: 19,
                   ),
                 ),
               ),
@@ -50,17 +50,22 @@ class AuthChoiceScreen extends StatelessWidget {
                     context: context,
                     builder: (BuildContext context) {
                       return AlertDialog(
+                        insetPadding: EdgeInsets.symmetric(horizontal: 40, vertical: 24),
                         backgroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(18),
+                        ),
                         title: Text("공지사항",
                           style: TextStyle(fontWeight: FontWeight.bold,
-                            fontSize: 23,
+                            fontSize: 20,
                           ),
                         ),
                         content: Container(
+                          height: 55,
                           width: MediaQuery.of(context).size.width * 0.9,
                           child: Text("MOOD는 SPOTIFY를 기반으로 실행됩니다.\n스포티파이 어플이 설치된 상태에서 회원가입을 진행해 주세요",
                             style: TextStyle(
-                              fontSize: 15,
+                              fontSize: 13,
                             ),
                           ),
                         ),
@@ -68,9 +73,9 @@ class AuthChoiceScreen extends StatelessWidget {
                           TextButton(
                             child: Text("확인",
                               style: TextStyle(
-                                color: Color(0xFF0126FA),
+                                color: Color(0xFF8C88D5),
                                 fontWeight: FontWeight.bold,
-                                fontSize: 18,
+                                fontSize: 16,
                               ),
                             ),
                             onPressed: () {
@@ -95,7 +100,7 @@ class AuthChoiceScreen extends StatelessWidget {
                   style: TextStyle(
                     color: Colors.black,
                     fontWeight: FontWeight.bold,
-                    fontSize: 20,
+                    fontSize: 19,
                   ),
                 ),
               ),

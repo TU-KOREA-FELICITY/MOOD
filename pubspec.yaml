@@ -64,10 +64,20 @@ dev_dependencies:
 # The following section is specific to Flutter packages.
 flutter:
   assets:
-    - assets/MOOD_logo_blue.png
+    - assets/logo/MOOD_logo_8C88D5.png
+    - assets/logo/MOOD_logo_head.png
     - assets/warning_sound.mp3
     - assets/caution_sound.mp3
     - assets/danger_sound.mp3
+    - assets/mooding/mooding_angry.png
+    - assets/mooding/mooding_calm.png
+    - assets/mooding/mooding_confused.png
+    - assets/mooding/mooding_disgusted.png
+    - assets/mooding/mooding_fear.png
+    - assets/mooding/mooding_happy.png
+    - assets/mooding/mooding_main.png
+    - assets/mooding/mooding_sad.png
+    - assets/mooding/mooding_surprised.png
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

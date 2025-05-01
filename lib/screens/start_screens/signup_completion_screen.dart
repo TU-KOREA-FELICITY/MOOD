@@ -42,16 +42,17 @@ class SignUpCompletionScreen extends StatelessWidget {
       print('Error: \n$e');
       showDialog(
         context: context,
-        builder: (context) => AlertDialog(
-          title: Text('오류'),
-          content: Text('예기치 못한 오류가 발생했습니다. 다시 시도해 주세요.'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('확인'),
+        builder: (context) =>
+            AlertDialog(
+              title: Text('오류'),
+              content: Text('예기치 못한 오류가 발생했습니다. 다시 시도해 주세요.'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text('확인'),
+                ),
+              ],
             ),
-          ],
-        ),
       );
     }
   }
@@ -95,71 +96,85 @@ class SignUpCompletionScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              SizedBox(height: 150),
-              RichText(
-                textAlign: TextAlign.center,
-                text: TextSpan(
-                  style: TextStyle(
-                    fontSize: 35,
-                    fontWeight: FontWeight.bold,
-                    fontStyle: FontStyle.italic,
-                    color: Colors.black,
-                  ),
-                  children: <TextSpan>[
-                    TextSpan(text: 'Welcome to '),
-                    TextSpan(
-                      text: 'MOOD',
-                      style: TextStyle(color: Color(0xFF0126FA)),
+        child: Stack(
+          children: [
+            Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(height: 50),
+                  RichText(
+                    textAlign: TextAlign.center,
+                    text: TextSpan(
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        fontStyle: FontStyle.italic,
+                        color: Colors.black,
+                      ),
+                      children: <TextSpan>[
+                        TextSpan(text: 'Welcome to '),
+                        TextSpan(
+                          text: 'MOOD',
+                          style: TextStyle(color: Color(0xFF8C88D5)),
+                        ),
+                        TextSpan(text: '!'),
+                      ],
                     ),
-                    TextSpan(text: '!'),
-                  ],
+                  ),
+                  const SizedBox(height: 50),
+                  Image.asset(
+                    'assets/mooding/mooding_main.png',
+                    width: 170,
+                    height: 170,
+                    fit: BoxFit.contain,
+                  ),
+                  const SizedBox(height: 50),
+                  const Text(
+                    '회원가입 완료',
+                    style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 40),
+                  Text(
+                    '${userInfo['name']}님의 회원가입이\n성공적으로 완료되었습니다.',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                ],
+              ),
+            ),
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 80,
+              child: Center(
+                child: Container(
+                  width: MediaQuery
+                      .of(context)
+                      .size
+                      .width * 0.8,
+                  child: ElevatedButton(
+                    onPressed: () => _completeSignUp(context),
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      backgroundColor: Color(0xFF8C88D5),
+                      padding: EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                    child: Text(
+                      '시작하기',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
                 ),
               ),
-              const SizedBox(height: 50),
-              const Icon(
-                Icons.verified,
-                color: Color(0xFF0126FA),
-                size: 100,
-              ),
-              const SizedBox(height: 50),
-              const Text(
-                '회원가입 완료',
-                style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 40),
-              Text(
-                '${userInfo['name']}님의 회원가입이\n성공적으로 완료되었습니다.',
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 16),
-              ),
-              SizedBox(height: 230),
-              Container(
-                width: MediaQuery.of(context).size.width * 0.8,
-                child: ElevatedButton(
-                  onPressed: () => _completeSignUp(context),
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    backgroundColor: Color(0xFF0126FA),
-                    padding: EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                  ),
-                  child: Text(
-                    '시작하기',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

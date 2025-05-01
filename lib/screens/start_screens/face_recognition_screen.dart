@@ -113,21 +113,23 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
       builder: (context) => AlertDialog(
         backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30),
+          borderRadius: BorderRadius.circular(18),
         ),
-        title: Text('FACE ID 이름 설정하기'),
+        title: Text('FACE ID 이름 설정하기',style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
         content: Container(
           width: MediaQuery.of(context).size.width * 0.8,
           height: 50,
           child: TextField(
           controller: controller,
           autofocus: true,
-            decoration: InputDecoration(hintText: "영문으로 입력해 주세요"),
+            decoration: InputDecoration(hintText: "영문으로 입력해 주세요", hintStyle: TextStyle(fontSize: 13),
+            ),
+            style: TextStyle(fontSize: 13),
           ),
         ),
         actions: [
           TextButton(
-            child: Text('다음', style: TextStyle(color: Color(0xFF0126FA))),
+            child: Text('다음', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF8C88D5))),
             onPressed: () => Navigator.of(context).pop(controller.text),
           ),
         ],
@@ -246,201 +248,199 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
   }
 
   @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: _isLoading
           ? Center(child: CircularProgressIndicator())
-          : Column(
-              children: [
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        SizedBox(height: 120),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'FACE ID 등록을 시작합니다',
-                              style: TextStyle(
-                                fontSize: 26,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 40),
-                        GestureDetector(
-                          child: SizedBox(
+          : Stack(
+        children: [
+          ListView(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            children: [
+              SizedBox(height: 110),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'FACE ID 등록을 시작합니다',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 40),
+              GestureDetector(
+                child: SizedBox(
+                  width: 260,
+                  height: 260,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Color(0xFFF6F5FF),
+                      border: Border.all(
+                          color: Color(0xFF8C88D5), width: 6),
+                    ),
+                    child: ClipOval(
+                      child: imageBytes != null
+                          ? Image.memory(
+                        imageBytes!,
+                        fit: BoxFit.cover,
+                        gaplessPlayback: true,
+                      )
+                          : Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          SizedBox(
                             width: 260,
                             height: 260,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Color(0xFFF2F2F1),
-                                border: Border.all(
-                                    color: Color(0xFF0126FA), width: 6),
-                              ),
-                              child: ClipOval(
-                                child: imageBytes != null
-                                    ? Image.memory(
-                                        imageBytes!,
-                                        fit: BoxFit.cover,
-                                        gaplessPlayback: true,
-                                      )
-                                    : Stack(
-                                        alignment: Alignment.center,
-                                        children: [
-                                          SizedBox(
-                                            width: 260,
-                                            height: 260,
-                                            child: CircularProgressIndicator(
-                                              strokeWidth: 6,
-                                              color: Color(0xFF0126FA),
-                                            ),
-                                          ),
-                                          Icon(
-                                            Icons.person,
-                                            size: 170,
-                                            color: Colors.black,
-                                          ),
-                                        ],
-                                      ),
-                              ),
+                            child: CircularProgressIndicator(
+                              strokeWidth: 6,
+                              color: Color(0xFF8C88D5),
                             ),
                           ),
-                        ),
-                        SizedBox(height: 40),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              _status,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF97BCF3),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+                          Icon(
+                            Icons.person,
+                            size: 170,
+                            color: Color(0xFF6A698C),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-                Align(
-                  alignment: Alignment(0, 0.8),
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 80.0),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (_regNotComplete && !_buttonShow)
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.7,
-                            child: ElevatedButton(
-                              onPressed: () {
-                                setState(() {
-                                  _status = 'FACE ID를 등록 중 입니다.\n잠시만 기다려 주세요!';
-                                });
-                                _promptForUserId();
-                              },
-                              style: ButtonStyle(
-                                backgroundColor: WidgetStateProperty.all(
-                                    const Color(0xFF0126FA)),
-                                foregroundColor:
-                                    WidgetStateProperty.all(Colors.white),
-                                padding: WidgetStateProperty.all(
-                                    const EdgeInsets.symmetric(vertical: 12)),
-                                shape: WidgetStateProperty.all(
-                                  RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                ),
-                              ),
-                              child: const Text(
-                                'FACE ID 등록하기',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                        if (!_regNotComplete && !_buttonShow)
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.7,
-                            child: ElevatedButton(
-                              onPressed: () {
-                                Navigator.pushNamed(
-                                  context,
-                                  '/signup',
-                                  arguments: userId,
-                                );
-                              },
-                              style: ButtonStyle(
-                                backgroundColor: WidgetStateProperty.all(
-                                    const Color(0xFF0126FA)),
-                                foregroundColor:
-                                    WidgetStateProperty.all(Colors.white),
-                                padding: WidgetStateProperty.all(
-                                    const EdgeInsets.symmetric(vertical: 12)),
-                                shape: WidgetStateProperty.all(
-                                  RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                ),
-                              ),
-                              child: const Text(
-                                'FACE ID 등록 완료',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                        if (_regNotComplete && _buttonShow)
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.7,
-                            child: ElevatedButton(
-                              onPressed: () {
-                                setState(() {
-                                  _status = 'FACE ID를 등록 중 입니다.\n잠시만 기다려 주세요!';
-                                });
-                                _promptForUserId();
-                              },
-                              style: ButtonStyle(
-                                backgroundColor: WidgetStateProperty.all(
-                                    const Color(0xFF0126FA)),
-                                foregroundColor:
-                                    WidgetStateProperty.all(Colors.white),
-                                padding: WidgetStateProperty.all(
-                                    const EdgeInsets.symmetric(vertical: 12)),
-                                shape: WidgetStateProperty.all(
-                                  RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                ),
-                              ),
-                              child: const Text(
-                                'FACE ID 다시 만들기',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                      ],
+              ),
+              SizedBox(height: 40),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    _status,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF6A698C),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
+              SizedBox(height: 30),
+            ],
+          ),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 80,
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (_regNotComplete && !_buttonShow)
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.7,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            _status = 'FACE ID를 등록 중 입니다.\n잠시만 기다려 주세요!';
+                          });
+                          _promptForUserId();
+                        },
+                        style: ButtonStyle(
+                          backgroundColor: WidgetStateProperty.all(
+                              const Color(0xFF8C88D5)),
+                          foregroundColor:
+                          WidgetStateProperty.all(Colors.white),
+                          padding: WidgetStateProperty.all(
+                              const EdgeInsets.symmetric(vertical: 12)),
+                          shape: WidgetStateProperty.all(
+                            RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                          ),
+                        ),
+                        child: const Text(
+                          'FACE ID 등록하기',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  if (!_regNotComplete && !_buttonShow)
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.7,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.pushNamed(
+                            context,
+                            '/signup',
+                            arguments: userId,
+                          );
+                        },
+                        style: ButtonStyle(
+                          backgroundColor: WidgetStateProperty.all(
+                              const Color(0xFF8C88D5)),
+                          foregroundColor:
+                          WidgetStateProperty.all(Colors.white),
+                          padding: WidgetStateProperty.all(
+                              const EdgeInsets.symmetric(vertical: 12)),
+                          shape: WidgetStateProperty.all(
+                            RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                          ),
+                        ),
+                        child: const Text(
+                          'FACE ID 등록 완료',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  if (_regNotComplete && _buttonShow)
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.7,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            _status = 'FACE ID를 등록 중 입니다.\n잠시만 기다려 주세요!';
+                          });
+                          _promptForUserId();
+                        },
+                        style: ButtonStyle(
+                          backgroundColor: WidgetStateProperty.all(
+                              const Color(0xFF8C88D5)),
+                          foregroundColor:
+                          WidgetStateProperty.all(Colors.white),
+                          padding: WidgetStateProperty.all(
+                              const EdgeInsets.symmetric(vertical: 12)),
+                          shape: WidgetStateProperty.all(
+                            RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                          ),
+                        ),
+                        child: const Text(
+                          'FACE ID 다시 만들기',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
             ),
+          ),
+        ],
+      ),
     );
   }
 }

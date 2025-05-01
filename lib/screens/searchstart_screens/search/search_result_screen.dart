@@ -148,23 +148,23 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
-          leading: IconButton(icon: Icon(Icons.arrow_back, color: Colors.blue),
-          onPressed: () {
-            Navigator.pop(context, _recentSearches);
-          },
+          leading: IconButton(icon: Icon(Icons.arrow_back, color: Colors.black),
+            onPressed: () {
+              Navigator.pop(context, _recentSearches);
+            },
           ),
           titleSpacing: 0,
           title: Text(
-              '검색결과',
-                  style: TextStyle(
-                fontWeight: FontWeight.bold,
+            '검색결과',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
               fontSize: 25,
             ),
           ),
           backgroundColor: Colors.white,
           foregroundColor: Colors.black,
           elevation: 0,
-      ),
+        ),
         body: SafeArea(
           child: Column(
             children: [
@@ -242,9 +242,17 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
                   child: Column(
                     children: [
                       TabBar(
-                        labelColor: Color(0xFF0126FA),
+                        labelColor: Color(0xFF8C88D5),
                         unselectedLabelColor: Colors.grey,
-                        indicatorColor: Color(0xFF0126FA),
+                        indicatorColor: Color(0xFF8C88D5),
+                        labelStyle: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15
+                        ),
+                        unselectedLabelStyle: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.normal,
+                        ),
                         tabs: [
                           Tab(
                             text: '트랙',
@@ -352,13 +360,13 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
                     Icon(
                       Icons.music_note,
                       size: 16,
-                      color: _selectionMode ? Colors.grey : Colors.black,
+                      color: _selectionMode ? Colors.grey : Color(0xFF6A698C),
                     ),
                     SizedBox(width: 4),
                     Text(
                       _selectionMode ? '선택해제' : '트랙선택',
                       style: TextStyle(
-                        color: _selectionMode ? Colors.grey : Colors.black,
+                        color: _selectionMode ? Colors.grey : Color(0xFF6A698C),
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -383,30 +391,30 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
                   left: 30.0,
                   right: 30.0,
                   child: Container(
-                    decoration: BoxDecoration(
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.2),
-                          spreadRadius: 1,
-                          blurRadius: 10,
-                          offset: Offset(0, 3),
-                        ),
-                      ],
-                    ),
-                    child: ElevatedButton(
-                      onPressed: () => _showAddDialog(),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFF0126FA),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        padding: EdgeInsets.symmetric(vertical: 15),
+                      decoration: BoxDecoration(
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            spreadRadius: 1,
+                            blurRadius: 10,
+                            offset: Offset(0, 3),
+                          ),
+                        ],
                       ),
-                      child: Text('선택한 곡 추가', style:
-                      TextStyle(color: Colors.white,
-                          fontSize: 20, fontWeight: FontWeight.bold)
-                      ),
-                    ),
+                      child: ElevatedButton(
+                        onPressed: () => _showAddDialog(),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color(0xFF8C88D5),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          padding: EdgeInsets.symmetric(vertical: 15),
+                        ),
+                        child: Text('선택한 곡 추가', style:
+                        TextStyle(color: Colors.white,
+                            fontSize: 20, fontWeight: FontWeight.bold)
+                        ),
+                      )
                   ),
                 ),
             ],),
@@ -446,7 +454,7 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
                   child: ElevatedButton(
                     onPressed: () => _showAddDialogForPlaylists(),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFF0126FA),
+                      backgroundColor: Color(0xFF8C88D5),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
@@ -497,7 +505,7 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
                             }
                           });
                         },
-                        activeColor: Color(0xFF0126FA),
+                        activeColor: Color(0xFF8C88D5),
                         checkColor: Colors.white,
                       ),
                     ),
@@ -534,7 +542,7 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
                 children: [
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFF0126FA),
+                      backgroundColor: Color(0xFF8C88D5),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15),
                       ),
@@ -553,7 +561,7 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
                   ),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFF0126FA),
+                      backgroundColor: Color(0xFF8C88D5),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15),
                       ),
@@ -584,30 +592,34 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
     List<Map<String, dynamic>>.from(playlists);
     final filteredPlaylists =
     filterPlaylists(typedPlaylists, option == '감정 카테고리');
-    final selectedPlaylist = await showDialog<Map<String, dynamic>>(
+
+    final selectedPlaylist = await showModalBottomSheet<Map<String, dynamic>>(
       context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
       builder: (BuildContext context) {
-        return Dialog(
-          backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20.0),
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
           ),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(16.0),
-            child: ConstrainedBox(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            child: Container(
+              color: Colors.white,
               constraints: BoxConstraints(
                 maxHeight: MediaQuery.of(context).size.height * 0.5,
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  // 헤더 부분
                   Container(
                     width: double.infinity,
                     decoration: BoxDecoration(
-                      color: Color(0xFF0126FA),
+                      color: Color(0xFF8C88D5),
                       borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(16.0),
-                        topRight: Radius.circular(16.0),
+                        topLeft: Radius.circular(20),
+                        topRight: Radius.circular(20),
                       ),
                     ),
                     padding: EdgeInsets.symmetric(vertical: 16.0),
@@ -621,19 +633,30 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
                       textAlign: TextAlign.center,
                     ),
                   ),
-                  Flexible(
-                    child: ListView.builder(
+                  // 플레이리스트 리스트
+                  Expanded(
+                    child: ListView.separated(
                       itemCount: filteredPlaylists.length,
+                      separatorBuilder: (context, index) => Divider(
+                        height: 1,
+                        thickness: 1,
+                        color: Colors.grey[300],
+                        indent: 16,
+                        endIndent: 16,
+                      ),
                       itemBuilder: (context, index) {
                         final playlist = filteredPlaylists[index];
                         return ListTile(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14.0),
+                          ),
                           leading: Icon(Icons.playlist_play,
-                              color: Color(0xFF0126FA)),
+                              color: Color(0xFF8C88D5)),
                           title: Text(
                             playlist['name'] ?? '알 수 없는 플레이리스트',
                             style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
+                              fontSize: 22,
+                              fontWeight: FontWeight.w700,
                               letterSpacing: 1.5,
                             ),
                           ),
@@ -651,6 +674,7 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
         );
       },
     );
+
     if (selectedPlaylist != null) {
       try {
         List<String> trackUris =
@@ -672,6 +696,8 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
       }
     }
   }
+
+
 
   Widget _buildAlbumCover(dynamic track) {
     final images = track['album']?['images'] as List?;
@@ -831,7 +857,7 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
               ElevatedButton(
                 onPressed: () => _showPlaylistOptions(_selectedTracks.toList(), '감정 카테고리'),
                 style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white30,
+                    backgroundColor: Color(0xFFECEBFF),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
@@ -843,7 +869,7 @@ class _SearchResultScreenState extends State<SearchResultScreen> {
               ElevatedButton(
                 onPressed: () => _showPlaylistOptions(_selectedTracks.toList(), '내 플레이리스트'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white30,
+                  backgroundColor: Color(0xFFD2D0FF),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
