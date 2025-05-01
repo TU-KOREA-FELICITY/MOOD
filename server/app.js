@@ -26,7 +26,7 @@ let webcamProcess = null;
 let userInfo = null;
 
 const JETSON_USER = 'session4';
-const JETSON_IP = '192.168.60.30';
+const JETSON_IP = '192.168.112.30';
 const JETSON_SCRIPT_PATH = '/home/session4/CAM/';
 
 function runPythonScript(scriptName, args = []) {

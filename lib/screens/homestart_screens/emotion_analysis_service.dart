@@ -29,7 +29,7 @@ class EmotionAnalysisService {
   };
 
   Future<Map<String, dynamic>> runEmotionAnalysis() async {
-    final url = Uri.parse('http://192.168.60.219:3000/analyze_emotion');
+    final url = Uri.parse('http://192.168.112.219:3000/analyze_emotion');
     try {
       final response = await http.post(url);
       if (response.statusCode == 200) {
@@ -59,7 +59,7 @@ class EmotionAnalysisService {
 
   Future<void> saveEmotions(String emotionResult) async {
     List<String> emotions = getTopEmotions(emotionResult);
-    final url = Uri.parse('http://192.168.60.219:3000/save_emotions');
+    final url = Uri.parse('http://192.168.112.219:3000/save_emotions');
     try {
       final translatedEmotions = emotions
           .map((emotion) => _emotionTranslations[emotion] ?? emotion)
@@ -114,7 +114,7 @@ class EmotionAnalysisService {
   }
 
   Future<Map<String, dynamic>> getEmotionTags(String detectedEmotions) async {
-    final url = Uri.parse('http://192.168.60.219:3000/get_emotion_tags');
+    final url = Uri.parse('http://192.168.112.219:3000/get_emotion_tags');
 
     try {
       final response = await http.post(

@@ -169,7 +169,7 @@ class _SearchScreenState extends State<SearchScreen>
   Future<Map<String, dynamic>> _getSearchTag() async {
     try {
       final response = await http.post(
-        Uri.parse('http://192.168.60.219:3000/get_search_tag'),
+        Uri.parse('http://192.168.112.219:3000/get_search_tag'),
         headers: {'Content-Type': 'application/json'},
       );
 

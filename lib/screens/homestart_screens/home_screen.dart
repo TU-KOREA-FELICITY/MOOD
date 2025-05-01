@@ -49,7 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final random = Random();
     return List.generate(
       count,
-      (index) => FlSpot(index.toDouble(), random.nextInt(4).toDouble()),
+          (index) => FlSpot(index.toDouble(), random.nextInt(4).toDouble()),
     );
   }
 
@@ -67,7 +67,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void connectToServer() {
     try {
-      socket = IO.io('http://10.0.2.2:3000', <String, dynamic>{
+      socket = IO.io('http://192.168.112.219:3000', <String, dynamic>{
         'transports': ['websocket'],
         'autoConnect': true,
       });
@@ -87,7 +87,7 @@ class _HomeScreenState extends State<HomeScreen> {
       socket!.on('warning', (data) {
         setState(() {
           _warningMessage =
-              'Warning: ${data['level']} ${data['axis']} error \n${data['error']}';
+          'Warning: ${data['level']} ${data['axis']} error \n${data['error']}';
           updateWarningData(_warningMessage);
         });
       });
@@ -109,7 +109,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _startEstimator() async {
-    final url = Uri.parse('http://10.0.2.2:3000/start_estimator');
+    final url = Uri.parse('http://192.168.112.219:3000/start_estimator');
     try {
       final response = await http.post(
         url,
@@ -127,7 +127,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _stopEstimator() async {
-    final url = Uri.parse('http://10.0.2.2:3000/stop_estimator');
+    final url = Uri.parse('http://192.168.112.219:3000/stop_estimator');
     try {
       final response = await http.post(
         url,
@@ -233,10 +233,10 @@ class _HomeScreenState extends State<HomeScreen> {
               contentPadding: EdgeInsets.all(20),
               title: Row(
                 children: [
-                Icon(
-                Icons.warning,
-                color: Colors.red,
-                size: 40,
+                  Icon(
+                    Icons.warning,
+                    color: Colors.red,
+                    size: 40,
                   ),
                   SizedBox(width: 10),
                   Expanded(
@@ -263,25 +263,25 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
               actions: <Widget>[
-            TextButton(
-            child: Text(
-              '확인',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF8C88D5),
-              ),
-            ),
-            onPressed: () {
-              Navigator.of(context).pop();
-              _isDialogShowing = false;
-              _audioPlayer.stop();
-              if (_wasMusicPlaying) {
-                _spotifyService.resumePlayback();
-              }
-            },
+                TextButton(
+                  child: Text(
+                    '확인',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF8C88D5),
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    _isDialogShowing = false;
+                    _audioPlayer.stop();
+                    if (_wasMusicPlaying) {
+                      _spotifyService.resumePlayback();
+                    }
+                  },
                 ),
-          ],
+              ],
             ),
           ),
         );
@@ -421,7 +421,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 gaplessPlayback: true,
               )
                   : Center(child: Text('카메라 화면이 여기에 표시됩니다', style: TextStyle(
-        fontSize: 12,),),),
+                fontSize: 12,),),),
               Positioned(
                 top: 0,
                 left: 0,
@@ -535,7 +535,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     Text('안전',
                         style: TextStyle(
                             fontSize: 12, fontWeight: FontWeight.bold)),
-                    ],
+                  ],
                 ),
               ),
             ),
@@ -646,66 +646,66 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildEmotionAnalysisResult() {
     return _emotionResult.isNotEmpty
         ? Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(height: 20),
-          Padding(
-            padding: EdgeInsets.only(left: 40),
-            child: Text(
-              '감정 분석 결과',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(height: 20),
+        Padding(
+          padding: EdgeInsets.only(left: 40),
+          child: Text(
+            '감정 분석 결과',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
             ),
           ),
+        ),
 
-          SizedBox(height: 20),
-          Column(
-            children: _emotionResult
-                .split('\n')
-                .where((line) => line.contains(':'))
-                .map((line) {
-                  final parts = line.split(': ');
-                  if (parts.length < 2) {
-                    return Container(); // 잘못된 에러 처리
-                  }
-                  final emotion = parts[0].trim();
-                  final confidence = parts[1].trim();
-                  final color = emotions.firstWhere(
-                          (e) => e['name'] == emotion,
-                      orElse: () => {'color': Colors.white})['color'];
-                  return Padding(
-                    padding: EdgeInsets.symmetric(vertical: 9),
-                    child: Center(
-                      child: Container(
-                        width: MediaQuery.of(context).size.width * 0.8,
-                        padding: EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: color,
-                          borderRadius: BorderRadius.circular(8),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withAlpha(128),
-                              blurRadius: 5,
-                              spreadRadius: 2,
-                              offset: Offset(0, 3),
-                            ),
-                          ],
-                        ),
-                        child: Text(
-                          '$emotion: $confidence',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,),
-                        ),
+        SizedBox(height: 20),
+        Column(
+          children: _emotionResult
+              .split('\n')
+              .where((line) => line.contains(':'))
+              .map((line) {
+            final parts = line.split(': ');
+            if (parts.length < 2) {
+              return Container(); // 잘못된 에러 처리
+            }
+            final emotion = parts[0].trim();
+            final confidence = parts[1].trim();
+            final color = emotions.firstWhere(
+                    (e) => e['name'] == emotion,
+                orElse: () => {'color': Colors.white})['color'];
+            return Padding(
+              padding: EdgeInsets.symmetric(vertical: 9),
+              child: Center(
+                child: Container(
+                  width: MediaQuery.of(context).size.width * 0.8,
+                  padding: EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: color,
+                    borderRadius: BorderRadius.circular(8),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withAlpha(128),
+                        blurRadius: 5,
+                        spreadRadius: 2,
+                        offset: Offset(0, 3),
                       ),
-                    ),
-                  );
-                }).toList(),
-          ),
-          SizedBox(height: 10),
-        ],
+                    ],
+                  ),
+                  child: Text(
+                    '$emotion: $confidence',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,),
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+        SizedBox(height: 10),
+      ],
     )
         : SizedBox.shrink();
   }
