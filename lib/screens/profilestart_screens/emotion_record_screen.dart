@@ -64,7 +64,7 @@ class _EmotionRecordScreenState extends State<EmotionRecordScreen> {
   Future<Map<String, dynamic>> getEmotions(String userAwsId) async {
     try {
       final response = await http.post(
-        Uri.parse('http://192.168.112.219:3000/get_emotions'),
+        Uri.parse('http://10.0.2.2:3000/get_emotions'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({'user_aws_id': userAwsId}),
       );

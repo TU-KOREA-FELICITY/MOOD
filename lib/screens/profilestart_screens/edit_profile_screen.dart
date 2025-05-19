@@ -48,7 +48,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       }
 
       final response = await http.post(
-        Uri.parse('http://192.168.112.219:3000/user_info_update'),
+        Uri.parse('http://10.0.2.2:3000/user_info_update'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode(updateData),
       );

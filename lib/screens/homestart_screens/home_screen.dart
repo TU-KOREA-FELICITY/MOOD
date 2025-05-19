@@ -67,7 +67,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void connectToServer() {
     try {
-      socket = IO.io('http://192.168.112.219:3000', <String, dynamic>{
+      socket = IO.io('http://10.0.2.2:3000', <String, dynamic>{
         'transports': ['websocket'],
         'autoConnect': true,
       });
@@ -109,7 +109,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _startEstimator() async {
-    final url = Uri.parse('http://192.168.112.219:3000/start_estimator');
+    final url = Uri.parse('http://10.0.2.2:3000/start_estimator');
     try {
       final response = await http.post(
         url,
@@ -127,7 +127,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _stopEstimator() async {
-    final url = Uri.parse('http://192.168.112.219:3000/stop_estimator');
+    final url = Uri.parse('http://10.0.2.2:3000/stop_estimator');
     try {
       final response = await http.post(
         url,
@@ -217,6 +217,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _showWarningDialog(String title, String content) {
     _isDialogShowing = true;
+
+    Color _getIconColor(String title) {
+      if (title.contains('위험')) return Colors.red;
+      if (title.contains('주의')) return Colors.orange;
+      if (title.contains('경고')) return Colors.yellow[700]!;
+      return Colors.red;
+    }
+
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -235,7 +243,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   Icon(
                     Icons.warning,
-                    color: Colors.red,
+                    color: _getIconColor(title),
                     size: 40,
                   ),
                   SizedBox(width: 10),
@@ -289,6 +297,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+
   void _playWarningSound(String assetPath) async {
     _wasMusicPlaying = await _spotifyService.isPlaying();
     if (_wasMusicPlaying) {
@@ -319,14 +328,19 @@ class _HomeScreenState extends State<HomeScreen> {
 
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
-      title: Padding(
-        padding: EdgeInsets.only(left: 20),
-        child: _getAppBarTitle(),
-      ),
-      titleSpacing: 0,
       backgroundColor: Colors.white,
       elevation: 0,
       automaticallyImplyLeading: false,
+      leading: Padding(
+        padding: const EdgeInsets.only(left: 16),
+        child: Image.asset(
+          'assets/logo/MOOD_logo_8C88D5.png',
+          height: 32,
+          fit: BoxFit.contain,
+        ),
+      ),
+      title: null,
+      centerTitle: false,
     );
   }
 
@@ -373,8 +387,8 @@ class _HomeScreenState extends State<HomeScreen> {
           _buildHeader(),
           _buildWebcamView(),
           _buildAnalysisButtons(),
-          _buildConcentrationChart(),
           _buildEmotionAnalysisResult(),
+          _buildConcentrationChart(),
           _buildHiddenMiniplayer(),
         ],
       ),
@@ -383,7 +397,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildHeader() {
     return Padding(
-      padding: EdgeInsets.only(top: 20, bottom: 20),
+      padding: EdgeInsets.only(top: 5, bottom: 20),
       child: Text(
         '${widget.userInfo['user_name']}님의 감정/집중도 인식 중',
         style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -395,7 +409,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Center(
       child: Container(
         width: 350,
-        height: 200,
+        height: 150,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(10),
@@ -416,7 +430,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ? Image.memory(
                 _imageData!,
                 width: 350,
-                height: 200,
+                height: 150,
                 fit: BoxFit.cover,
                 gaplessPlayback: true,
               )
@@ -484,7 +498,7 @@ class _HomeScreenState extends State<HomeScreen> {
       children: [
         SizedBox(height: 10),
         Padding(
-          padding: EdgeInsets.only(left: 20),
+          padding: EdgeInsets.only(left: 10),
           child: Text(
             "나의 집중도",
             style: TextStyle(
@@ -500,6 +514,7 @@ class _HomeScreenState extends State<HomeScreen> {
             Container(
               height: 200,
               width: 350,
+              padding: EdgeInsets.only(top: 24, bottom: 36, left: 70, right: 16),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(10),
@@ -512,35 +527,89 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ],
               ),
-            ),
-            Positioned(
-              left: 0,
-              top: 0,
-              bottom: 20,
-              width: 60,
-              child: Container(
-                padding: EdgeInsets.only(top: 16),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('위험',
-                        style: TextStyle(
-                            fontSize: 12, fontWeight: FontWeight.bold)),
-                    Text('주의',
-                        style: TextStyle(
-                            fontSize: 12, fontWeight: FontWeight.bold)),
-                    Text('경고',
-                        style: TextStyle(
-                            fontSize: 12, fontWeight: FontWeight.bold)),
-                    Text('안전',
-                        style: TextStyle(
-                            fontSize: 12, fontWeight: FontWeight.bold)),
+              child: LineChart(
+                LineChartData(
+                  gridData: FlGridData(
+                    show: true,
+                    drawVerticalLine: true,
+                    getDrawingHorizontalLine: (value) {
+                      return FlLine(
+                        color: Colors.grey.withOpacity(0.25),
+                        strokeWidth: 1,
+                      );
+                    },
+                    getDrawingVerticalLine: (value) {
+                      return FlLine(
+                        color: Colors.grey.withOpacity(0.25),
+                        strokeWidth: 1,
+                      );
+                    },
+                    verticalInterval: 30000,
+                  ),
+                  titlesData: FlTitlesData(
+                    leftTitles: AxisTitles(
+                        sideTitles: SideTitles(showTitles: false)),
+                    topTitles: AxisTitles(
+                        sideTitles: SideTitles(showTitles: false)),
+                    rightTitles: AxisTitles(
+                        sideTitles: SideTitles(showTitles: false)),
+                    bottomTitles: AxisTitles(
+                        sideTitles: SideTitles(showTitles: false)),
+                  ),
+                  borderData: FlBorderData(show: false),
+                  minX: DateTime.now().millisecondsSinceEpoch.toDouble() -
+                      (5 * 60 * 1000),
+                  maxX: DateTime.now().millisecondsSinceEpoch.toDouble(),
+                  minY: 0,
+                  maxY: 3,
+                  lineBarsData: [
+                    LineChartBarData(
+                      spots: warningData.isNotEmpty
+                          ? warningData
+                          : [FlSpot(0, 0)],
+                      isCurved: true,
+                      color: Color(0xFF8C88D5),
+                      barWidth: 3,
+                      isStrokeCapRound: true,
+                      dotData: FlDotData(show: true),
+                      belowBarData: BarAreaData(
+                        show: true,
+                        color: Color(0xFF8C88D5).withOpacity(0.1),
+                      ),
+                    ),
                   ],
                 ),
               ),
             ),
+
+            // 왼쪽
             Positioned(
-              left: 40,
+              left: 0,
+              top: 24,
+              bottom: 36,
+              width: 70,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('위험',
+                      style: TextStyle(
+                          fontSize: 12, fontWeight: FontWeight.bold)),
+                  Text('주의',
+                      style: TextStyle(
+                          fontSize: 12, fontWeight: FontWeight.bold)),
+                  Text('경고',
+                      style: TextStyle(
+                          fontSize: 12, fontWeight: FontWeight.bold)),
+                  Text('안전',
+                      style: TextStyle(
+                          fontSize: 12, fontWeight: FontWeight.bold)),
+                ],
+              ),
+            ),
+
+            // 하단 시간
+            Positioned(
+              left: 70,
               right: 0,
               bottom: 0,
               height: 20,
@@ -551,7 +620,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   if (!snapshot.hasData) return Container();
                   final now = snapshot.data!;
                   return Container(
-                    padding: EdgeInsets.only(left: 16),
+                    padding: EdgeInsets.only(left: 0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: List.generate(
@@ -570,72 +639,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 },
               ),
             ),
-            Positioned(
-              left: 0,
-              top: 10,
-              right: 10,
-              bottom: 25,
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                reverse: true,
-                child: Container(
-                  width: MediaQuery.of(context).size.width,
-                  child: LineChart(
-                    LineChartData(
-                      gridData: FlGridData(
-                        show: true,
-                        drawVerticalLine: true,
-                        getDrawingHorizontalLine: (value) {
-                          return FlLine(
-                            color: Colors.grey.withValues(alpha: 0.25),
-                            strokeWidth: 1,
-                          );
-                        },
-                        getDrawingVerticalLine: (value) {
-                          return FlLine(
-                            color: Colors.grey.withValues(alpha: 0.25),
-                            strokeWidth: 1,
-                          );
-                        },
-                        verticalInterval: 30000,
-                      ),
-                      titlesData: FlTitlesData(
-                        leftTitles: AxisTitles(
-                            sideTitles: SideTitles(showTitles: false)),
-                        topTitles: AxisTitles(
-                            sideTitles: SideTitles(showTitles: false)),
-                        rightTitles: AxisTitles(
-                            sideTitles: SideTitles(showTitles: false)),
-                        bottomTitles: AxisTitles(
-                            sideTitles: SideTitles(showTitles: false)),
-                      ),
-                      borderData: FlBorderData(show: false),
-                      minX: DateTime.now().millisecondsSinceEpoch.toDouble() -
-                          (5 * 60 * 1000),
-                      maxX: DateTime.now().millisecondsSinceEpoch.toDouble(),
-                      minY: 0,
-                      maxY: 3,
-                      lineBarsData: [
-                        LineChartBarData(
-                          spots: warningData.isNotEmpty
-                              ? warningData
-                              : [FlSpot(0, 0)],
-                          isCurved: true,
-                          color: Color(0xFF8C88D5),
-                          barWidth: 3,
-                          isStrokeCapRound: true,
-                          dotData: FlDotData(show: true),
-                          belowBarData: BarAreaData(
-                            show: true,
-                            color: Color(0xFF8C88D5).withValues(alpha: 0.1),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
           ],
         ),
         SizedBox(height: 20),
@@ -644,13 +647,87 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildEmotionAnalysisResult() {
-    return _emotionResult.isNotEmpty
-        ? Column(
+    Map<String, double> emotionValues = {};
+
+    bool hasAnalysisData = _emotionResult.isNotEmpty;
+
+    if (hasAnalysisData) {
+      _emotionResult.split('\n').where((line) => line.contains(':')).forEach((line) {
+        final parts = line.split(': ');
+        if (parts.length >= 2) {
+          final emotion = parts[0].trim();
+          final confidenceStr = parts[1].trim().replaceAll('%', '');
+          final confidence = double.tryParse(confidenceStr) ?? 0.0;
+          emotionValues[emotion] = confidence;
+        }
+      });
+    }
+
+    final emotionOrder = [
+      'CALM',     // 평온
+      'HAPPY',    // 기쁨
+      'SAD',      // 슬픔
+      'ANGRY',    // 분노
+      'DISGUSTED',// 혐오
+      'SURPRISED',// 놀람
+      'FEAR',     // 두려움
+      'CONFUSED'  // 혼란
+    ];
+
+    final emotionLabels = {
+      'CALM': '평온',
+      'HAPPY': '기쁨',
+      'SAD': '슬픔',
+      'ANGRY': '분노',
+      'DISGUSTED': '혐오',
+      'SURPRISED': '놀람',
+      'FEAR': '두려움',
+      'CONFUSED': '혼란'
+    };
+
+    final emotionImages = {
+      'CALM': 'assets/mooding/mooding_calm.png',
+      'HAPPY': 'assets/mooding/mooding_happy.png',
+      'SAD': 'assets/mooding/mooding_sad.png',
+      'ANGRY': 'assets/mooding/mooding_angry.png',
+      'DISGUSTED': 'assets/mooding/mooding_disgusted.png',
+      'SURPRISED': 'assets/mooding/mooding_surprised.png',
+      'FEAR': 'assets/mooding/mooding_fear.png',
+      'CONFUSED': 'assets/mooding/mooding_confused.png'
+    };
+
+    // 막대 차트 데이터
+    List<Map<String, dynamic>> chartData = [];
+    double total = emotionValues.values.fold(0, (a, b) => a + b);
+
+    if (hasAnalysisData && total > 0) {
+      for (var emotion in emotionOrder) {
+        double value = (emotionValues[emotion] ?? 0.0) / total * 100;
+        if (value > 0) {
+          chartData.add({
+            'name': emotion,
+            'value': value,
+            'color': emotions.firstWhere(
+                    (e) => e['name'] == emotion,
+                orElse: () => {'color': Colors.grey})['color']
+          });
+        }
+      }
+    } else {
+      // 데이터가 없을 때
+      chartData.add({
+        'name': 'NO_DATA',
+        'value': 100,
+        'color': Colors.grey[300]!
+      });
+    }
+
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(height: 20),
         Padding(
-          padding: EdgeInsets.only(left: 40),
+          padding: EdgeInsets.only(left: 30),
           child: Text(
             '감정 분석 결과',
             style: TextStyle(
@@ -660,54 +737,164 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ),
+        SizedBox(height: 10),
+
+        // 첫 번째 줄
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: emotionOrder.sublist(0,4).map((emotion) {
+
+              double percentage = 0;
+              if (hasAnalysisData && total > 0) {
+                percentage = (emotionValues[emotion] ?? 0.0) / total * 100;
+              }
+
+              return Column(
+                children: [
+                  Container(
+                    width: 60,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.2),
+                          blurRadius: 8,
+                          spreadRadius: 2,
+                          offset: Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Padding(
+                      padding: EdgeInsets.all(8),
+                      child: Image.asset(
+                        emotionImages[emotion]!,
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) =>
+                            Icon(Icons.error_outline),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 5),
+                  Text(
+                    '${emotionLabels[emotion]} (${percentage.round()}%)', // 감정이름과 퍼센트
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              );
+            }).toList(),
+          ),
+        ),
+        SizedBox(height: 20),
+
+        // 두 번째 줄
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: emotionOrder.sublist(4).map((emotion) {
+
+              double percentage = 0;
+              if (hasAnalysisData && total > 0) {
+                percentage = (emotionValues[emotion] ?? 0.0) / total * 100;
+              }
+
+              return Column(
+                children: [
+                  Container(
+                    width: 60,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.2),
+                          blurRadius: 8,
+                          spreadRadius: 2,
+                          offset: Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Padding(
+                      padding: EdgeInsets.all(8),
+                      child: Image.asset(
+                        emotionImages[emotion]!,
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) =>
+                            Icon(Icons.error_outline),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 5),
+                  Text(
+                    '${emotionLabels[emotion]} (${percentage.round()}%)', // 감정이름과 퍼센트
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              );
+            }).toList(),
+          ),
+        ),
+        SizedBox(height: 20),
+
+        // 100% 누적 막대 차트
+        Container(
+          width: MediaQuery.of(context).size.width * 0.9,
+          height: 40,
+          margin: EdgeInsets.symmetric(horizontal: 40),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withAlpha(128),
+                blurRadius: 5,
+                spreadRadius: 2,
+                offset: Offset(0, 3),
+              ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: Row(
+              children: chartData.map((data) {
+                return Flexible(
+                  flex: data['value'].round(),
+                  child: Container(
+                    color: data['color'],
+                    child: Center(
+                      child: data['value'] >= 5
+                          ? Text(
+                        '${data['value'].round()}%',
+                        style: TextStyle(
+                          color: Colors.black54,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      )
+                          : SizedBox.shrink(),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+        ),
 
         SizedBox(height: 20),
-        Column(
-          children: _emotionResult
-              .split('\n')
-              .where((line) => line.contains(':'))
-              .map((line) {
-            final parts = line.split(': ');
-            if (parts.length < 2) {
-              return Container(); // 잘못된 에러 처리
-            }
-            final emotion = parts[0].trim();
-            final confidence = parts[1].trim();
-            final color = emotions.firstWhere(
-                    (e) => e['name'] == emotion,
-                orElse: () => {'color': Colors.white})['color'];
-            return Padding(
-              padding: EdgeInsets.symmetric(vertical: 9),
-              child: Center(
-                child: Container(
-                  width: MediaQuery.of(context).size.width * 0.8,
-                  padding: EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: color,
-                    borderRadius: BorderRadius.circular(8),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withAlpha(128),
-                        blurRadius: 5,
-                        spreadRadius: 2,
-                        offset: Offset(0, 3),
-                      ),
-                    ],
-                  ),
-                  child: Text(
-                    '$emotion: $confidence',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,),
-                  ),
-                ),
-              ),
-            );
-          }).toList(),
-        ),
-        SizedBox(height: 10),
       ],
-    )
-        : SizedBox.shrink();
+    );
   }
 
   Widget _buildHiddenMiniplayer() {
