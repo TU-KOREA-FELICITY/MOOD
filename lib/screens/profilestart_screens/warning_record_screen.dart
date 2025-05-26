@@ -111,7 +111,7 @@ class _WarningRecordScreenState extends State<WarningRecordScreen> {
             return Container(
               constraints: BoxConstraints(
                 minHeight: 100,
-                maxHeight: 150,
+                maxHeight: 140,
               ),
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -138,15 +138,25 @@ class _WarningRecordScreenState extends State<WarningRecordScreen> {
                       children: [
                         Row(
                           children: [
-                            Icon(Icons.warning, color: Colors.red, size: 26),
+                            Icon(
+                              Icons.warning,
+                              color: warning['level'] == '위험'
+                                  ? Colors.red
+                                  : warning['level'] == '경고'
+                                  ? Colors.yellow
+                                  : warning['level'] == '주의'
+                                  ? Colors.orange
+                                  : Colors.green,
+                              size: 26,
+                            ),
                             SizedBox(width: 15),
                             Text(
                               warning['level'],
-                              style: TextStyle(
-                                  fontSize: 23, fontWeight: FontWeight.bold),
+                              style: TextStyle(fontSize: 23, fontWeight: FontWeight.bold),
                             ),
                           ],
                         ),
+
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
