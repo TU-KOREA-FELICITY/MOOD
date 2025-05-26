@@ -29,7 +29,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           child: Text(
             '로그인',
             style: TextStyle(
-              fontSize: 24,
+              fontSize: 23,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -47,7 +47,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 textAlign: TextAlign.center,
                 text: TextSpan(
                   style: TextStyle(
-                    fontSize: 28,
+                    fontSize: 32,
                     fontWeight: FontWeight.bold,
                     fontStyle: FontStyle.italic,
                     color: Colors.black,
@@ -62,26 +62,26 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   ],
                 ),
               ),
-              SizedBox(height: 10),
+              SizedBox(height: 20),
               Center(
                 child: Text(
                   '${widget.userInfo['user_name']}님 어서오세요',
-                  style: TextStyle(fontSize: 16),
+                  style: TextStyle(fontSize: 20),
                   textAlign: TextAlign.center,
                 ),
               ),
-              SizedBox(height: 100),
+              SizedBox(height: 80),
               Image.asset(
                 'assets/mooding/mooding_main.png',
-                width: 170,
-                height: 170,
+                width: 190,
+                height: 190,
                 fit: BoxFit.contain,
               ),
-              SizedBox(height: 100),
+              SizedBox(height: 80),
               Center(
                 child: Text(
                   '이름 : ${widget.userInfo['user_name']}',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -89,7 +89,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               Center(
                 child: Text(
                   '차종 : ${widget.userInfo['car_type']}',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   textAlign: TextAlign.center,
                 ),
               ),

@@ -102,12 +102,12 @@ class SignUpCompletionScreen extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  SizedBox(height: 50),
+                  SizedBox(height: 5),
                   RichText(
                     textAlign: TextAlign.center,
                     text: TextSpan(
                       style: TextStyle(
-                        fontSize: 28,
+                        fontSize: 32,
                         fontWeight: FontWeight.bold,
                         fontStyle: FontStyle.italic,
                         color: Colors.black,
@@ -132,7 +132,7 @@ class SignUpCompletionScreen extends StatelessWidget {
                   const SizedBox(height: 50),
                   const Text(
                     '회원가입 완료',
-                    style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 40),
                   Text(
