@@ -335,7 +335,7 @@ class _HomeScreenState extends State<HomeScreen> {
         padding: const EdgeInsets.only(left: 16),
         child: Image.asset(
           'assets/logo/MOOD_logo_8C88D5.png',
-          height: 32,
+          height: 35,
           fit: BoxFit.contain,
         ),
       ),

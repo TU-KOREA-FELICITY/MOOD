@@ -10,7 +10,7 @@ class ProfileScreen extends StatelessWidget {
   ProfileScreen({required this.userInfo});
   Widget _buildInfoChip(String text, BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
@@ -18,7 +18,7 @@ class ProfileScreen extends StatelessWidget {
       ),
       child: Text(
         text,
-        style: TextStyle(fontSize: 15, color: Colors.grey[700]),
+        style: TextStyle(fontSize: 13, color: Colors.grey[700]),
       ),
     );
   }
@@ -58,7 +58,7 @@ class ProfileScreen extends StatelessWidget {
               height: 1,
               thickness: 1,
               color: Colors.grey[300],
-              indent: 56,
+              indent: 46,
               endIndent: 16,
             ),
           ),
@@ -73,10 +73,10 @@ class ProfileScreen extends StatelessWidget {
     final String carType = "${userInfo['car_type'] ?? '차량 정보'}";
 
     return Scaffold(
-      backgroundColor: Color(0xFFF0F0F0),
+      backgroundColor: Color(0xFFF6F6F6),
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: Color(0xFFF0F0F0),
+        backgroundColor: Color(0xFFF6F6F6),
         elevation: 0,
         title: Row(
           children: [
@@ -135,8 +135,8 @@ class ProfileScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(16),
                       child: Image.asset(
                         'assets/mooding/mooding_main.png',
-                        width: 80,
-                        height: 80,
+                        width: 75,
+                        height: 75,
                         fit: BoxFit.cover,
                       ),
                     ),

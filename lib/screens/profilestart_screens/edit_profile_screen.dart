@@ -132,8 +132,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             ),
             SizedBox(height: 20),
             Text(
-              '얼굴 인식 다시하기',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              'FACE ID 다시 등록하기',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
             SizedBox(height: 50),
@@ -153,6 +153,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 },
               ),
             ),
+            SizedBox(width: 4),
+            Icon(
+              Icons.check_circle,
+              color: _isNameChanged ? Color(0xFF6A698C) : Colors.grey,
+            ),
             SizedBox(height: 20),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 25.0),
@@ -170,9 +175,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 },
               ),
             ),
-            SizedBox(height: 250),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 40.0),
+            SizedBox(width: 4),
+            Icon(
+              Icons.check_circle,
+              color: _isNameChanged ? Color(0xFF6A698C) : Colors.grey,
+            ),
+            ],
+        ),
+      ),
+            bottomNavigationBar: Padding(
+              padding: EdgeInsets.all(20.0),
               child: SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -181,13 +193,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       _updateUserInfo(context);
                     }
                   },
-                  child: Text(
-                    '완료',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xFF8C88D5),
                     foregroundColor: Colors.white,
@@ -196,12 +201,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       borderRadius: BorderRadius.circular(20),
                     ),
                   ),
+                  child: Text(
+                    '정보 수정 완료',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ),
             ),
-          ],
-        ),
-      ),
     );
   }
 }

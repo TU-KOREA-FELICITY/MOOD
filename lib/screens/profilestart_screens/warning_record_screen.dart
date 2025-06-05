@@ -111,7 +111,7 @@ class _WarningRecordScreenState extends State<WarningRecordScreen> {
             return Container(
               constraints: BoxConstraints(
                 minHeight: 100,
-                maxHeight: 140,
+                maxHeight: 150,
               ),
               decoration: BoxDecoration(
                 color: Colors.white,
