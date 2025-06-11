@@ -20,25 +20,25 @@ class _EmotionRecordScreenState extends State<EmotionRecordScreen> {
   Map<int, String> _selectedDayEmotions = {};
 
   final List<Map<String, dynamic>> emotions = [
-    {'emotion': '행복', 'color': Colors.yellow[50]},
-    {'emotion': '슬픔', 'color': Colors.blue[50]},
-    {'emotion': '분노', 'color': Colors.red[50]},
-    {'emotion': '평온', 'color': Colors.green[50]},
-    {'emotion': '놀람', 'color': Colors.orange[50]},
-    {'emotion': '혐오', 'color': Colors.purple[50]},
-    {'emotion': '공포', 'color': Colors.grey[50]},
-    {'emotion': '혼란', 'color': Colors.teal[50]},
+    {'emotion': '행복', 'color': Color(0xFFFFF09A)},
+    {'emotion': '슬픔', 'color': Color(0xFFC9E4F1)},
+    {'emotion': '분노', 'color': Color(0xFFFFBDBD)},
+    {'emotion': '평온', 'color': Color(0xFFE1F0A0)},
+    {'emotion': '놀람', 'color': Color(0xFFFFCDB6)},
+    {'emotion': '혐오', 'color': Color(0xFFE3C4E5)},
+    {'emotion': '공포', 'color': Color(0xFFEBEBEB)},
+    {'emotion': '혼란', 'color': Color(0xFFCBEBE0)},
   ];
 
-  final Map<String, String> emotionEmojis = {
-    '행복': '😊',
-    '슬픔': '😢',
-    '분노': '😡',
-    '평온': '😌',
-    '놀람': '😲',
-    '혐오': '🤢',
-    '공포': '😱',
-    '혼란': '😕',
+  final Map<String, String> emotionImages = {
+    '평온': 'assets/mooding/mooding_calm.png',
+    '행복': 'assets/mooding/mooding_happy.png',
+    '슬픔': 'assets/mooding/mooding_sad.png',
+    '분노': 'assets/mooding/mooding_angry.png',
+    '혐오': 'assets/mooding/mooding_disgusted.png',
+    '놀람': 'assets/mooding/mooding_surprised.png',
+    '공포': 'assets/mooding/mooding_fear.png',
+    '혼란': 'assets/mooding/mooding_confused.png'
   };
 
   @override
@@ -137,7 +137,7 @@ class _EmotionRecordScreenState extends State<EmotionRecordScreen> {
         if (counts.isNotEmpty) {
           String mostFrequentEmotion =
               counts.entries.reduce((a, b) => a.value > b.value ? a : b).key;
-          dailyHourlyEmotions[date]![hour] = '${emotionEmojis[mostFrequentEmotion] ?? ''} $mostFrequentEmotion';
+          dailyHourlyEmotions[date]![hour] = '${emotionImages[mostFrequentEmotion] ?? ''} $mostFrequentEmotion';
         }
       });
       if (dailyHourlyEmotions[date]!.isEmpty) {
@@ -151,7 +151,7 @@ class _EmotionRecordScreenState extends State<EmotionRecordScreen> {
       if (counts.isNotEmpty) {
         String mostFrequentEmotion =
             counts.entries.reduce((a, b) => a.value > b.value ? a : b).key;
-        dailyEmotions[date] = '${emotionEmojis[mostFrequentEmotion] ?? ''} $mostFrequentEmotion';
+        dailyEmotions[date] = '${emotionImages[mostFrequentEmotion] ?? ''} $mostFrequentEmotion';
       }
     });
 
@@ -325,7 +325,7 @@ class _EmotionRecordScreenState extends State<EmotionRecordScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '시간대별 가장 빈도 높은 감정',
+                    '시간대별 가장 높은 감정',
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 10),
@@ -341,22 +341,32 @@ class _EmotionRecordScreenState extends State<EmotionRecordScreen> {
                           orElse: () => {'color': Colors.white},
                         )['color'] as Color;
 
+                        final imagePath = emotionImages[emotionText] ?? '';
+
                         return Padding(
-                            padding: EdgeInsets.only(bottom: 10),
-                        child: Card(
-                        color: emotionColor,
-                        elevation: 3,
-                        shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        ),
-                          child: ListTile(
-                            leading: Text('${hour}시', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                            title: Align(
-                              alignment: Alignment.centerRight,
-                              child: Text(emotion ?? '', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                          padding: EdgeInsets.only(bottom: 10),
+                          child: Card(
+                            color: emotionColor,
+                            elevation: 3,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Container(
+                              height: 90,
+                              child: ListTile(
+                                contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                leading: Text('${hour}시의 나의 감정', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                                trailing: imagePath.isNotEmpty
+                                    ? Image.asset(
+                                  imagePath,
+                                  width: 60,
+                                  height: 60,
+                                  fit: BoxFit.contain,
+                                )
+                                    : SizedBox.shrink(),
+                              ),
                             ),
                           ),
-                        ),
                         );
                       },
                     ),
@@ -364,40 +374,6 @@ class _EmotionRecordScreenState extends State<EmotionRecordScreen> {
                 ],
               ),
             ),
-            SizedBox(height: 20),
-            /*
-            Expanded(
-              child: GridView.builder(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  childAspectRatio: 2.5,
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 10,
-                ),
-                itemCount: emotions.length,
-                itemBuilder: (context, index) {
-                  return GestureDetector(
-                    onTap: () {
-                      // 감정 기록 로직 추가
-                      print('${emotions[index]['emotion']} selected for $_selectedDay');
-                    },
-                    child: Card(
-                      color: emotions[index]['color'],
-                      child: Center(
-                        child: Text(
-                          emotions[index]['emotion'],
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-            */
           ],
         ),
       ),
