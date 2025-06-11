@@ -368,6 +368,39 @@ class _EmotionRecordScreenState extends State<EmotionRecordScreen> {
                             ),
                           ),
                         );
+                        /*
+            Expanded(
+              child: GridView.builder(
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  childAspectRatio: 2.5,
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 10,
+                ),
+                itemCount: emotions.length,
+                itemBuilder: (context, index) {
+                  return GestureDetector(
+                    onTap: () {
+                      // 감정 기록 로직 추가
+                      print('${emotions[index]['emotion']} selected for $_selectedDay');
+                    },
+                    child: Card(
+                      color: emotions[index]['color'],
+                      child: Center(
+                        child: Text(
+                          emotions[index]['emotion'],
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            */
                       },
                     ),
                   ),
