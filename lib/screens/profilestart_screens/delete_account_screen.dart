@@ -61,22 +61,45 @@ class DeleteAccountScreen extends StatelessWidget {
       body: Padding(
         padding: EdgeInsets.all(20.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 150),
-            Icon(Icons.delete_outline, size: 100),
-            SizedBox(height: 20),
-            Text('얼굴 ID : ${userInfo['user_aws_id']}',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Padding(
+              padding: const EdgeInsets.only(top: 10.0, bottom: 40.0),
+              child: Text(
+                '회원을 탈퇴하시겠습니까?',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 24,
+                ),
+              ),
+            ),
+            Center(
+              child: Icon(
+                Icons.delete_outline,
+                size: 80,
+                color: Colors.grey[600],
+              ),
+            ),
+            SizedBox(height: 30),
+            Center(
+              child: Text('FACE ID : ${userInfo['user_aws_id']}',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            ),
             SizedBox(height: 10),
-            Text('이름 : ${userInfo['user_name']}',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Center(
+              child: Text('이름 : ${userInfo['user_name']}',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            ),
             SizedBox(height: 10),
-            Text('차종 : ${userInfo['car_type']}',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            SizedBox(height: 200),
-            Text('회원을 탈퇴 하시겠습니까?',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            Center(
+              child: Text('차종 : ${userInfo['car_type']}',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            ),
+            Spacer(),
+            Center(
+              child: Text('회원 탈퇴를 진행합니다.',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            ),
             SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -93,15 +116,15 @@ class DeleteAccountScreen extends StatelessWidget {
                         fontSize: 13,
                       ),
                     ),
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    side: BorderSide(color: Colors.grey, width: 3),
-                    padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    style: OutlinedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      side: BorderSide(color: Colors.grey, width: 3),
+                      padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                    ),
                   ),
-                ),
                 ),
                 SizedBox(
                   width: 110,
@@ -115,18 +138,19 @@ class DeleteAccountScreen extends StatelessWidget {
                         fontSize: 13,
                       ),
                     ),
-                  onPressed: () {
-                    deleteAccount(context);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF8C88D5),
-                    foregroundColor: Colors.white,
-                    padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                    onPressed: () {
+                      deleteAccount(context);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xFF8C88D5),
+                      foregroundColor: Colors.white,
+                      padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                    ),
                   ),
-                ),
                 ),
               ],
             ),
+            SizedBox(height: 20),
           ],
         ),
       ),
