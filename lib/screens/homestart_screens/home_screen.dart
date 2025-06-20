@@ -67,7 +67,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void connectToServer() {
     try {
-      socket = IO.io('http://10.0.2.2:3000', <String, dynamic>{
+      socket = IO.io('http://192.168.216.219:3000', <String, dynamic>{
         'transports': ['websocket'],
         'autoConnect': true,
       });
@@ -109,7 +109,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _startEstimator() async {
-    final url = Uri.parse('http://10.0.2.2:3000/start_estimator');
+    final url = Uri.parse('http://192.168.216.219:3000/start_estimator');
     try {
       final response = await http.post(
         url,
@@ -127,7 +127,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _stopEstimator() async {
-    final url = Uri.parse('http://10.0.2.2:3000/stop_estimator');
+    final url = Uri.parse('http://192.168.216.219:3000/stop_estimator');
     try {
       final response = await http.post(
         url,

@@ -15,19 +15,19 @@ class EmotionRecordScreen extends StatefulWidget {
 class _EmotionRecordScreenState extends State<EmotionRecordScreen> {
   late DateTime _selectedDay;
   late DateTime _focusedDay;
-  Map<DateTime, String> _dailyEmotions = {};
+  Map<DateTime, Map<String, String>> _dailyEmotions = {};
   Map<DateTime, Map<int, String>> _dailyHourlyEmotions = {};
   Map<int, String> _selectedDayEmotions = {};
 
   final List<Map<String, dynamic>> emotions = [
-    {'emotion': '행복', 'color': Color(0xFFFFF09A)},
-    {'emotion': '슬픔', 'color': Color(0xFFC9E4F1)},
-    {'emotion': '분노', 'color': Color(0xFFFFBDBD)},
-    {'emotion': '평온', 'color': Color(0xFFE1F0A0)},
-    {'emotion': '놀람', 'color': Color(0xFFFFCDB6)},
-    {'emotion': '혐오', 'color': Color(0xFFE3C4E5)},
-    {'emotion': '공포', 'color': Color(0xFFEBEBEB)},
-    {'emotion': '혼란', 'color': Color(0xFFCBEBE0)},
+    {'emotion': '행복', 'color': Color(0xFFF8EFC8)},
+    {'emotion': '슬픔', 'color': Color(0xFFE2F0FB)},
+    {'emotion': '분노', 'color': Color(0xFFFFEBF0)},
+    {'emotion': '평온', 'color': Color(0xFFE9F0C4)},
+    {'emotion': '놀람', 'color': Color(0xFFFFE5CB)},
+    {'emotion': '혐오', 'color': Color(0xFFF2EBFF)},
+    {'emotion': '공포', 'color': Color(0xFFF2F2F2)},
+    {'emotion': '혼란', 'color': Color(0xFFE2FBFA)},
   ];
 
   final Map<String, String> emotionImages = {
@@ -64,7 +64,7 @@ class _EmotionRecordScreenState extends State<EmotionRecordScreen> {
   Future<Map<String, dynamic>> getEmotions(String userAwsId) async {
     try {
       final response = await http.post(
-        Uri.parse('http://10.0.2.2:3000/get_emotions'),
+        Uri.parse('http://192.168.216.219:3000/get_emotions'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({'user_aws_id': userAwsId}),
       );
@@ -146,12 +146,15 @@ class _EmotionRecordScreenState extends State<EmotionRecordScreen> {
     });
 
     // 각 날짜에서 가장 빈도 높은 감정을 선택
-    Map<DateTime, String> dailyEmotions = {};
+    Map<DateTime, Map<String, String>> dailyEmotions = {};
     dailyEmotionCounts.forEach((date, counts) {
       if (counts.isNotEmpty) {
         String mostFrequentEmotion =
             counts.entries.reduce((a, b) => a.value > b.value ? a : b).key;
-        dailyEmotions[date] = '${emotionImages[mostFrequentEmotion] ?? ''} $mostFrequentEmotion';
+        dailyEmotions[date] = {
+          'emotion': mostFrequentEmotion,
+          'image': emotionImages[mostFrequentEmotion] ?? '',
+        };
       }
     });
 
@@ -162,7 +165,9 @@ class _EmotionRecordScreenState extends State<EmotionRecordScreen> {
   }
 
   void _showEmotionDialog(DateTime date) {
-    String emotion = _dailyEmotions[date] ?? '기록 없음';
+    final emotionData = _dailyEmotions[date];
+    final emotionName = (emotionData != null) ? (emotionData['emotion'] ?? '기록 없음') : '기록 없음';
+    final imagePath = (emotionData != null) ? (emotionData['image'] ?? '') : '';
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -194,12 +199,31 @@ class _EmotionRecordScreenState extends State<EmotionRecordScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  '가장 빈도가 높은 감정: $emotion',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      '가장 빈도가 높은 감정: ',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    if (imagePath.isNotEmpty)
+                      Image.asset(
+                        imagePath,
+                        width: 40,
+                        height: 40,
+                      ),
+                    SizedBox(width: 10),
+                    Text(
+                      emotionName,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -352,10 +376,10 @@ class _EmotionRecordScreenState extends State<EmotionRecordScreen> {
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: Container(
-                              height: 90,
+                              height: 75,
                               child: ListTile(
                                 contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                leading: Text('${hour}시의 나의 감정', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                                leading: Text('${hour}시 나의 감정', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                                 trailing: imagePath.isNotEmpty
                                     ? Image.asset(
                                   imagePath,
