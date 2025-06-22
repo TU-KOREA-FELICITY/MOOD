@@ -217,8 +217,14 @@ while True:
     response = requests.post(server_url, json={'frame': encoded_frame})
 
     cv2.imshow('Webcam', frame_rgb)
-    if cv2.waitKey(1) & 0xFF == ord('q'):
+    key = cv2.waitKey(1) & 0xFF
+    if key == ord('q'):
         break
+    elif key == ord('r'):
+        initial_pitch, initial_roll = pitch, roll
+        initial_left_eye_center, initialright_eye_center = left_eye_center, right_eye_center
+        print(f"[Reset] Initial Pitch: {initial_pitch:.2f}, Initial Roll: {initial_roll:.2f}")
+        print(f"[Reset] Initial Left Eye Center: {initial_left_eye_center}, Initial Right Eye Center: {initial_right_eye_center}")
 
 cap.release()
 cv2.destroyAllWindows()

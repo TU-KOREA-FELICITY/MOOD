@@ -22,7 +22,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final SpotifyService _spotifyService = SpotifyService();
   final EmotionAnalysisService _emotionAnalysisService =
-  EmotionAnalysisService();
+      EmotionAnalysisService();
   final AudioPlayer _audioPlayer = AudioPlayer();
   bool _wasMusicPlaying = false;
   bool _isDialogShowing = false;
@@ -49,7 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final random = Random();
     return List.generate(
       count,
-          (index) => FlSpot(index.toDouble(), random.nextInt(4).toDouble()),
+      (index) => FlSpot(index.toDouble(), random.nextInt(4).toDouble()),
     );
   }
 
@@ -87,7 +87,7 @@ class _HomeScreenState extends State<HomeScreen> {
       socket!.on('warning', (data) {
         setState(() {
           _warningMessage =
-          'Warning: ${data['level']} ${data['axis']} error \n${data['error']}';
+              'Warning: ${data['level']} ${data['axis']} error \n${data['error']}';
           updateWarningData(_warningMessage);
         });
       });
@@ -297,13 +297,32 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-
   void _playWarningSound(String assetPath) async {
     _wasMusicPlaying = await _spotifyService.isPlaying();
     if (_wasMusicPlaying) {
       await _spotifyService.pausePlayback();
     }
     await _audioPlayer.play(AssetSource(assetPath));
+  }
+
+  // 집중도 초기화 리셋 함수
+  Future<void> _resetInitialValues() async {
+    final url = Uri.parse('http://192.168.216.219:3000/reset_initial');
+    try {
+      final response = await http.post(url,
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({'userInfo': widget.userInfo}));
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('초기값이 리셋되었습니다!')));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('초기값 리셋 실패: ${response.statusCode}')));
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('초기값 리셋 중 오류: $e')));
+    }
   }
 
   @override
@@ -428,14 +447,20 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               _imageData != null
                   ? Image.memory(
-                _imageData!,
-                width: 350,
-                height: 150,
-                fit: BoxFit.cover,
-                gaplessPlayback: true,
-              )
-                  : Center(child: Text('카메라 화면이 여기에 표시됩니다', style: TextStyle(
-                fontSize: 12,),),),
+                      _imageData!,
+                      width: 350,
+                      height: 150,
+                      fit: BoxFit.cover,
+                      gaplessPlayback: true,
+                    )
+                  : Center(
+                      child: Text(
+                        '카메라 화면이 여기에 표시됩니다',
+                        style: TextStyle(
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
               Positioned(
                 top: 0,
                 left: 0,
@@ -487,6 +512,21 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
+
+          // 집중도 초기화 리셋 버튼
+          ElevatedButton(
+            onPressed: _resetInitialValues,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Color(0xFF8C88D5),
+              foregroundColor: Colors.white,
+              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              textStyle: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+            ),
+            child: Text("집중도 초기화"),
+          ),
         ],
       ),
     );
@@ -514,7 +554,8 @@ class _HomeScreenState extends State<HomeScreen> {
             Container(
               height: 200,
               width: 350,
-              padding: EdgeInsets.only(top: 24, bottom: 36, left: 70, right: 16),
+              padding:
+                  EdgeInsets.only(top: 24, bottom: 36, left: 70, right: 16),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(10),
@@ -547,14 +588,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     verticalInterval: 30000,
                   ),
                   titlesData: FlTitlesData(
-                    leftTitles: AxisTitles(
-                        sideTitles: SideTitles(showTitles: false)),
-                    topTitles: AxisTitles(
-                        sideTitles: SideTitles(showTitles: false)),
-                    rightTitles: AxisTitles(
-                        sideTitles: SideTitles(showTitles: false)),
-                    bottomTitles: AxisTitles(
-                        sideTitles: SideTitles(showTitles: false)),
+                    leftTitles:
+                        AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    topTitles:
+                        AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    rightTitles:
+                        AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    bottomTitles:
+                        AxisTitles(sideTitles: SideTitles(showTitles: false)),
                   ),
                   borderData: FlBorderData(show: false),
                   minX: DateTime.now().millisecondsSinceEpoch.toDouble() -
@@ -564,9 +605,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   maxY: 3,
                   lineBarsData: [
                     LineChartBarData(
-                      spots: warningData.isNotEmpty
-                          ? warningData
-                          : [FlSpot(0, 0)],
+                      spots:
+                          warningData.isNotEmpty ? warningData : [FlSpot(0, 0)],
                       isCurved: true,
                       color: Color(0xFF8C88D5),
                       barWidth: 3,
@@ -592,17 +632,17 @@ class _HomeScreenState extends State<HomeScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text('위험',
-                      style: TextStyle(
-                          fontSize: 12, fontWeight: FontWeight.bold)),
+                      style:
+                          TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                   Text('주의',
-                      style: TextStyle(
-                          fontSize: 12, fontWeight: FontWeight.bold)),
+                      style:
+                          TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                   Text('경고',
-                      style: TextStyle(
-                          fontSize: 12, fontWeight: FontWeight.bold)),
+                      style:
+                          TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                   Text('안전',
-                      style: TextStyle(
-                          fontSize: 12, fontWeight: FontWeight.bold)),
+                      style:
+                          TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                 ],
               ),
             ),
@@ -625,7 +665,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: List.generate(
                         6,
-                            (index) {
+                        (index) {
                           final minutes = index;
                           return Text(
                             '${minutes}분 전',
@@ -652,7 +692,10 @@ class _HomeScreenState extends State<HomeScreen> {
     bool hasAnalysisData = _emotionResult.isNotEmpty;
 
     if (hasAnalysisData) {
-      _emotionResult.split('\n').where((line) => line.contains(':')).forEach((line) {
+      _emotionResult
+          .split('\n')
+          .where((line) => line.contains(':'))
+          .forEach((line) {
         final parts = line.split(': ');
         if (parts.length >= 2) {
           final emotion = parts[0].trim();
@@ -664,14 +707,14 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     final emotionOrder = [
-      'CALM',     // 평온
-      'HAPPY',    // 기쁨
-      'SAD',      // 슬픔
-      'ANGRY',    // 분노
-      'DISGUSTED',// 혐오
-      'SURPRISED',// 놀람
-      'FEAR',     // 두려움
-      'CONFUSED'  // 혼란
+      'CALM', // 평온
+      'HAPPY', // 기쁨
+      'SAD', // 슬픔
+      'ANGRY', // 분노
+      'DISGUSTED', // 혐오
+      'SURPRISED', // 놀람
+      'FEAR', // 두려움
+      'CONFUSED' // 혼란
     ];
 
     final emotionLabels = {
@@ -707,19 +750,15 @@ class _HomeScreenState extends State<HomeScreen> {
           chartData.add({
             'name': emotion,
             'value': value,
-            'color': emotions.firstWhere(
-                    (e) => e['name'] == emotion,
+            'color': emotions.firstWhere((e) => e['name'] == emotion,
                 orElse: () => {'color': Colors.grey})['color']
           });
         }
       }
     } else {
       // 데이터가 없을 때
-      chartData.add({
-        'name': 'NO_DATA',
-        'value': 100,
-        'color': Colors.grey[300]!
-      });
+      chartData
+          .add({'name': 'NO_DATA', 'value': 100, 'color': Colors.grey[300]!});
     }
 
     return Column(
@@ -744,8 +783,7 @@ class _HomeScreenState extends State<HomeScreen> {
           padding: EdgeInsets.symmetric(horizontal: 20),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: emotionOrder.sublist(0,4).map((emotion) {
-
+            children: emotionOrder.sublist(0, 4).map((emotion) {
               double percentage = 0;
               if (hasAnalysisData && total > 0) {
                 percentage = (emotionValues[emotion] ?? 0.0) / total * 100;
@@ -800,7 +838,6 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: emotionOrder.sublist(4).map((emotion) {
-
               double percentage = 0;
               if (hasAnalysisData && total > 0) {
                 percentage = (emotionValues[emotion] ?? 0.0) / total * 100;
@@ -876,13 +913,13 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Center(
                       child: data['value'] >= 5
                           ? Text(
-                        '${data['value'].round()}%',
-                        style: TextStyle(
-                          color: Colors.black54,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                        ),
-                      )
+                              '${data['value'].round()}%',
+                              style: TextStyle(
+                                color: Colors.black54,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                              ),
+                            )
                           : SizedBox.shrink(),
                     ),
                   ),

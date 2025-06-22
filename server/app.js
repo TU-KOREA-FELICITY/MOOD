@@ -543,4 +543,15 @@ app.post('/get_warning', async (req, res) => {
   }
 });
 
+// 집중도 초기화 리셋 처리
+app.post('/reset_initial', (req, res) => {
+  if(estimatorProcess && estimatorProcess.stdin && estimatorProcess.stdin.writable) {
+    estimatorProcess.stdin.write('r\n');
+    res.status(200).json({ message: '초기값이 리셋되었습니다.' });
+  }
+  else {
+    res.status(400).json({ message: 'estimator.py가 실행 중이 아닙니다.' });
+  }
+})
+
 module.exports = app;
