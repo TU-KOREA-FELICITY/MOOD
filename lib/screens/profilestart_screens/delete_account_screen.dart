@@ -11,7 +11,7 @@ class DeleteAccountScreen extends StatelessWidget {
   Future<void> deleteAccount(BuildContext context) async {
     try {
       final response = await http.post(
-        Uri.parse('http://192.168.216.219:3000/delete_complete'),
+        Uri.parse('http://192.168.189.219:3000/delete_complete'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'user_aws_id': userInfo['user_aws_id']}),
       );

@@ -33,6 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String _warningMessage = '';
   String _emotionResult = '';
   String _status = '';
+  late Map<String, dynamic> userInfo;
 
   final List<Map<String, dynamic>> emotions = [
     {'name': 'ANGRY', 'color': Color(0xFFFFBDBD)},
@@ -45,29 +46,22 @@ class _HomeScreenState extends State<HomeScreen> {
     {'name': 'FEAR', 'color': Color(0xFFEBEBEB)},
   ];
 
-  List<FlSpot> generateRandomData(int count) {
-    final random = Random();
-    return List.generate(
-      count,
-      (index) => FlSpot(index.toDouble(), random.nextInt(4).toDouble()),
-    );
-  }
-
   List<FlSpot> warningData = [];
   int maxDataPoints = 60;
 
   @override
   void initState() {
     super.initState();
+    userInfo = Map<String, dynamic>.from(widget.userInfo);
     _checkLoginStatus();
     _startEstimator();
     connectToServer();
-    _emotionAnalysisService.setUserInfo(widget.userInfo['user_id']);
+    _emotionAnalysisService.setUserInfo(userInfo['user_id']);
   }
 
   void connectToServer() {
     try {
-      socket = IO.io('http://192.168.216.219:3000', <String, dynamic>{
+      socket = IO.io('http://192.168.189.219:3000', <String, dynamic>{
         'transports': ['websocket'],
         'autoConnect': true,
       });
@@ -109,12 +103,12 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _startEstimator() async {
-    final url = Uri.parse('http://192.168.216.219:3000/start_estimator');
+    final url = Uri.parse('http://192.168.189.219:3000/start_estimator');
     try {
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
-        body: json.encode({'userInfo': widget.userInfo}),
+        body: json.encode({'userInfo': userInfo}),
       );
       if (response.statusCode == 200) {
         print('estimator.py가 성공적으로 시작되었습니다.');
@@ -127,7 +121,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _stopEstimator() async {
-    final url = Uri.parse('http://192.168.216.219:3000/stop_estimator');
+    final url = Uri.parse('http://192.168.189.219:3000/stop_estimator');
     try {
       final response = await http.post(
         url,
@@ -202,7 +196,6 @@ class _HomeScreenState extends State<HomeScreen> {
     DateTime now = DateTime.now();
     warningData
         .add(FlSpot(now.millisecondsSinceEpoch.toDouble(), warningLevel));
-
     double tenMinutesAgo =
         now.millisecondsSinceEpoch.toDouble() - (30 * 60 * 1000);
     warningData.removeWhere((spot) => spot.x < tenMinutesAgo);
@@ -305,6 +298,66 @@ class _HomeScreenState extends State<HomeScreen> {
     await _audioPlayer.play(AssetSource(assetPath));
   }
 
+  Future<Map<String, dynamic>> _loginComplete(String userAwsId) async {
+    try {
+      final response = await http.post(
+        Uri.parse('http://192.168.189.219:3000/login_complete'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({'user_aws_id': userAwsId}),
+      );
+
+      if (response.statusCode == 200) {
+        final result = json.decode(response.body);
+        if (result['success']) {
+          return {
+            'success': true,
+            'user': result['user'],
+          };
+        } else {
+          return {
+            'success': false,
+            'message': result['message'] ?? '알 수 없는 오류가 발생했습니다.',
+          };
+        }
+      } else {
+        return {
+          'success': false,
+          'message': '서버 오류: \n${response.statusCode}',
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'message': '로그인 완료 중 오류 발생: \n$e',
+      };
+    }
+  }
+
+  Future<void> _refreshUserInfo() async {
+    final userAwsId = userInfo['user_aws_id'];
+    if (userAwsId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('user_aws_id 정보가 없습니다.')),
+      );
+      return;
+    }
+
+    final result = await _loginComplete(userAwsId);
+
+    if (result['success'] == true && result['user'] != null) {
+      setState(() {
+        userInfo = Map<String, dynamic>.from(result['user']);
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('운전자 정보가 새로고침되었습니다.')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(result['message'] ?? '정보 갱신에 실패했습니다.')),
+      );
+    }
+  }
+
   @override
   void dispose() {
     _stopEstimator();
@@ -318,8 +371,12 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: _buildAppBar(),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: _getBody(),
+        child: RefreshIndicator(
+          onRefresh: _refreshUserInfo,
+          child: SingleChildScrollView(
+            physics: AlwaysScrollableScrollPhysics(),
+            child: _getBody(),
+          ),
         ),
       ),
     );
@@ -338,7 +395,16 @@ class _HomeScreenState extends State<HomeScreen> {
           fit: BoxFit.contain,
         ),
       ),
-      title: null,
+      title: Row(
+        children: [
+          Expanded(child: Container()),
+          IconButton(
+            icon: Icon(Icons.refresh, color: Colors.black),
+            onPressed: _refreshUserInfo,
+            tooltip: '운전자 정보 새로고침',
+          ),
+        ],
+      ),
       centerTitle: false,
     );
   }
@@ -398,7 +464,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Padding(
       padding: EdgeInsets.only(top: 5, bottom: 20),
       child: Text(
-        '${widget.userInfo['user_name']}님의 감정/집중도 인식 중',
+        '${userInfo['user_name']}님의 감정/집중도 인식 중',
         style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
       ),
     );
@@ -586,7 +652,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
-
             // 왼쪽
             Positioned(
               left: 0,
@@ -611,7 +676,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
-
             // 하단 시간
             Positioned(
               left: 70,
@@ -742,7 +806,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         SizedBox(height: 10),
-
         // 첫 번째 줄
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 20),
@@ -783,7 +846,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   SizedBox(height: 5),
                   Text(
-                    '${emotionLabels[emotion]} (${percentage.round()}%)', // 감정이름과 퍼센트
+                    '${emotionLabels[emotion]} (${percentage.round()}%)',
+                    // 감정이름과 퍼센트
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
@@ -796,7 +860,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         SizedBox(height: 20),
-
         // 두 번째 줄
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 20),
@@ -837,7 +900,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   SizedBox(height: 5),
                   Text(
-                    '${emotionLabels[emotion]} (${percentage.round()}%)', // 감정이름과 퍼센트
+                    '${emotionLabels[emotion]} (${percentage.round()}%)',
+                    // 감정이름과 퍼센트
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
@@ -850,7 +914,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         SizedBox(height: 20),
-
         // 100% 누적 막대 차트
         Container(
           width: MediaQuery.of(context).size.width * 0.9,
@@ -893,7 +956,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ),
-
         SizedBox(height: 20),
       ],
     );

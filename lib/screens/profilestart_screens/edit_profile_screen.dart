@@ -48,7 +48,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       }
 
       final response = await http.post(
-        Uri.parse('http://192.168.216.219:3000/user_info_update'),
+        Uri.parse('http://192.168.189.219:3000/user_info_update'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode(updateData),
       );
@@ -144,6 +144,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 decoration: InputDecoration(
                   labelText: '이름 수정하기',
                   labelStyle: TextStyle(fontWeight: FontWeight.bold),
+                  suffixIcon: Icon(
+                    Icons.check_circle,
+                    color: _isNameChanged ? Color(0xFF6A698C) : Colors.grey,
+                  ),
                 ),
                 onChanged: (value) {
                   setState(() {
@@ -153,11 +157,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 },
               ),
             ),
-            SizedBox(width: 4),
-            Icon(
-              Icons.check_circle,
-              color: _isNameChanged ? Color(0xFF6A698C) : Colors.grey,
-            ),
             SizedBox(height: 20),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 25.0),
@@ -166,6 +165,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 decoration: InputDecoration(
                   labelText: '차종 수정하기',
                   labelStyle: TextStyle(fontWeight: FontWeight.bold),
+                  suffixIcon: Icon(
+                    Icons.check_circle,
+                    color: _isCarModelChanged ? Color(0xFF6A698C) : Colors.grey,
+                  ),
                 ),
                 onChanged: (value) {
                   setState(() {
@@ -175,42 +178,37 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 },
               ),
             ),
-            SizedBox(width: 4),
-            Icon(
-              Icons.check_circle,
-              color: _isNameChanged ? Color(0xFF6A698C) : Colors.grey,
-            ),
-            ],
+          ],
         ),
       ),
-            bottomNavigationBar: Padding(
-              padding: EdgeInsets.all(20.0),
-              child: SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      _updateUserInfo(context);
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF8C88D5),
-                    foregroundColor: Colors.white,
-                    padding: EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                  ),
-                  child: Text(
-                    '정보 수정 완료',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
+      bottomNavigationBar: Padding(
+        padding: EdgeInsets.all(20.0),
+        child: SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            onPressed: () {
+              if (_formKey.currentState!.validate()) {
+                _updateUserInfo(context);
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Color(0xFF8C88D5),
+              foregroundColor: Colors.white,
+              padding: EdgeInsets.symmetric(vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
               ),
             ),
+            child: Text(
+              '정보 수정 완료',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
