@@ -545,13 +545,15 @@ app.post('/get_warning', async (req, res) => {
 
 // 집중도 초기화 리셋 처리
 app.post('/reset_initial', (req, res) => {
-  if(estimatorProcess && estimatorProcess.stdin && estimatorProcess.stdin.writable) {
-    estimatorProcess.stdin.write('r\n');
-    res.status(200).json({ message: '초기값이 리셋되었습니다.' });
-  }
-  else {
-    res.status(400).json({ message: 'estimator.py가 실행 중이 아닙니다.' });
-  }
+  const command = `ssh ${JETSOM_USER}@${JETSON_IP} touch /etc/reset_initial_flag`;
+  exec(command, (error, stdout, stderr) => {
+    if(error) {
+      res.status(500).json({ message: '리셋 신호 전달 실패', error: stderr });
+    }
+    else {
+      res.status(200).json({ message: '초기값이 리셋되었습니다.' });
+    }
+  });
 })
 
 module.exports = app;
