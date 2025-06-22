@@ -305,26 +305,6 @@ class _HomeScreenState extends State<HomeScreen> {
     await _audioPlayer.play(AssetSource(assetPath));
   }
 
-  // 집중도 초기화 리셋 함수
-  Future<void> _resetInitialValues() async {
-    final url = Uri.parse('http://192.168.216.219:3000/reset_initial');
-    try {
-      final response = await http.post(url,
-          headers: {'Content-Type': 'application/json'},
-          body: json.encode({'userInfo': widget.userInfo}));
-      if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('초기값이 리셋되었습니다!')));
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('초기값 리셋 실패: ${response.statusCode}')));
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('초기값 리셋 중 오류: $e')));
-    }
-  }
-
   @override
   void dispose() {
     _stopEstimator();
@@ -511,21 +491,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 color: Colors.black,
               ),
             ),
-          ),
-
-          // 집중도 초기화 리셋 버튼
-          ElevatedButton(
-            onPressed: _resetInitialValues,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Color(0xFF8C88D5),
-              foregroundColor: Colors.white,
-              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              textStyle: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-            ),
-            child: Text("집중도 초기화"),
           ),
         ],
       ),
