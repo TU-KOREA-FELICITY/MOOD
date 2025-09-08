@@ -324,7 +324,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                               Theme.of(context).primaryColor)),
                                   onPressed: () {
                                     Navigator.of(context)
-                                        .pushNamedAndRemoveUntil('/login',
+                                        .pushNamedAndRemoveUntil('/auth_choice',
                                             (Route<dynamic> route) => false);
                                   },
                                 ),

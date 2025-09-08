@@ -147,6 +147,24 @@ class _SearchScreenState extends State<SearchScreen>
         _searchResults = results;
       });
       _addToRecentSearches(query);
+      final searchResult = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => SearchResultScreen(
+            spotifyService: widget.spotifyService,
+            searchResults: results,
+            searchQuery: query,
+            recentSearches: _recentSearches,
+            userInfo: widget.userInfo,
+          ),
+        ),
+      );
+      if (searchResult != null && searchResult is List<String>) {
+        setState(() {
+          _recentSearches = searchResult;
+        });
+        _saveRecentSearches();
+      }
     } catch (e) {
       print('검색 중 오류 발생: $e');
     }
@@ -259,30 +277,12 @@ class _SearchScreenState extends State<SearchScreen>
             contentPadding:
             EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           ),
-          onSubmitted: (value) async {
-            if (value.isNotEmpty) {
-              final result = await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      SearchResultScreen(
-                        spotifyService: widget.spotifyService,
-                        searchResults: _searchResults,
-                        searchQuery: value,
-                        recentSearches: _recentSearches,
-                        userInfo: widget.userInfo,
-                      ),
-                ),
-              );
-              if (result != null && result is List<String>) {
-                setState(() {
-                  _recentSearches = result;
-                });
-                _saveRecentSearches();
+            onSubmitted: (value) {
+              if (value.isNotEmpty) {
+                _performSearch();
               }
             }
-          }
-          ),
+        ),
         ),
         ),
             if (_isSearching)
